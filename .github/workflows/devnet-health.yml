@@ -1,0 +1,54 @@
+name: Devnet Program Health Check
+
+on:
+  schedule:
+    # Every 30 minutes
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      verbose:
+        description: "Print full RPC responses"
+        required: false
+        default: "false"
+
+jobs:
+  health-check:
+    name: Verify Holdfast programs on devnet
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      SOLANA_RPC_URL: ${{ secrets.DEVNET_RPC_URL || 'https://api.devnet.solana.com' }}
+      EXPECTED_HOLDFAST_HASH: ${{ secrets.EXPECTED_HOLDFAST_HASH }}
+      EXPECTED_ESCROW_HASH: ${{ secrets.EXPECTED_ESCROW_HASH }}
+      PAPERCLIP_API_URL: ${{ secrets.PAPERCLIP_API_URL }}
+      PAPERCLIP_API_KEY: ${{ secrets.PAPERCLIP_API_KEY }}
+      # Issue that receives health-check alerts (HOL-20: CI/CD pipeline)
+      PAPERCLIP_TASK_ID: "HOL-20"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Install Solana CLI
+        # Same version pinned in test.yml — required for `solana program dump`
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/v2.2.20/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+
+      - name: Make health check script executable
+        run: chmod +x scripts/devnet-health-check.sh
+
+      - name: Run devnet health check
+        run: ./scripts/devnet-health-check.sh
+
+      - name: Upload health check log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: devnet-health-${{ github.run_id }}
+          path: /tmp/holdfast-health-*.so
+          if-no-files-found: ignore
+          retention-days: 3

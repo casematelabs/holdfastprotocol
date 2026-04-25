@@ -1,0 +1,285 @@
+name: Deploy to Devnet
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type 'deploy' to confirm devnet deployment"
+        required: true
+      notes:
+        description: "Deployment notes (shown in Paperclip update)"
+        required: false
+        default: ""
+
+# Prevent concurrent deployments from stomping each other.
+# cancel-in-progress: false means a queued deploy waits; it does not abort the running one.
+concurrency:
+  group: devnet-deploy
+  cancel-in-progress: false
+
+env:
+  SOLANA_VERSION: "2.2.20"
+  ANCHOR_VERSION: "0.31.0"
+  NODE_VERSION: "20"
+  HOLDFAST_PROGRAM_ID: "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+  ESCROW_PROGRAM_ID: "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H"
+
+jobs:
+  # ── Gate ─────────────────────────────────────────────────────────────────────
+  gate:
+    name: Validate confirmation input
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require literal 'deploy'
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "deploy" ]; then
+            echo "::error::Confirmation must be the word 'deploy'. Got: '${{ github.event.inputs.confirm }}'"
+            exit 1
+          fi
+          echo "Confirmation accepted."
+
+  # ── Build & Deploy ────────────────────────────────────────────────────────────
+  deploy:
+    name: Build, deploy, and verify
+    runs-on: ubuntu-latest
+    needs: gate
+    timeout-minutes: 40
+
+    defaults:
+      run:
+        working-directory: holdfast
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Toolchain ────────────────────────────────────────────────────────────
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo registry and build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            holdfast/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('holdfast/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Cache Solana CLI
+        id: cache-solana
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/solana
+          key: ${{ runner.os }}-solana-${{ env.SOLANA_VERSION }}
+
+      - name: Install Solana CLI
+        if: steps.cache-solana.outputs.cache-hit != 'true'
+        run: sh -c "$(curl -sSfL https://release.anza.xyz/v${{ env.SOLANA_VERSION }}/install)"
+
+      - name: Add Solana to PATH
+        run: echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Cache Anchor CLI
+        id: cache-anchor
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.avm
+            ~/.cargo/bin/avm
+            ~/.cargo/bin/anchor
+          key: ${{ runner.os }}-anchor-${{ env.ANCHOR_VERSION }}
+
+      - name: Install Anchor CLI
+        if: steps.cache-anchor.outputs.cache-hit != 'true'
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+          avm install ${{ env.ANCHOR_VERSION }}
+          avm use ${{ env.ANCHOR_VERSION }}
+
+      # ── Key material ──────────────────────────────────────────────────────────
+      - name: Write program keypairs for anchor build verification
+        env:
+          VAULTPACT_KEYPAIR_JSON: ${{ secrets.VAULTPACT_KEYPAIR_JSON }}
+          VAULTPACT_ESCROW_KEYPAIR_JSON: ${{ secrets.VAULTPACT_ESCROW_KEYPAIR_JSON }}
+        run: |
+          mkdir -p target/deploy
+          echo "$VAULTPACT_KEYPAIR_JSON" > target/deploy/vaultpact-keypair.json
+          echo "$VAULTPACT_ESCROW_KEYPAIR_JSON" > target/deploy/vaultpact_escrow-keypair.json
+
+      - name: Write devnet keypairs
+        env:
+          DEVNET_PAYER_JSON: ${{ secrets.DEVNET_PAYER_JSON }}
+          DEVNET_UPGRADE_AUTHORITY_JSON: ${{ secrets.DEVNET_UPGRADE_AUTHORITY_JSON }}
+        run: |
+          mkdir -p ~/.config/solana
+          echo "$DEVNET_PAYER_JSON" > ~/.config/solana/payer.json
+          echo "$DEVNET_UPGRADE_AUTHORITY_JSON" > ~/.config/solana/upgrade-authority.json
+          chmod 600 ~/.config/solana/payer.json ~/.config/solana/upgrade-authority.json
+
+      # ── Pre-flight checks ─────────────────────────────────────────────────────
+      - name: Verify program IDs match keypairs
+        run: |
+          BUILT_HOLDFAST=$(solana-keygen pubkey target/deploy/vaultpact-keypair.json)
+          BUILT_ESCROW=$(solana-keygen pubkey target/deploy/vaultpact_escrow-keypair.json)
+
+          if [ "$BUILT_HOLDFAST" != "${{ env.HOLDFAST_PROGRAM_ID }}" ]; then
+            echo "::error::vaultpact keypair pubkey ($BUILT_HOLDFAST) does not match expected ${{ env.HOLDFAST_PROGRAM_ID }}"
+            exit 1
+          fi
+          if [ "$BUILT_ESCROW" != "${{ env.ESCROW_PROGRAM_ID }}" ]; then
+            echo "::error::vaultpact_escrow keypair pubkey ($BUILT_ESCROW) does not match expected ${{ env.ESCROW_PROGRAM_ID }}"
+            exit 1
+          fi
+          echo "Program IDs verified."
+
+      - name: Check payer balance
+        env:
+          DEVNET_RPC_URL: ${{ secrets.DEVNET_RPC_URL || 'https://api.devnet.solana.com' }}
+        run: |
+          BALANCE=$(solana balance ~/.config/solana/payer.json \
+            --url "$DEVNET_RPC_URL" | awk '{print $1}')
+          echo "Payer balance: $BALANCE SOL"
+          if awk "BEGIN { exit !($BALANCE < 0.5) }"; then
+            echo "::error::Payer balance ($BALANCE SOL) is below the 0.5 SOL minimum. Top up before deploying."
+            exit 1
+          fi
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: anchor build
+        run: anchor build
+
+      - name: Upload build artifacts (30-day retention for rollback)
+        uses: actions/upload-artifact@v4
+        with:
+          name: devnet-build-${{ github.sha }}-${{ github.run_id }}
+          path: |
+            holdfast/target/deploy/vaultpact.so
+            holdfast/target/deploy/vaultpact_escrow.so
+          retention-days: 30
+
+      # ── Deploy ────────────────────────────────────────────────────────────────
+      - name: Deploy vaultpact to devnet
+        env:
+          DEVNET_RPC_URL: ${{ secrets.DEVNET_RPC_URL || 'https://api.devnet.solana.com' }}
+        run: |
+          echo "Deploying vaultpact (${{ env.HOLDFAST_PROGRAM_ID }})..."
+          solana program deploy \
+            target/deploy/vaultpact.so \
+            --keypair ~/.config/solana/payer.json \
+            --upgrade-authority ~/.config/solana/upgrade-authority.json \
+            --program-id ${{ env.HOLDFAST_PROGRAM_ID }} \
+            --url "$DEVNET_RPC_URL"
+          echo "vaultpact deploy complete."
+
+      - name: Deploy vaultpact_escrow to devnet
+        env:
+          DEVNET_RPC_URL: ${{ secrets.DEVNET_RPC_URL || 'https://api.devnet.solana.com' }}
+        run: |
+          echo "Deploying vaultpact_escrow (${{ env.ESCROW_PROGRAM_ID }})..."
+          solana program deploy \
+            target/deploy/vaultpact_escrow.so \
+            --keypair ~/.config/solana/payer.json \
+            --upgrade-authority ~/.config/solana/upgrade-authority.json \
+            --program-id ${{ env.ESCROW_PROGRAM_ID }} \
+            --url "$DEVNET_RPC_URL"
+          echo "vaultpact_escrow deploy complete."
+
+      # ── Verify ────────────────────────────────────────────────────────────────
+      - name: Run devnet health check
+        env:
+          SOLANA_RPC_URL: ${{ secrets.DEVNET_RPC_URL || 'https://api.devnet.solana.com' }}
+          PAPERCLIP_API_URL: ${{ secrets.PAPERCLIP_API_URL }}
+          PAPERCLIP_API_KEY: ${{ secrets.PAPERCLIP_API_KEY }}
+          PAPERCLIP_TASK_ID: "HOL-20"
+        run: |
+          chmod +x ../scripts/devnet-health-check.sh
+          ../scripts/devnet-health-check.sh
+
+      - name: Capture deployed binary hashes
+        id: hashes
+        env:
+          DEVNET_RPC_URL: ${{ secrets.DEVNET_RPC_URL || 'https://api.devnet.solana.com' }}
+        run: |
+          solana program dump \
+            --url "$DEVNET_RPC_URL" \
+            ${{ env.HOLDFAST_PROGRAM_ID }} /tmp/deployed-holdfast.so
+          HOLDFAST_HASH=$(sha256sum /tmp/deployed-holdfast.so | awk '{print $1}')
+
+          solana program dump \
+            --url "$DEVNET_RPC_URL" \
+            ${{ env.ESCROW_PROGRAM_ID }} /tmp/deployed-escrow.so
+          ESCROW_HASH=$(sha256sum /tmp/deployed-escrow.so | awk '{print $1}')
+
+          echo "holdfast_hash=$HOLDFAST_HASH" >> $GITHUB_OUTPUT
+          echo "escrow_hash=$ESCROW_HASH" >> $GITHUB_OUTPUT
+
+          echo ""
+          echo "=== Deployed Binary Hashes ==="
+          echo "vaultpact:        $HOLDFAST_HASH"
+          echo "vaultpact_escrow: $ESCROW_HASH"
+          echo ""
+          echo "Update GitHub Secrets EXPECTED_HOLDFAST_HASH and EXPECTED_ESCROW_HASH to these values."
+
+      # ── Report ────────────────────────────────────────────────────────────────
+      - name: Post deployment result to Paperclip (HOL-20)
+        if: always()
+        env:
+          PAPERCLIP_API_URL: ${{ secrets.PAPERCLIP_API_URL }}
+          PAPERCLIP_API_KEY: ${{ secrets.PAPERCLIP_API_KEY }}
+          HOLDFAST_HASH: ${{ steps.hashes.outputs.holdfast_hash }}
+          ESCROW_HASH: ${{ steps.hashes.outputs.escrow_hash }}
+          NOTES: ${{ github.event.inputs.notes }}
+          RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          DEPLOYER: ${{ github.actor }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ "$JOB_STATUS" = "success" ]; then
+            ICON="✅"
+            HEADLINE="Devnet deployment succeeded"
+          else
+            ICON="❌"
+            HEADLINE="Devnet deployment FAILED"
+          fi
+
+          BODY=$(jq -n \
+            --arg headline "$ICON $HEADLINE" \
+            --arg deployer "$DEPLOYER" \
+            --arg commit "${{ github.sha }}" \
+            --arg run_url "$RUN_URL" \
+            --arg holdfast_id "${{ env.HOLDFAST_PROGRAM_ID }}" \
+            --arg escrow_id "${{ env.ESCROW_PROGRAM_ID }}" \
+            --arg holdfast_hash "${HOLDFAST_HASH:-N/A}" \
+            --arg escrow_hash "${ESCROW_HASH:-N/A}" \
+            --arg notes "${NOTES:-}" \
+            '{body: (
+              "## \($headline)\n\n" +
+              "**Triggered by:** \($deployer)  \n" +
+              "**Commit:** `\($commit[0:12])`  \n" +
+              "**CI run:** [\($run_url)](\($run_url))\n\n" +
+              "### Program Addresses\n\n" +
+              "| Program | Address |\n|---|---|\n" +
+              "| `vaultpact` | `\($holdfast_id)` |\n" +
+              "| `vaultpact_escrow` | `\($escrow_id)` |\n\n" +
+              "### Binary Hashes\n\nUpdate `EXPECTED_HOLDFAST_HASH` and `EXPECTED_ESCROW_HASH` in GitHub → Settings → Secrets.\n\n" +
+              "| Secret | SHA-256 |\n|---|---|\n" +
+              "| `EXPECTED_HOLDFAST_HASH` | `\($holdfast_hash)` |\n" +
+              "| `EXPECTED_ESCROW_HASH` | `\($escrow_hash)` |\n" +
+              (if $notes != "" then "\n**Notes:** \($notes)\n" else "" end)
+            )}')
+
+          curl -s -X POST "${PAPERCLIP_API_URL}/api/issues/HOL-20/comments" \
+            -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$BODY" \
+            -o /dev/null && echo "Paperclip update posted." || echo "Warning: Paperclip update failed."
+
+      # ── Cleanup ───────────────────────────────────────────────────────────────
+      - name: Wipe key material from runner
+        if: always()
+        run: |
+          rm -f ~/.config/solana/payer.json
+          rm -f ~/.config/solana/upgrade-authority.json
+          rm -f target/deploy/vaultpact-keypair.json
+          rm -f target/deploy/vaultpact_escrow-keypair.json
