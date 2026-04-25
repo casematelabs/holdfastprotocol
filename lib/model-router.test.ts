@@ -143,7 +143,7 @@ describe('routeTask — decision rules', () => {
     assert.equal(d.ruleApplied, 'security_or_architecture_task_type');
   });
 
-  test('rule 5: approval_package → claude_opus via rule 5', () => {
+  test('rule 5: approval_package → claude_sonnet via routing table', () => {
     const d = routeTask({
       task_type:  TaskType.approval_package,
       risk_level: RiskLevel.low,

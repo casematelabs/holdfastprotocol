@@ -260,7 +260,7 @@ export function routeTask(metadata: TaskMetadata): RouteDecision {
     entry = ROUTING_TABLE[metadata.task_type];
     ruleApplied = 'security_or_architecture_task_type';
   }
-  // Rule 5: strategy/approval_package → Opus
+  // Rule 5: strategy → Opus; approval_package → Sonnet (from routing table)
   else if (
     metadata.task_type === TaskType.strategy ||
     metadata.task_type === TaskType.approval_package

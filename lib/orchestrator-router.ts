@@ -188,9 +188,12 @@ export async function applyFallback(
     `- **assigneeAdapterOverrides:** \`${JSON.stringify(fallbackOverrides)}\``,
   ].join('\n');
 
-  await fetch(`${API_URL}/api/issues/${issueId}/comments`, {
+  const commentRes = await fetch(`${API_URL}/api/issues/${issueId}/comments`, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify({ body: comment }),
   });
+  if (!commentRes.ok) {
+    console.warn(`Failed to post fallback comment on ${issueId}: ${commentRes.status}`);
+  }
 }
