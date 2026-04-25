@@ -1,0 +1,32 @@
+[package]
+name = "fuzz_1"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Standalone Trident workspace — excluded from the main Holdfast Anchor workspace
+# to avoid solana-program version conflicts. Build only via:
+#   trident fuzz run-hfuzz fuzz_1   (from holdfast/)
+#   trident fuzz run-afl fuzz_1
+[workspace]
+
+# Trident fuzz_1: escrow state machine transitions
+# Fuzzes the full pact lifecycle: initialize → deposit → stake → lock →
+#   release/dispute/cancel → resolve/claim/refund → close
+#
+# Run: trident fuzz run-hfuzz fuzz_1
+#       trident fuzz run-afl fuzz_1
+
+[dependencies]
+trident-client = "0.8.0"
+anchor-lang = { version = "0.31.1" }
+anchor-spl = { version = "0.31.1", features = ["token", "associated_token"] }
+arbitrary = { version = "1", features = ["derive"] }
+
+# Both programs needed — escrow CPIs into vaultpact for reputation updates
+holdfast = { path = "../../../programs/vaultpact", features = ["no-entrypoint"] }
+holdfast-escrow = { path = "../../../programs/vaultpact-escrow", features = ["no-entrypoint"] }
+
+[[bin]]
+name = "fuzz_1"
+path = "src/main.rs"

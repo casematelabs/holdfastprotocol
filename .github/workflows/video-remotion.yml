@@ -1,0 +1,41 @@
+name: Remotion Video Checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "video/**"
+      - ".github/workflows/video-remotion.yml"
+  pull_request:
+    paths:
+      - "video/**"
+      - ".github/workflows/video-remotion.yml"
+
+jobs:
+  video-checks:
+    name: Lint and bundle Remotion project
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: video
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: video/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint and typecheck
+        run: npm run lint
+
+      - name: Bundle project
+        run: npm run build

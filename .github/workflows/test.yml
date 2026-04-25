@@ -1,0 +1,81 @@
+name: Holdfast Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "holdfast/**"
+  pull_request:
+    paths:
+      - "holdfast/**"
+
+jobs:
+  test:
+    name: Anchor tests (bankrun + localnet)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: holdfast
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+          cache-dependency-path: holdfast/yarn.lock
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Solana CLI
+        # Agave 2.2.20+ required for SIMD-48 secp256r1 precompile support.
+        # The feature gate (BrTa4mt2gLCRdKoTHEkYBcmfTNNBDxJ69DFyzxcJLJTv) is
+        # enabled on the test validator via [[test.validator.features]] in Anchor.toml.
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/v2.2.20/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Install Anchor CLI
+        # Pin to 0.31.0 to match anchor-lang 0.31.1 used in the workspace.
+        # Using `latest` installs 1.0.x which has stricter keypair checks incompatible
+        # with the project's program IDs.
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+          avm install 0.31.0
+          avm use 0.31.0
+
+      - name: Generate test wallet
+        run: solana-keygen new --no-bip39-passphrase --outfile ~/.config/solana/id.json
+
+      - name: Install oracle keypair
+        env:
+          ORACLE_KEYPAIR_JSON: ${{ secrets.ORACLE_KEYPAIR_JSON }}
+        run: echo "$ORACLE_KEYPAIR_JSON" > ~/.config/solana/oracle-devnet.json
+
+      - name: Inject program deployment keypairs
+        # Program keypairs are gitignored. CI needs them so anchor build can verify
+        # that the keypair public keys match the declare_id! in each program.
+        # Add VAULTPACT_KEYPAIR_JSON and VAULTPACT_ESCROW_KEYPAIR_JSON as repo secrets.
+        env:
+          VAULTPACT_KEYPAIR_JSON: ${{ secrets.VAULTPACT_KEYPAIR_JSON }}
+          VAULTPACT_ESCROW_KEYPAIR_JSON: ${{ secrets.VAULTPACT_ESCROW_KEYPAIR_JSON }}
+        run: |
+          mkdir -p target/deploy
+          echo "$VAULTPACT_KEYPAIR_JSON" > target/deploy/vaultpact-keypair.json
+          echo "$VAULTPACT_ESCROW_KEYPAIR_JSON" > target/deploy/vaultpact_escrow-keypair.json
+
+      - name: Install Node dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build programs
+        run: anchor build
+
+      - name: Run tests
+        env:
+          ORACLE_KEYPAIR_PATH: ~/.config/solana/oracle-devnet.json
+        run: anchor test

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Dark background -->
+  <rect width="32" height="32" rx="7" fill="#0D1117"/>
+  <!-- Shield (filled accent blue) -->
+  <path d="M16 2L3 6.5V15C3 22 9 27.5 16 30C23 27.5 29 22 29 15V6.5L16 2Z" fill="#2D8CFF"/>
+  <!-- Lock shackle (white) -->
+  <path d="M13 21V15.5A3 3 0 0 1 19 15.5V21" stroke="white" stroke-width="2.2" fill="none" stroke-linecap="square"/>
+  <!-- Lock body (white) -->
+  <rect x="11" y="21" width="10" height="7" rx="1" fill="white"/>
+  <!-- Keyhole dot -->
+  <circle cx="16" cy="24.5" r="1.4" fill="#2D8CFF"/>
+</svg>

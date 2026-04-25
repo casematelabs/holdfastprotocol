@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holdfast Protocol — One-Pager</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0D1117;
+    --surface:  #161B22;
+    --surface2: #1C2128;
+    --border:   #30363D;
+    --green:    #14F195;
+    --purple:   #9945FF;
+    --white:    #E6EDF3;
+    --muted:    #8B949E;
+    --red:      #F85149;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+  }
+
+  @media print {
+    html, body { width: 210mm; height: 297mm; margin: 0; font-size: 10.5pt; }
+    .page { page-break-after: avoid; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    background: var(--bg);
+  }
+
+  /* ─── HEADER ─────────────────────────────────────────────── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .logo-block h1 {
+    font-size: 22pt;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--white);
+  }
+
+  .logo-block h1 span {
+    color: var(--green);
+  }
+
+  .logo-block .tagline {
+    font-size: 9.5pt;
+    color: var(--muted);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 8pt;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-green {
+    background: rgba(20, 241, 149, 0.12);
+    border: 1px solid rgba(20, 241, 149, 0.35);
+    color: var(--green);
+  }
+
+  .badge-purple {
+    background: rgba(153, 69, 255, 0.12);
+    border: 1px solid rgba(153, 69, 255, 0.35);
+    color: var(--purple);
+  }
+
+  .header-meta {
+    font-size: 8pt;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* ─── MAIN GRID ───────────────────────────────────────────── */
+  .body-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding: 0;
+  }
+
+  .col {
+    padding: 18px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .col:first-child {
+    border-right: 1px solid var(--border);
+  }
+
+  /* ─── SECTION BLOCKS ──────────────────────────────────────── */
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  section h2 {
+    font-size: 7pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+    margin-bottom: 2px;
+  }
+
+  section h2.accent {
+    color: var(--green);
+    border-color: rgba(20, 241, 149, 0.2);
+  }
+
+  p {
+    font-size: 9.5pt;
+    color: var(--white);
+    line-height: 1.55;
+  }
+
+  /* ─── PRIMITIVES ──────────────────────────────────────────── */
+  .primitives {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .primitive {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 4px;
+    padding: 8px 10px;
+  }
+
+  .primitive h3 {
+    font-size: 9pt;
+    font-weight: 600;
+    color: var(--green);
+    margin-bottom: 2px;
+  }
+
+  .primitive p {
+    font-size: 8.5pt;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  /* ─── WHY SOLANA ──────────────────────────────────────────── */
+  .solana-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .compare-col {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 7px 9px;
+  }
+
+  .compare-col.good {
+    border-color: rgba(20, 241, 149, 0.25);
+  }
+
+  .compare-col .col-label {
+    font-size: 7.5pt;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+
+  .compare-col.good .col-label {
+    color: var(--green);
+  }
+
+  .compare-col ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .compare-col li {
+    font-size: 8.5pt;
+    color: var(--white);
+    padding: 2px 0;
+    padding-left: 12px;
+    position: relative;
+    line-height: 1.4;
+  }
+
+  .compare-col li::before {
+    content: '✗';
+    position: absolute;
+    left: 0;
+    color: var(--red);
+    font-size: 8pt;
+  }
+
+  .compare-col.good li::before {
+    content: '✓';
+    color: var(--green);
+  }
+
+  /* ─── STATUS TABLE ────────────────────────────────────────── */
+  .status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-green { background: var(--green); }
+  .dot-yellow { background: #D29922; }
+  .dot-grey { background: var(--muted); }
+
+  .status-row .label { color: var(--white); flex: 1; }
+  .status-row .note { color: var(--muted); font-size: 8pt; }
+
+  /* ─── COMPETITIVE TABLE ───────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+  }
+
+  th {
+    text-align: left;
+    padding: 4px 6px;
+    background: var(--surface2);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th:first-child { border-radius: 4px 0 0 0; }
+  th:last-child  { border-radius: 0 4px 0 0; }
+
+  td {
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--border);
+    color: var(--white);
+    vertical-align: top;
+    line-height: 1.4;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .yes { color: var(--green); font-weight: 600; }
+  .no  { color: var(--red); }
+  .partial { color: #D29922; }
+
+  /* ─── INTEGRATIONS ────────────────────────────────────────── */
+  .integration-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .integration-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 7px 9px;
+  }
+
+  .integration-card h4 {
+    font-size: 8.5pt;
+    font-weight: 600;
+    color: var(--purple);
+    margin-bottom: 3px;
+  }
+
+  .integration-card p {
+    font-size: 8pt;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ─── SDK BLOCK ───────────────────────────────────────────── */
+  .sdk-block {
+    background: var(--surface2);
+    border: 1px solid rgba(20, 241, 149, 0.2);
+    border-radius: 4px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sdk-block code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9pt;
+    font-weight: 600;
+    color: var(--green);
+    background: rgba(20, 241, 149, 0.08);
+    padding: 5px 10px;
+    border-radius: 3px;
+    display: block;
+  }
+
+  .sdk-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .sdk-link {
+    font-size: 8.5pt;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .sdk-link span {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  /* ─── QR PLACEHOLDER ──────────────────────────────────────── */
+  .qr-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .qr-box {
+    width: 60px;
+    height: 60px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    /* QR code rendered via inline SVG pattern */
+    position: relative;
+    overflow: hidden;
+  }
+
+  .qr-inner {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    width: 44px;
+    height: 44px;
+    gap: 1px;
+  }
+
+  .qr-cell {
+    background: var(--white);
+    border-radius: 0.5px;
+  }
+
+  .qr-empty {
+    background: transparent;
+  }
+
+  .qr-text {
+    flex: 1;
+  }
+
+  .qr-text p {
+    font-size: 8.5pt;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  .qr-text strong {
+    font-size: 9pt;
+    color: var(--white);
+    font-family: 'JetBrains Mono', monospace;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ─── QUOTE BLOCK ─────────────────────────────────────────── */
+  .quote {
+    background: rgba(153, 69, 255, 0.08);
+    border-left: 3px solid var(--purple);
+    border-radius: 0 4px 4px 0;
+    padding: 8px 10px;
+    font-size: 9pt;
+    color: var(--white);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* ─── FOOTER ──────────────────────────────────────────────── */
+  footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 9px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .footer-disclaimer {
+    font-size: 7.5pt;
+    color: var(--muted);
+    max-width: 75%;
+    line-height: 1.4;
+  }
+
+  .footer-disclaimer strong {
+    color: #D29922;
+  }
+
+  .footer-brand {
+    font-size: 8pt;
+    color: var(--muted);
+    text-align: right;
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .footer-brand span {
+    color: var(--green);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ─── HEADER ─── -->
+  <header>
+    <div class="logo-block">
+      <h1>Hold<span>fast</span> Protocol</h1>
+      <div class="tagline">Trust infrastructure for the AI agent economy · Built on Solana · by Casemate Labs</div>
+    </div>
+    <div class="header-right">
+      <span class="badge badge-green">● DEVNET LIVE</span>
+      <span class="badge badge-purple">PRE-AUDIT</span>
+      <div class="header-meta">holdfastprotocol.com<br>@CasemateLabs</div>
+    </div>
+  </header>
+
+  <!-- ─── TWO-COLUMN BODY ─── -->
+  <div class="body-grid">
+
+    <!-- LEFT COLUMN -->
+    <div class="col">
+
+      <!-- Problem -->
+      <section>
+        <h2>The Problem</h2>
+        <p>AI agents are executing transactions, managing funds, and settling contracts without human intervention. But the infrastructure they run on was never designed for this: agents authenticate with software keys in environment variables, there's no verifiable on-chain identity, no track record, and no programmable settlement when things go wrong.</p>
+        <div class="quote">"21,000 agents entered the Colosseum AI hackathon in February 2026. The accountability layer doesn't exist yet."</div>
+      </section>
+
+      <!-- Three Primitives -->
+      <section>
+        <h2 class="accent">Three Composable Primitives</h2>
+        <div class="primitives">
+          <div class="primitive">
+            <h3>01 · Identity</h3>
+            <p>Hardware-attested agent identities on Solana. Agents register a secp256r1 (P-256) keypair — the same curve as Apple Secure Enclave and FIDO2 hardware keys — anchored on-chain via Solana's native precompile (SIMD-48). Not a software key in an .env file.</p>
+          </div>
+          <div class="primitive">
+            <h3>02 · Reputation</h3>
+            <p>On-chain reputation oracle. Score: 0–10,000 bp (5,000 = neutral). Updated by the escrow program — not a human — after every pact outcome. Decays lazily when inactive. Readable by any Solana program via a single CPI account read. No oracle fee, no bridge.</p>
+          </div>
+          <div class="primitive">
+            <h3>03 · Escrow</h3>
+            <p>Programmable settlement for agent commerce. Task-based, milestone-gated, or time-locked release conditions. Funds lock at creation. Release opens a 7-day dispute window with arbiter resolution and on-chain finality. Reputation-gated: bad counterparties fail pre-flight before fees are paid.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why Solana -->
+      <section>
+        <h2>Why Solana, Not EVM?</h2>
+        <div class="solana-compare">
+          <div class="compare-col">
+            <div class="col-label">EVM / EAS</div>
+            <ul>
+              <li>Cross-contract attestation calls</li>
+              <li>EVM gas per verification</li>
+              <li>12-second block time</li>
+              <li>Bridge required for non-EVM agents</li>
+              <li>General-purpose, not agent-native</li>
+            </ul>
+          </div>
+          <div class="compare-col good">
+            <div class="col-label">Holdfast on Solana</div>
+            <ul>
+              <li>Instruction-level secp256r1 (SIMD-48)</li>
+              <li>Sub-cent per operation</li>
+              <li>~400ms finality</li>
+              <li>CPI-native composability, day one</li>
+              <li>Purpose-built for AI agent economies</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col">
+
+      <!-- Competitive diff -->
+      <section>
+        <h2>Competitive Differentiation</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Holdfast</th>
+              <th>EAS</th>
+              <th>Vouch</th>
+              <th>Warden</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Solana-native</td>
+              <td class="yes">✓</td>
+              <td class="no">✗</td>
+              <td class="no">✗</td>
+              <td class="no">✗</td>
+            </tr>
+            <tr>
+              <td>Hardware attestation</td>
+              <td class="yes">P-256 / TPM</td>
+              <td class="no">✗</td>
+              <td class="partial">SSH</td>
+              <td class="partial">MPC</td>
+            </tr>
+            <tr>
+              <td>On-chain reputation</td>
+              <td class="yes">✓ CPI</td>
+              <td class="no">✗</td>
+              <td class="no">Social</td>
+              <td class="no">✗</td>
+            </tr>
+            <tr>
+              <td>Programmable escrow</td>
+              <td class="yes">✓ + dispute</td>
+              <td class="no">✗</td>
+              <td class="no">✗</td>
+              <td class="partial">Partial</td>
+            </tr>
+            <tr>
+              <td>AI agent focus</td>
+              <td class="yes">✓</td>
+              <td class="partial">General</td>
+              <td class="partial">IdP/Dev</td>
+              <td class="partial">Enterprise</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="quote" style="font-style: normal; font-size: 8.5pt;">"They built the badge. We built the vault." — Vouch provides identity badges (off-chain, no enforcement). Holdfast provides on-chain enforcement with programmable consequences.</div>
+      </section>
+
+      <!-- Devnet status -->
+      <section>
+        <h2>What's Live Now</h2>
+        <div class="status-list">
+          <div class="status-row"><div class="dot dot-green"></div><span class="label">Reputation read/write on devnet</span></div>
+          <div class="status-row"><div class="dot dot-green"></div><span class="label">Escrow create / fund / release on devnet</span></div>
+          <div class="status-row"><div class="dot dot-green"></div><span class="label">secp256r1 self-attestation (localnet confirmed)</span></div>
+          <div class="status-row"><div class="dot dot-green"></div><span class="label">@holdfastprotocol/sdk@devnet published to npm</span></div>
+          <div class="status-row"><div class="dot dot-green"></div><span class="label">Operator dashboard + off-chain indexer live</span></div>
+          <div class="status-row"><div class="dot dot-yellow"></div><span class="label">Hardware TPM/TEE attestation <span class="note">— Q4 2026</span></span></div>
+          <div class="status-row"><div class="dot dot-grey"></div><span class="label">Mainnet <span class="note">— after external audit (in progress)</span></span></div>
+        </div>
+      </section>
+
+      <!-- Integrations -->
+      <section>
+        <h2>Integration Entry Points</h2>
+        <div class="integration-grid">
+          <div class="integration-card">
+            <h4>ElizaOS</h4>
+            <p>Holdfast plugin: agent identity + escrow lifecycle in the ElizaOS agent runtime. Integration proposal in progress.</p>
+          </div>
+          <div class="integration-card">
+            <h4>Solana Agent Kit</h4>
+            <p>Native Holdfast Protocol actions: <code style="font-size:7.5pt; padding:1px 4px; background:rgba(153,69,255,0.1); border-radius:2px; color: #9945FF; font-family:'JetBrains Mono',monospace;">GET_HOLDFAST_REPUTATION</code> available for SAK-based agents.</p>
+          </div>
+          <div class="integration-card">
+            <h4>Olas / Autonolas</h4>
+            <p>Attestation for autonomous services. On our integration roadmap — looking to connect at the conference.</p>
+          </div>
+          <div class="integration-card">
+            <h4>DeFi Protocols</h4>
+            <p>Gate agent access via CPI reputation read. One account read — no oracle fee, no bridge. Contact us to integrate.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SDK + QR -->
+      <section>
+        <h2 class="accent">Start Building</h2>
+        <div class="sdk-block">
+          <code>npm install @holdfastprotocol/sdk@devnet</code>
+          <div class="qr-row">
+            <div class="qr-box">
+              <!-- Simplified QR-style visual — replace with actual QR in final PDF export -->
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Top-left finder -->
+                <rect x="2" y="2" width="14" height="14" rx="1" fill="#E6EDF3"/>
+                <rect x="4" y="4" width="10" height="10" rx="0.5" fill="#0D1117"/>
+                <rect x="6" y="6" width="6" height="6" rx="0.5" fill="#E6EDF3"/>
+                <!-- Top-right finder -->
+                <rect x="32" y="2" width="14" height="14" rx="1" fill="#E6EDF3"/>
+                <rect x="34" y="4" width="10" height="10" rx="0.5" fill="#0D1117"/>
+                <rect x="36" y="6" width="6" height="6" rx="0.5" fill="#E6EDF3"/>
+                <!-- Bottom-left finder -->
+                <rect x="2" y="32" width="14" height="14" rx="1" fill="#E6EDF3"/>
+                <rect x="4" y="34" width="10" height="10" rx="0.5" fill="#0D1117"/>
+                <rect x="6" y="36" width="6" height="6" rx="0.5" fill="#E6EDF3"/>
+                <!-- Data modules (simplified pattern) -->
+                <rect x="20" y="2" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="26" y="2" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="20" y="8" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="2" y="20" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="8" y="20" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="2" y="26" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="20" y="20" width="4" height="4" rx="0.5" fill="#14F195"/>
+                <rect x="26" y="20" width="4" height="4" rx="0.5" fill="#14F195"/>
+                <rect x="32" y="20" width="4" height="4" rx="0.5" fill="#14F195"/>
+                <rect x="38" y="20" width="4" height="4" rx="0.5" fill="#14F195"/>
+                <rect x="20" y="26" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="32" y="26" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="38" y="26" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="20" y="32" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="26" y="32" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="20" y="38" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="26" y="38" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="32" y="32" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+                <rect x="38" y="38" width="4" height="4" rx="0.5" fill="#E6EDF3"/>
+              </svg>
+            </div>
+            <div class="qr-text">
+              <strong>holdfastprotocol.com</strong>
+              <p>Docs, SDK reference, devnet program IDs, and integration guides. No mainnet until post-audit.</p>
+            </div>
+          </div>
+          <div class="sdk-links">
+            <span class="sdk-link">npm: <span>@holdfastprotocol/sdk</span></span>
+            <span class="sdk-link">GitHub: <span>casematelabs/holdfastprotocol</span></span>
+            <span class="sdk-link">X: <span>@CasemateLabs</span></span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="footer-disclaimer">
+      <strong>⚠ Pre-audit software. Devnet only.</strong> Holdfast Protocol has not undergone a formal external security audit. Do not use devnet program addresses in production or to custody real assets. An external audit is in progress; mainnet deployment follows audit completion. No token. Revenue model: protocol fees on real usage.
+    </div>
+    <div class="footer-brand">
+      <span>Casemate Labs</span><br>
+      holdfastprotocol.com<br>
+      AI Agent Conf NYC · May 2026
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

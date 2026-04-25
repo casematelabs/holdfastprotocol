@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAS-78 · Agent Registration Onboarding Flow · Wireframe Spec</title>
+  <style>
+    :root {
+      --bg-page: #0D1117;
+      --bg-card: #141B27;
+      --bg-card-raised: #18202E;
+      --bg-hover: #1A2438;
+      --border: #1E2D42;
+      --border-hover: #2D4060;
+      --text-primary: #E8EDF2;
+      --text-secondary: #8A99AC;
+      --text-tertiary: #4D5E72;
+      --text-disabled: #2D3E52;
+      --accent: #2D8CFF;
+      --accent-dim: rgba(45, 140, 255, 0.12);
+      --accent-border: rgba(45, 140, 255, 0.22);
+      --success: #22C55E;
+      --success-dim: rgba(34, 197, 94, 0.08);
+      --success-border: rgba(34, 197, 94, 0.22);
+      --warning: #F59E0B;
+      --warning-dim: rgba(245, 158, 11, 0.08);
+      --warning-border: rgba(245, 158, 11, 0.22);
+      --danger: #EF4444;
+      --danger-dim: rgba(239, 68, 68, 0.08);
+      --danger-border: rgba(239, 68, 68, 0.22);
+      --annot: #253344;
+      --annot-text: #3D5268;
+      --font-ui: 'Helvetica Neue', 'Arial Nova', Arial, sans-serif;
+      --font-mono: 'Courier New', Courier, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ── HEADER ── */
+    .wf-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 40px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .wf-header-left { display: flex; align-items: center; gap: 12px; }
+    .wf-ticket {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+      color: var(--accent); background: var(--accent-dim);
+      border: 1px solid var(--accent-border); padding: 3px 8px;
+    }
+    .wf-title { font-size: 13px; font-weight: 500; letter-spacing: -0.01em; }
+    .wf-meta { font-size: 11px; color: var(--text-tertiary); display: flex; align-items: center; gap: 10px; }
+    .wf-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-tertiary); }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 960px; margin: 0 auto; padding: 40px; }
+    .section { margin-bottom: 72px; }
+    .section-eyebrow {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 4px; }
+    .section-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 28px; max-width: 680px; line-height: 1.65; }
+    .stack { display: flex; flex-direction: column; gap: 20px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    /* ── ANNOTATIONS ── */
+    .dims { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .dim {
+      font-family: var(--font-mono); font-size: 9px; color: var(--annot-text);
+      border: 1px dashed var(--annot); padding: 1px 5px; line-height: 18px;
+      background: rgba(13,17,23,0.7);
+    }
+    .annot-block {
+      background: rgba(13,17,23,0.6); border: 1px dashed var(--annot);
+      padding: 10px 14px; margin-top: 12px; font-size: 11px; color: var(--annot-text);
+      line-height: 1.55;
+    }
+    .annot-block strong {
+      color: var(--text-tertiary); font-weight: 700; font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px;
+    }
+    .variant-lbl {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+      margin-bottom: 8px; color: var(--text-tertiary);
+    }
+
+    /* ── STEP PROGRESS HEADER ── */
+    .step-header {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 20px 28px 16px;
+      margin-bottom: 0;
+    }
+    .step-header-meta {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; color: var(--text-tertiary);
+      margin-bottom: 16px;
+    }
+    .step-indicator {
+      display: flex; align-items: center; gap: 0;
+    }
+    .step-node {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      min-width: 72px;
+    }
+    .step-node-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-node-circle.done {
+      background: var(--success-dim); border: 1.5px solid var(--success-border);
+      color: var(--success);
+    }
+    .step-node-circle.active {
+      background: var(--accent-dim); border: 1.5px solid var(--accent);
+      color: var(--accent);
+    }
+    .step-node-circle.future {
+      background: transparent; border: 1.5px solid var(--border);
+      color: var(--text-disabled);
+    }
+    .step-node-label {
+      font-size: 10px; letter-spacing: 0.04em;
+      text-align: center; white-space: nowrap;
+    }
+    .step-node-label.done { color: var(--text-tertiary); }
+    .step-node-label.active { color: var(--text-primary); font-weight: 600; }
+    .step-node-label.future { color: var(--text-disabled); }
+    .step-connector {
+      flex: 1; height: 1.5px; background: var(--border);
+      margin: 0 -4px; position: relative; top: -14px;
+      min-width: 24px;
+    }
+    .step-connector.done { background: var(--success-border); }
+
+    /* ── FLOW CARD ── */
+    .flow-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+    }
+    .flow-card-inner {
+      padding: 28px 32px;
+    }
+    .flow-title {
+      font-size: 16px; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .flow-subtitle {
+      font-size: 12px; color: var(--text-secondary); margin-bottom: 24px;
+      max-width: 600px; line-height: 1.6;
+    }
+    .flow-actions {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-card-raised);
+    }
+
+    /* ── PREREQ LIST ── */
+    .prereq-list {
+      background: var(--bg-card-raised);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .prereq-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .prereq-row:last-child { border-bottom: none; }
+    .prereq-icon { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; }
+    .prereq-name { font-weight: 600; min-width: 140px; }
+    .prereq-version { font-family: var(--font-mono); font-size: 11px; color: var(--text-primary); min-width: 100px; }
+    .prereq-req { font-size: 11px; color: var(--text-tertiary); flex: 1; }
+    .prereq-status { font-size: 11px; }
+    .prereq-row.warn-row { background: var(--warning-dim); }
+    .prereq-row.error-row { background: var(--danger-dim); }
+    .prereq-expand {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px 10px 44px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px; color: var(--text-secondary);
+      background: rgba(245,158,11,0.04);
+    }
+    .prereq-expand:last-child { border-bottom: none; }
+    .prereq-expand.error-expand { background: rgba(239,68,68,0.04); color: var(--text-secondary); }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: #0A0F17;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #A8C1D8;
+      position: relative;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+    .code-block .copy-btn {
+      position: absolute; top: 10px; right: 12px;
+      font-family: var(--font-ui); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 3px 9px; cursor: pointer;
+      text-transform: uppercase;
+    }
+    .code-block .code-comment { color: var(--text-disabled); }
+    .code-block .code-key { color: #7CC5F0; }
+    .code-block .code-str { color: #89CFA0; }
+    .code-block .code-num { color: #F5C27A; }
+
+    /* ── WARNING / ALERT BANNER ── */
+    .alert-banner {
+      border: 1px solid; border-radius: 2px;
+      padding: 12px 16px; margin-bottom: 16px;
+      font-size: 12px; line-height: 1.6;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .alert-banner.warn { background: var(--warning-dim); border-color: var(--warning-border); }
+    .alert-banner.error { background: var(--danger-dim); border-color: var(--danger-border); }
+    .alert-banner.success { background: var(--success-dim); border-color: var(--success-border); }
+    .alert-banner.info { background: var(--accent-dim); border-color: var(--accent-border); }
+    .alert-icon { font-size: 14px; line-height: 1.4; flex-shrink: 0; }
+    .alert-body { flex: 1; }
+    .alert-title { font-weight: 700; margin-bottom: 3px; }
+    .alert-title.warn { color: var(--warning); }
+    .alert-title.error { color: var(--danger); }
+    .alert-title.success { color: var(--success); }
+    .alert-title.info { color: var(--accent); }
+    .alert-body p { color: var(--text-secondary); }
+    .alert-body ul { margin-top: 6px; padding-left: 14px; color: var(--text-secondary); }
+    .alert-body ul li { margin-bottom: 2px; }
+
+    /* ── FORM FIELDS ── */
+    .field-group { margin-bottom: 20px; }
+    .field-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+      color: var(--text-secondary); margin-bottom: 6px; display: block;
+      text-transform: uppercase;
+    }
+    .field-input {
+      width: 100%; background: #0A0F17;
+      border: 1px solid var(--border); padding: 10px 14px;
+      font-family: var(--font-mono); font-size: 11.5px; color: var(--text-primary);
+      position: relative;
+    }
+    .field-input.valid { border-color: var(--success-border); }
+    .field-input.invalid { border-color: var(--danger); }
+    .field-hint { font-size: 11px; color: var(--text-tertiary); margin-top: 5px; }
+    .field-hint.valid { color: var(--success); }
+    .field-hint.invalid { color: var(--danger); }
+    .field-wrapper { position: relative; }
+    .field-check {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 13px;
+    }
+
+    /* ── SUMMARY TABLE ── */
+    .summary-table {
+      background: var(--bg-card-raised);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .summary-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-key { color: var(--text-tertiary); min-width: 140px; font-size: 11px; }
+    .summary-val { font-family: var(--font-mono); font-size: 11px; flex: 1; }
+    .summary-copy {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--accent); cursor: pointer; flex-shrink: 0;
+    }
+    .summary-link {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--accent); cursor: pointer; flex-shrink: 0;
+    }
+
+    /* ── PENDING DOTS ── */
+    .pending-dots {
+      display: inline-flex; gap: 4px; align-items: center;
+    }
+    .pending-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text-tertiary);
+    }
+    .pending-dot.active { background: var(--accent); }
+
+    /* ── CONFIRMATION COUNT ── */
+    .confirm-bar {
+      height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+      margin-top: 6px;
+    }
+    .confirm-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+
+    /* ── NEXT STEPS ── */
+    .next-steps {
+      background: var(--bg-card-raised);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .next-step-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px; cursor: pointer;
+    }
+    .next-step-row:last-child { border-bottom: none; }
+    .next-step-arrow { color: var(--accent); font-size: 14px; flex-shrink: 0; }
+    .next-step-label { flex: 1; }
+    .next-step-chevron { color: var(--text-tertiary); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+      cursor: pointer; border: 1px solid;
+      font-family: var(--font-ui);
+    }
+    .btn-primary {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+    }
+    .btn-ghost {
+      background: transparent; border-color: var(--border); color: var(--text-secondary);
+    }
+    .btn-ghost:hover { border-color: var(--border-hover); color: var(--text-primary); }
+    .btn-disabled {
+      background: var(--bg-card-raised); border-color: var(--border);
+      color: var(--text-disabled); cursor: not-allowed;
+    }
+    .btn-success {
+      background: var(--success-dim); border-color: var(--success-border); color: var(--success);
+    }
+
+    /* ── INFO CARD ── */
+    .info-card {
+      background: var(--bg-card-raised);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 14px 16px; margin-bottom: 16px;
+    }
+    .info-card-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 6px;
+    }
+    .info-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+    .info-card-link {
+      display: block; margin-top: 10px;
+      font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.04em;
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success-hero {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 24px;
+    }
+    .success-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--success-dim); border: 1.5px solid var(--success-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: var(--success); flex-shrink: 0;
+    }
+    .success-heading { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+    .success-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wf-header">
+  <div class="wf-header-left">
+    <span class="wf-ticket">CAS-78</span>
+    <span class="wf-title">Agent Registration Onboarding Flow</span>
+  </div>
+  <div class="wf-meta">
+    <span>Holdfast Protocol</span>
+    <span class="wf-dot"></span>
+    <span>Developer Flow · 5 steps</span>
+    <span class="wf-dot"></span>
+    <span>Target: 10-min first tx</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- §0 GLOBAL COMPONENT: STEP PROGRESS HEADER -->
+  <div class="section">
+    <div class="section-eyebrow">§0 &nbsp; Global Component</div>
+    <div class="section-title">Step Progress Header</div>
+    <div class="section-desc">
+      Persistent stepper shown at the top of every registration step. Completed steps show a check; active step is accent-highlighted; future steps are muted. Back navigation disabled at Step 4+ once transaction is pending.
+    </div>
+    <div class="stack">
+
+      <div>
+        <div class="variant-lbl">A — Step 1 active (entry state)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner" style="padding-bottom:20px;">
+            <div class="step-header" style="border:none;padding:0;margin:0;">
+              <div class="step-header-meta">
+                <span>Agent Registration</span>
+                <span class="wf-dot"></span>
+                <span>Holdfast Protocol</span>
+              </div>
+              <div class="step-indicator">
+                <div class="step-node">
+                  <div class="step-node-circle active">1</div>
+                  <span class="step-node-label active">Check</span>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step-node">
+                  <div class="step-node-circle future">2</div>
+                  <span class="step-node-label future">Keys</span>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step-node">
+                  <div class="step-node-circle future">3</div>
+                  <span class="step-node-label future">Attest</span>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step-node">
+                  <div class="step-node-circle future">4</div>
+                  <span class="step-node-label future">Submit</span>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step-node">
+                  <div class="step-node-circle future">5</div>
+                  <span class="step-node-label future">Verify</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="variant-lbl">B — Step 4 active (steps 1–3 complete)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner" style="padding-bottom:20px;">
+            <div class="step-header" style="border:none;padding:0;margin:0;">
+              <div class="step-header-meta">
+                <span>Agent Registration</span>
+                <span class="wf-dot"></span>
+                <span>Holdfast Protocol</span>
+              </div>
+              <div class="step-indicator">
+                <div class="step-node">
+                  <div class="step-node-circle done">✓</div>
+                  <span class="step-node-label done">Check</span>
+                </div>
+                <div class="step-connector done"></div>
+                <div class="step-node">
+                  <div class="step-node-circle done">✓</div>
+                  <span class="step-node-label done">Keys</span>
+                </div>
+                <div class="step-connector done"></div>
+                <div class="step-node">
+                  <div class="step-node-circle done">✓</div>
+                  <span class="step-node-label done">Attest</span>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step-node">
+                  <div class="step-node-circle active">4</div>
+                  <span class="step-node-label active">Submit</span>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step-node">
+                  <div class="step-node-circle future">5</div>
+                  <span class="step-node-label future">Verify</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="annot-block">
+      <strong>Navigation Rules</strong>
+      Steps 1–3: back navigation enabled. Step 4+: back navigation disabled once transaction is pending.
+      No clickable step circles — stepper is read-only. <code>aria-current="step"</code> on active node.
+      Step labels: Check / Keys / Attest / Submit / Verify.
+    </div>
+  </div>
+
+
+  <!-- §1 STEP 1: PREREQUISITES CHECK -->
+  <div class="section">
+    <div class="section-eyebrow">§1 &nbsp; Step 1 of 5</div>
+    <div class="section-title">Prerequisites Check</div>
+    <div class="section-desc">
+      Auto-detect environment state before key material is generated. Surface blockers early. Each dependency row shows pass / warning / error with an inline fix command where applicable.
+    </div>
+    <div class="stack">
+
+      <!-- State A: All pass -->
+      <div>
+        <div class="variant-lbl">A — All systems go (happy path)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 1 of 5 — Prerequisites</div>
+            <div class="flow-subtitle">We checked your environment. All systems go.</div>
+            <div class="prereq-list">
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Node.js</span>
+                <span class="prereq-version">18.17.0</span>
+                <span class="prereq-req">Required ≥ 16</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Anchor CLI</span>
+                <span class="prereq-version">0.29.0</span>
+                <span class="prereq-req">Required ≥ 0.28</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Solana CLI</span>
+                <span class="prereq-version">1.18.4</span>
+                <span class="prereq-req">Required ≥ 1.17</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Devnet SOL</span>
+                <span class="prereq-version">2.41 SOL</span>
+                <span class="prereq-req">Minimum 0.05 SOL</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <span></span>
+            <button class="btn btn-primary">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State B: Warning (non-blocking) -->
+      <div>
+        <div class="variant-lbl">B — One item needs attention (non-blocking warning)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 1 of 5 — Prerequisites</div>
+            <div class="flow-subtitle">One item needs attention.</div>
+            <div class="prereq-list">
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Node.js</span>
+                <span class="prereq-version">18.17.0</span>
+                <span class="prereq-req">Required ≥ 16</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+              <div class="prereq-row warn-row">
+                <div class="prereq-icon" style="color:var(--warning)">⚠</div>
+                <span class="prereq-name">Anchor CLI</span>
+                <span class="prereq-version" style="color:var(--warning)">0.27.1</span>
+                <span class="prereq-req">Required ≥ 0.28 — upgrade</span>
+                <span class="prereq-status" style="color:var(--warning)">Warn</span>
+              </div>
+              <div class="prereq-expand">
+                <div class="code-block" style="margin:0;flex:1;font-size:10.5px;padding:8px 12px;">
+                  npm install -g @coral-xyz/anchor-cli@latest
+                  <span class="copy-btn" style="position:static;display:inline-block;margin-left:12px;vertical-align:middle;">Copy</span>
+                </div>
+              </div>
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Solana CLI</span>
+                <span class="prereq-version">1.18.4</span>
+                <span class="prereq-req">Required ≥ 1.17</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Devnet SOL</span>
+                <span class="prereq-version">2.41 SOL</span>
+                <span class="prereq-req">Minimum 0.05 SOL</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);">
+              You can continue, but some features may not work correctly.
+            </div>
+          </div>
+          <div class="flow-actions">
+            <span></span>
+            <button class="btn btn-primary">Continue anyway →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State C: Blocking error (insufficient SOL) -->
+      <div>
+        <div class="variant-lbl">C — Blocking error: insufficient devnet SOL</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 1 of 5 — Prerequisites</div>
+            <div class="flow-subtitle" style="color:var(--danger);">Cannot continue — devnet SOL balance too low.</div>
+            <div class="prereq-list">
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Node.js</span>
+                <span class="prereq-version">18.17.0</span>
+                <span class="prereq-req">Required ≥ 16</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Anchor CLI</span>
+                <span class="prereq-version">0.29.0</span>
+                <span class="prereq-req">Required ≥ 0.28</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Solana CLI</span>
+                <span class="prereq-version">1.18.4</span>
+                <span class="prereq-req">Required ≥ 1.17</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+              <div class="prereq-row error-row">
+                <div class="prereq-icon" style="color:var(--danger)">✗</div>
+                <span class="prereq-name">Devnet SOL</span>
+                <span class="prereq-version" style="color:var(--danger)">0.003 SOL</span>
+                <span class="prereq-req">Minimum 0.05 SOL — airdrop required</span>
+                <span class="prereq-status" style="color:var(--danger)">Error</span>
+              </div>
+              <div class="prereq-expand error-expand">
+                <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+                  <div class="code-block" style="margin:0;font-size:10.5px;padding:8px 12px;">
+                    solana airdrop 1 --url devnet
+                    <span class="copy-btn" style="position:static;display:inline-block;margin-left:12px;vertical-align:middle;">Copy</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-tertiary);">
+                    Or use the <span style="color:var(--accent);cursor:pointer;">devnet faucet ↗</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">Re-check environment</button>
+            <button class="btn btn-disabled">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State D: CLI not found -->
+      <div>
+        <div class="variant-lbl">D — Blocking error: Solana CLI not detected</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 1 of 5 — Prerequisites</div>
+            <div class="prereq-list">
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Node.js</span>
+                <span class="prereq-version">18.17.0</span>
+                <span class="prereq-req">Required ≥ 16</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--success)">✓</div>
+                <span class="prereq-name">Anchor CLI</span>
+                <span class="prereq-version">0.29.0</span>
+                <span class="prereq-req">Required ≥ 0.28</span>
+                <span class="prereq-status" style="color:var(--success)">Pass</span>
+              </div>
+              <div class="prereq-row error-row">
+                <div class="prereq-icon" style="color:var(--danger)">✗</div>
+                <span class="prereq-name">Solana CLI</span>
+                <span class="prereq-version" style="color:var(--danger)">Not found</span>
+                <span class="prereq-req">Required ≥ 1.17 — install</span>
+                <span class="prereq-status" style="color:var(--danger)">Error</span>
+              </div>
+              <div class="prereq-expand error-expand">
+                <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+                  <div style="font-size:11px;color:var(--text-secondary);">Installation guide: <span style="color:var(--accent);cursor:pointer;">docs.solana.com/cli/install ↗</span></div>
+                  <div class="code-block" style="margin:0;font-size:10.5px;padding:8px 12px;">
+                    solana config set --url devnet
+                    <span class="copy-btn" style="position:static;display:inline-block;margin-left:12px;vertical-align:middle;">Copy</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-tertiary);">Run after installing to configure devnet.</div>
+                </div>
+              </div>
+              <div class="prereq-row">
+                <div class="prereq-icon" style="color:var(--text-disabled)">◌</div>
+                <span class="prereq-name">Devnet SOL</span>
+                <span class="prereq-version" style="color:var(--text-disabled)">—</span>
+                <span class="prereq-req" style="color:var(--text-disabled)">Requires Solana CLI</span>
+                <span class="prereq-status" style="color:var(--text-disabled)">Pending</span>
+              </div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">Re-check environment</button>
+            <button class="btn btn-disabled">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="annot-block">
+      <strong>Behavior Notes</strong>
+      Warning: does not block; Continue label changes to "Continue anyway →". Error: Continue button disabled; "Re-check environment" re-runs detection without page reload.
+      Resolution commands appear inline beneath the failing row, with copy affordance. External links open in new tab.
+    </div>
+  </div>
+
+
+  <!-- §2 STEP 2: KEY GENERATION -->
+  <div class="section">
+    <div class="section-eyebrow">§2 &nbsp; Step 2 of 5</div>
+    <div class="section-title">Key Generation</div>
+    <div class="section-desc">
+      Generate secp256r1 keypair. Key storage warning shown once, prominently. Public key input with live format validation. Hardware attestation CTA surfaced as secondary, non-blocking option.
+    </div>
+    <div class="stack">
+
+      <!-- State A: Initial -->
+      <div>
+        <div class="variant-lbl">A — Initial state (key not yet generated)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 2 of 5 — Generate Your Agent Key</div>
+            <div class="flow-subtitle">Generate a secp256r1 keypair for your agent. This key signs all attestations and pact operations.</div>
+
+            <div class="code-block">
+              $ hardline keygen --curve secp256r1 --out ./agent-key.json
+              <span class="copy-btn">Copy</span>
+            </div>
+
+            <div class="alert-banner warn">
+              <div class="alert-icon">⚠</div>
+              <div class="alert-body">
+                <div class="alert-title warn">Key storage — read once</div>
+                <p><strong style="color:var(--text-primary)">agent-key.json</strong> contains your unencrypted private key. Back it up securely. If lost, your agent identity cannot be recovered. Do not commit this file to version control.</p>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Public Key (from generated keypair)</label>
+              <div class="field-wrapper">
+                <div class="field-input" style="color:var(--text-disabled);">
+                  Paste your public key here (hex, 33 or 65 bytes)
+                </div>
+              </div>
+              <div class="field-hint">Expected format: 66-char (compressed) or 130-char (uncompressed) hex</div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-title">Hardware Attestation Available</div>
+              <p>Use a YubiKey or HSM for a higher trust tier. Recommended for production agents. Does not block this flow.</p>
+              <a class="info-card-link">Learn about hardware attestation →</a>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">← Back</button>
+            <button class="btn btn-disabled">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State B: Valid key entered -->
+      <div>
+        <div class="variant-lbl">B — Valid public key entered (Continue enabled)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 2 of 5 — Generate Your Agent Key</div>
+            <div class="flow-subtitle">Generate a secp256r1 keypair for your agent. This key signs all attestations and pact operations.</div>
+
+            <div class="code-block">
+              $ hardline keygen --curve secp256r1 --out ./agent-key.json
+              <span class="copy-btn">Copy</span>
+            </div>
+
+            <div class="alert-banner warn">
+              <div class="alert-icon">⚠</div>
+              <div class="alert-body">
+                <div class="alert-title warn">Key storage — read once</div>
+                <p><strong style="color:var(--text-primary)">agent-key.json</strong> contains your unencrypted private key. Back it up securely. If lost, your agent identity cannot be recovered.</p>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Public Key</label>
+              <div class="field-wrapper">
+                <div class="field-input valid" style="font-size:10.5px;">
+                  04a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3
+                </div>
+                <span class="field-check" style="color:var(--success)">✓</span>
+              </div>
+              <div class="field-hint valid">65-byte uncompressed key · valid format</div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-title">Hardware Attestation Available</div>
+              <p>Use a YubiKey or HSM for a higher trust tier. Recommended for production agents.</p>
+              <a class="info-card-link">Learn about hardware attestation →</a>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">← Back</button>
+            <button class="btn btn-primary">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State C: Invalid key format -->
+      <div>
+        <div class="variant-lbl">C — Invalid key format (inline error)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 2 of 5 — Generate Your Agent Key</div>
+            <div class="field-group" style="margin-top:8px;">
+              <label class="field-label">Public Key</label>
+              <div class="field-wrapper">
+                <div class="field-input invalid" style="font-size:10.5px;">
+                  a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1
+                </div>
+                <span class="field-check" style="color:var(--danger)">✗</span>
+              </div>
+              <div class="field-hint invalid">Expected 33-byte (compressed) or 65-byte (uncompressed) hex. Got 32 bytes. Did you paste the private key by mistake?</div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">← Back</button>
+            <button class="btn btn-disabled">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="annot-block">
+      <strong>Validation Rules</strong>
+      Field validates on input. Valid: 66-char hex (33-byte compressed) or 130-char hex (65-byte uncompressed).
+      Continue button disabled until field passes. Key storage warning always shown, cannot be dismissed.
+      Hardware attestation CTA links to docs in a new tab — never interrupts the flow with a modal.
+    </div>
+  </div>
+
+
+  <!-- §3 STEP 3: SELF-ATTESTATION -->
+  <div class="section">
+    <div class="section-eyebrow">§3 &nbsp; Step 3 of 5</div>
+    <div class="section-title">Self-Attestation</div>
+    <div class="section-desc">
+      Sign the attestation payload with the generated private key. Payload has a nonce + timestamp to prevent replay. Signature validation happens client-side (format) and server-side (cryptographic verification).
+    </div>
+    <div class="stack">
+
+      <!-- State A: Initial -->
+      <div>
+        <div class="variant-lbl">A — Happy path (awaiting signature paste)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 3 of 5 — Self-Attestation</div>
+            <div class="flow-subtitle">Sign this payload with your agent private key to prove key ownership.</div>
+
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:8px;">Attestation payload</div>
+            <div class="code-block">
+              <span class="copy-btn">Copy payload</span>
+              {<br>
+              &nbsp;&nbsp;<span class="code-key">"agentPubkey"</span>: <span class="code-str">"0x04a1b2c3d4e5..."</span>,<br>
+              &nbsp;&nbsp;<span class="code-key">"timestamp"</span>: <span class="code-num">1713578021</span>,<br>
+              &nbsp;&nbsp;<span class="code-key">"nonce"</span>: <span class="code-str">"f3a9b12e"</span><br>
+              }
+            </div>
+
+            <div class="code-block">
+              $ hardline attest --key ./agent-key.json --payload attest.json
+              <span class="copy-btn">Copy</span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Signature</label>
+              <div class="field-wrapper">
+                <div class="field-input" style="color:var(--text-disabled);">
+                  Paste DER-encoded secp256r1 signature (hex)
+                </div>
+              </div>
+              <div class="field-hint">Expected: DER-encoded secp256r1 signature</div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">← Back</button>
+            <button class="btn btn-disabled">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State B: Server error - invalid signature -->
+      <div>
+        <div class="variant-lbl">B — Server error: signature does not verify against key</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 3 of 5 — Self-Attestation</div>
+
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:8px;">Attestation payload (refreshed)</div>
+            <div class="code-block">
+              <span class="copy-btn">Copy payload</span>
+              {<br>
+              &nbsp;&nbsp;<span class="code-key">"agentPubkey"</span>: <span class="code-str">"0x04a1b2c3d4e5..."</span>,<br>
+              &nbsp;&nbsp;<span class="code-key">"timestamp"</span>: <span class="code-num">1713579044</span>,<br>
+              &nbsp;&nbsp;<span class="code-key">"nonce"</span>: <span class="code-str">"c8f21a4b"</span><br>
+              }
+            </div>
+
+            <div class="alert-banner error">
+              <div class="alert-icon">✗</div>
+              <div class="alert-body">
+                <div class="alert-title error">Signature error</div>
+                <p>Signature does not verify against the provided public key. Check that you signed with the correct private key file.</p>
+                <ul>
+                  <li>Wrong key file passed to <code>--key</code> flag</li>
+                  <li>Payload was modified after copy</li>
+                  <li>Timestamp expired — payload has been refreshed above</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Signature</label>
+              <div class="field-wrapper">
+                <div class="field-input" style="color:var(--text-disabled);">
+                  Paste new signature here
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">← Back</button>
+            <button class="btn btn-disabled">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State C: Wrong signature format -->
+      <div>
+        <div class="variant-lbl">C — Wrong signature format (raw r||s bytes)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 3 of 5 — Self-Attestation</div>
+            <div class="field-group" style="margin-top:8px;">
+              <label class="field-label">Signature</label>
+              <div class="field-wrapper">
+                <div class="field-input invalid" style="font-size:10.5px;">
+                  a9f3c21b4e7d8a6f3e2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0
+                </div>
+                <span class="field-check" style="color:var(--danger)">✗</span>
+              </div>
+              <div class="field-hint invalid">
+                Signature format unrecognized. Expected DER-encoded secp256r1. Got raw bytes (r||s format).
+              </div>
+            </div>
+            <div class="code-block" style="margin-top:0;">
+              $ hardline attest --key ./agent-key.json --payload attest.json <strong>--format der</strong>
+              <span class="copy-btn">Copy</span>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">← Back</button>
+            <button class="btn btn-disabled">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="annot-block">
+      <strong>Payload Behavior</strong>
+      Payload auto-refreshes with new nonce + timestamp on server signature error. User does not re-fetch manually.
+      Nonce/timestamp TTL: open question — see §3 Open Questions in spec doc. Error messages use <code>role="alert"</code>.
+    </div>
+  </div>
+
+
+  <!-- §4 STEP 4: REGISTRATION TRANSACTION -->
+  <div class="section">
+    <div class="section-eyebrow">§4 &nbsp; Step 4 of 5</div>
+    <div class="section-title">Registration Transaction</div>
+    <div class="section-desc">
+      Submit the on-chain registration. Irreversible once pending. Back navigation disabled while transaction is in flight. Confirmation count updates live. Error states map program error codes to human-readable messages.
+    </div>
+    <div class="stack">
+
+      <!-- State A: Pre-submit -->
+      <div>
+        <div class="variant-lbl">A — Pre-submit (review summary before submitting)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 4 of 5 — Submit Registration</div>
+            <div class="flow-subtitle">Review the details below. This transaction registers your agent on-chain and cannot be undone.</div>
+
+            <div class="summary-table">
+              <div class="summary-row">
+                <span class="summary-key">Public key</span>
+                <span class="summary-val">04a1b2c3d4...f9e8</span>
+                <span class="summary-copy">Copy</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key">Network</span>
+                <span class="summary-val">devnet</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key">Estimated fee</span>
+                <span class="summary-val">~0.000005 SOL</span>
+              </div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">← Back</button>
+            <button class="btn btn-primary">Submit registration →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State B: Pending / polling -->
+      <div>
+        <div class="variant-lbl">B — Pending: transaction submitted, awaiting confirmations</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title" style="display:flex;align-items:center;gap:10px;">
+              <span>Submitting to devnet</span>
+              <span class="pending-dots">
+                <span class="pending-dot active"></span>
+                <span class="pending-dot"></span>
+                <span class="pending-dot"></span>
+              </span>
+            </div>
+            <div class="flow-subtitle">Transaction is pending. This may take up to 30 seconds. Do not close this page.</div>
+
+            <div class="summary-table">
+              <div class="summary-row">
+                <span class="summary-key">Transaction</span>
+                <span class="summary-val">Cq7r9mNhxP3...mK4p</span>
+                <span class="summary-copy">Copy</span>
+              </div>
+              <div class="summary-row" style="flex-direction:column;align-items:flex-start;gap:6px;">
+                <div style="display:flex;gap:16px;align-items:center;width:100%;">
+                  <span class="summary-key">Status</span>
+                  <span class="summary-val">Awaiting confirmation</span>
+                </div>
+                <div style="display:flex;gap:16px;align-items:center;width:100%;">
+                  <span class="summary-key">Confirmations</span>
+                  <span class="summary-val">8 / 32</span>
+                </div>
+                <div style="padding:0 0 4px;width:100%;">
+                  <div class="confirm-bar"><div class="confirm-fill" style="width:25%"></div></div>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-tertiary);">Back navigation disabled while transaction is pending.</div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-disabled">← Back</button>
+            <button class="btn btn-disabled">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State C: Success -->
+      <div>
+        <div class="variant-lbl">C — Success: registration confirmed</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="success-hero">
+              <div class="success-icon">✓</div>
+              <div>
+                <div class="success-heading">Registration confirmed</div>
+                <div class="success-sub">Your agent wallet is registered on Holdfast Protocol.</div>
+              </div>
+            </div>
+
+            <div class="summary-table">
+              <div class="summary-row">
+                <span class="summary-key">Transaction</span>
+                <span class="summary-val">Cq7r9mNhxP3...mK4p</span>
+                <span class="summary-copy">Copy</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key">Confirmations</span>
+                <span class="summary-val" style="color:var(--success);">32 ✓</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key">Registration PDA</span>
+                <span class="summary-val">3xR7k...nP2m</span>
+                <span class="summary-copy">Copy</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key">Explorer</span>
+                <span class="summary-val"></span>
+                <span class="summary-link">View on Solana Explorer ↗</span>
+              </div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <span></span>
+            <button class="btn btn-primary">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State D: Insufficient SOL error -->
+      <div>
+        <div class="variant-lbl">D — Error: insufficient SOL for transaction fee</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 4 of 5 — Submit Registration</div>
+            <div class="alert-banner error">
+              <div class="alert-icon">✗</div>
+              <div class="alert-body">
+                <div class="alert-title error">Transaction failed — insufficient SOL</div>
+                <p>Balance: 0.003 SOL · Required: ~0.005 SOL</p>
+              </div>
+            </div>
+            <div class="code-block">
+              solana airdrop 1 --url devnet
+              <span class="copy-btn">Copy</span>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">← Back</button>
+            <button class="btn btn-primary">Retry</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State E: Program error -->
+      <div>
+        <div class="variant-lbl">E — Error: program error 0x1775 (InvalidAttestation)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 4 of 5 — Submit Registration</div>
+            <div class="alert-banner error">
+              <div class="alert-icon">✗</div>
+              <div class="alert-body">
+                <div class="alert-title error">Program error 0x1775 — InvalidAttestation</div>
+                <p>The submitted attestation is invalid or expired. Go back to Step 3 and regenerate your attestation.</p>
+              </div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">← Back to attestation</button>
+            <button class="btn btn-primary" style="background:transparent;border-color:var(--border);color:var(--text-secondary);">Report this error ↗</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State F: Network timeout -->
+      <div>
+        <div class="variant-lbl">F — Error: devnet network timeout (30s)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 4 of 5 — Submit Registration</div>
+            <div class="alert-banner error">
+              <div class="alert-icon">✗</div>
+              <div class="alert-body">
+                <div class="alert-title error">No response from devnet after 30s</div>
+                <p>Check your network connection, then retry. <span style="color:var(--accent);cursor:pointer;">Check devnet status ↗</span></p>
+              </div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="btn btn-ghost">← Back</button>
+            <button class="btn btn-primary">Retry</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="annot-block">
+      <strong>Transition Rules</strong>
+      Back disabled once pending (State B). Confirmation bar fills proportionally to 32 confirmations. On success, Continue auto-advances after 1.5s or on user click.
+      Program error codes are mapped to human-readable names — registry TBD (open question in spec).
+      "Back to attestation" deep-links to Step 3 with key data preserved in session state.
+    </div>
+  </div>
+
+
+  <!-- §5 STEP 5: VERIFICATION -->
+  <div class="section">
+    <div class="section-eyebrow">§5 &nbsp; Step 5 of 5</div>
+    <div class="section-title">Verification</div>
+    <div class="section-desc">
+      Confirm registration is readable via the SDK. Terminal step — registration PDA and tx ID are embedded in the URL so users can deep-link back. Provide next-step CTAs without overwhelming.
+    </div>
+    <div class="stack">
+
+      <!-- State A: Happy path -->
+      <div>
+        <div class="variant-lbl">A — Happy path: agent registered and indexed</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="success-hero">
+              <div class="success-icon">✓</div>
+              <div>
+                <div class="success-heading">Your agent is registered on Holdfast Protocol.</div>
+                <div class="success-sub">Query your registration status with the SDK:</div>
+              </div>
+            </div>
+
+            <div class="code-block">
+              <span class="copy-btn">Copy</span>
+              <span class="code-key">const</span> status = <span class="code-key">await</span> holdfast.agents.<span class="code-str">getStatus</span>(<br>
+              &nbsp;&nbsp;<span class="code-str">'0x04a1b2c3d4...f9e8'</span> <span class="code-comment">// your pubkey</span><br>
+              );<br>
+              <span class="code-comment">// &#123; registered: true, pdaAddress: '3xR7k...nP2m' &#125;</span>
+            </div>
+
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:10px;">What's next</div>
+            <div class="next-steps">
+              <div class="next-step-row">
+                <span class="next-step-arrow">→</span>
+                <span class="next-step-label">Query agent reputation</span>
+                <span class="next-step-chevron">›</span>
+              </div>
+              <div class="next-step-row">
+                <span class="next-step-arrow">→</span>
+                <span class="next-step-label">Create your first Holdfast Protocol pact</span>
+                <span class="next-step-chevron">›</span>
+              </div>
+              <div class="next-step-row">
+                <span class="next-step-arrow">→</span>
+                <span class="next-step-label">Upgrade to hardware attestation (production)</span>
+                <span class="next-step-chevron">›</span>
+              </div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <span></span>
+            <button class="btn btn-primary">View full SDK reference →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State B: Indexer delay -->
+      <div>
+        <div class="variant-lbl">B — Registration confirmed but indexer lag (not yet queryable)</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 5 of 5 — Verify Registration</div>
+
+            <div class="alert-banner info">
+              <div class="alert-icon">◌</div>
+              <div class="alert-body">
+                <div class="alert-title info">Registration not yet indexed</div>
+                <p>Your registration is confirmed on-chain but has not propagated to the indexer yet. Usually takes less than 30 seconds. Re-checking automatically…</p>
+              </div>
+            </div>
+
+            <div class="summary-table">
+              <div class="summary-row">
+                <span class="summary-key">Transaction</span>
+                <span class="summary-val">Cq7r9mNhxP3...mK4p</span>
+                <span class="summary-copy">Copy</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key">On-chain status</span>
+                <span class="summary-val" style="color:var(--success);">Confirmed ✓</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key">Indexer status</span>
+                <span class="summary-val" style="color:var(--text-tertiary);">
+                  Propagating
+                  <span class="pending-dots" style="margin-left:8px;">
+                    <span class="pending-dot active"></span>
+                    <span class="pending-dot"></span>
+                    <span class="pending-dot"></span>
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <div style="font-size:11px;color:var(--text-tertiary);">Distinguishing indexer lag from a failed transaction — this is not a user error.</div>
+          </div>
+          <div class="flow-actions">
+            <span></span>
+            <button class="btn btn-ghost">Re-check status</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State C: Manual re-check after timeout -->
+      <div>
+        <div class="variant-lbl">C — Auto-retry exhausted (60s), manual re-check surfaced</div>
+        <div class="flow-card">
+          <div class="flow-card-inner">
+            <div class="flow-title">Step 5 of 5 — Verify Registration</div>
+            <div class="alert-banner warn">
+              <div class="alert-icon">⚠</div>
+              <div class="alert-body">
+                <div class="alert-title warn">Indexer is taking longer than expected</div>
+                <p>Your on-chain registration is confirmed, but the indexer hasn't indexed it yet. This may indicate indexer downtime. Check <span style="color:var(--accent);cursor:pointer;">indexer status ↗</span> and retry manually when ready.</p>
+              </div>
+            </div>
+
+            <div class="summary-table">
+              <div class="summary-row">
+                <span class="summary-key">Transaction</span>
+                <span class="summary-val">Cq7r9mNhxP3...mK4p</span>
+                <span class="summary-copy">Copy</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key">On-chain status</span>
+                <span class="summary-val" style="color:var(--success);">Confirmed ✓</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key">Indexer status</span>
+                <span class="summary-val" style="color:var(--warning);">Not indexed after 60s</span>
+              </div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <span></span>
+            <button class="btn btn-ghost">Re-check status</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="annot-block">
+      <strong>State & URL Persistence</strong>
+      Transaction ID + PDA address are embedded in URL params so users can deep-link back to Step 5.
+      Auto-retry every 5s for up to 60s before surfacing manual re-check (State C). No localStorage for key material.
+      If user lands on Step 4+ without session state, redirect to Step 1 with explanatory notice.
+    </div>
+  </div>
+
+
+  <!-- §6 ACCESSIBILITY NOTES -->
+  <div class="section">
+    <div class="section-eyebrow">§6 &nbsp; Accessibility</div>
+    <div class="section-title">Accessibility Notes</div>
+    <div class="section-desc">
+      No icon-only states, copy affordances for all key material, keyboard-navigable code blocks.
+    </div>
+    <div class="annot-block" style="margin-top:0;">
+      <strong>Requirements</strong>
+      All status icons have text labels — no icon-only states (e.g., ✓ Pass, ✗ Error, ⚠ Warn).
+      Copy buttons: <code>aria-label="Copy [content type]"</code>, updated to <code>aria-label="Copied"</code> post-click for 1.5s.
+      Code blocks are keyboard-focusable; Ctrl+C works on focused block.
+      Step progress header: <code>&lt;nav aria-label="Registration progress"&gt;</code> with <code>aria-current="step"</code> on active step.
+      Error messages announced via <code>role="alert"</code> — not color-only signals.
+      Polling confirmation count updates via <code>aria-live="polite"</code>.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

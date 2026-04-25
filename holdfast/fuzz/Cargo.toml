@@ -1,0 +1,62 @@
+[package]
+name = "holdfast-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+# Standalone cargo-fuzz workspace — not part of the Holdfast Anchor workspace.
+# Run from this directory:
+#   cargo +nightly fuzz run fuzz_decay
+#   cargo +nightly fuzz run fuzz_payout
+#   cargo +nightly fuzz run fuzz_challenge
+#   cargo +nightly fuzz run fuzz_webauthn
+#   cargo +nightly fuzz run fuzz_init_params
+
+[package.metadata]
+cargo-fuzz = true
+
+[workspace]
+
+[dependencies]
+libfuzzer-sys = "0.4"
+arbitrary = { version = "1", features = ["derive"] }
+anchor-lang = { version = "0.31.1" }
+
+# Vaultpact program — fuzz-helpers exposes apply_decay, challenge fns, parser fns
+holdfast = { path = "../programs/vaultpact", features = ["fuzz-helpers"] }
+
+# Escrow program — fuzz-helpers exposes compute_dispute_payouts, validate_init_params
+holdfast-escrow = { path = "../programs/vaultpact-escrow", features = ["fuzz-helpers"] }
+
+[profile.release]
+debug = 1
+
+[[bin]]
+name = "fuzz_decay"
+path = "fuzz_targets/fuzz_decay.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_payout"
+path = "fuzz_targets/fuzz_payout.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_challenge"
+path = "fuzz_targets/fuzz_challenge.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_webauthn"
+path = "fuzz_targets/fuzz_webauthn.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_init_params"
+path = "fuzz_targets/fuzz_init_params.rs"
+test = false
+doc = false

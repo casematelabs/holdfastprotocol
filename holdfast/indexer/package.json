@@ -1,0 +1,25 @@
+{
+  "name": "@holdfastprotocol/indexer",
+  "version": "0.1.0",
+  "description": "Off-chain reputation history indexer for Holdfast Protocol",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc && node --test dist/subscriber.test.js dist/parser.test.js dist/escrow-parser.test.js dist/server.test.js",
+    "coverage": "tsc && c8 node --test dist/subscriber.test.js dist/parser.test.js dist/escrow-parser.test.js dist/server.test.js"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.0",
+    "better-sqlite3": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.0.0",
+    "c8": "^10.1.0",
+    "typescript": "^5.8.3"
+  }
+}

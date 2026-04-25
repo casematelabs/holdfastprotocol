@@ -1,0 +1,20 @@
+{
+  "name": "holdfast-quickstart",
+  "version": "0.0.0",
+  "private": true,
+  "description": "End-to-end quickstart for the Holdfast Protocol SDK — devnet",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@holdfastprotocol/sdk": "devnet",
+    "@solana/web3.js": "^1.95.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

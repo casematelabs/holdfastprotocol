@@ -1,0 +1,6 @@
+[workspace]
+name = "holdfast"
+
+[fuzz]
+fuzzing_with_stats = true
+allow_duplicate_txs = false

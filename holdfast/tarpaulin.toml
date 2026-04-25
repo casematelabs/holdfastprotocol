@@ -1,0 +1,7 @@
+[default]
+lib        = true
+workspace  = true
+timeout    = "120s"
+fail-under = 50
+out        = ["Html", "Lcov"]
+output-dir = "coverage"

@@ -1,0 +1,42 @@
+name: TypeScript Unit Coverage
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "holdfast/sdk/**"
+      - "holdfast/oracle/**"
+      - "holdfast/indexer/**"
+  pull_request:
+    paths:
+      - "holdfast/sdk/**"
+      - "holdfast/oracle/**"
+      - "holdfast/indexer/**"
+
+jobs:
+  coverage:
+    name: Coverage (${{ matrix.package }}, ≥80%)
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [sdk, oracle, indexer]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: holdfast/${{ matrix.package }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: holdfast/${{ matrix.package }}
+        run: npm ci
+
+      - name: Run coverage (80% gate)
+        working-directory: holdfast/${{ matrix.package }}
+        run: npm run coverage

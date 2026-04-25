@@ -1,0 +1,30 @@
+[package]
+name = "fuzz_0"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Standalone Trident workspace — excluded from the main Holdfast Anchor workspace
+# to avoid solana-program version conflicts. Build only via:
+#   trident fuzz run-hfuzz fuzz_0   (from holdfast/)
+#   trident fuzz run-afl fuzz_0
+[workspace]
+
+# Trident fuzz_0: vaultpact reputation lifecycle
+# Fuzzes: initialize_registry, init_reputation, update_reputation, validate_reputation_for_pact
+#
+# Run: trident fuzz run-hfuzz fuzz_0
+#       trident fuzz run-afl fuzz_0
+
+[dependencies]
+# Trident 0.8.0 is the first release with Anchor 0.31 support
+trident-client = "0.8.0"
+anchor-lang = { version = "0.31.1" }
+arbitrary = { version = "1", features = ["derive"] }
+
+# Vaultpact program (no-entrypoint so we can link as a library too)
+holdfast = { path = "../../../programs/vaultpact", features = ["no-entrypoint"] }
+
+[[bin]]
+name = "fuzz_0"
+path = "src/main.rs"

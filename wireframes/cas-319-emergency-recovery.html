@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAS-319 · Emergency Recovery Flows · Wireframe Spec</title>
+  <style>
+    :root {
+      --bg-page: #0D1117;
+      --bg-card: #141B27;
+      --bg-card-raised: #18202E;
+      --bg-hover: #1A2438;
+      --border: #1E2D42;
+      --border-hover: #2D4060;
+      --text-primary: #E8EDF2;
+      --text-secondary: #8A99AC;
+      --text-tertiary: #4D5E72;
+      --text-disabled: #2D3E52;
+      --accent: #2D8CFF;
+      --accent-dim: rgba(45, 140, 255, 0.12);
+      --accent-border: rgba(45, 140, 255, 0.22);
+      --success: #22C55E;
+      --success-dim: rgba(34, 197, 94, 0.08);
+      --success-border: rgba(34, 197, 94, 0.22);
+      --warning: #F59E0B;
+      --warning-dim: rgba(245, 158, 11, 0.08);
+      --warning-border: rgba(245, 158, 11, 0.22);
+      --danger: #EF4444;
+      --danger-bright: #FF2D2D;
+      --danger-dim: rgba(239, 68, 68, 0.08);
+      --danger-mid: rgba(239, 68, 68, 0.15);
+      --danger-border: rgba(239, 68, 68, 0.22);
+      --danger-border-bright: rgba(239, 68, 68, 0.45);
+      --purple: #A855F7;
+      --purple-dim: rgba(168, 85, 247, 0.10);
+      --purple-border: rgba(168, 85, 247, 0.22);
+      --annot: #253344;
+      --annot-text: #3D5268;
+      --font-ui: 'Helvetica Neue', 'Arial Nova', Arial, sans-serif;
+      --font-mono: 'Courier New', Courier, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ── HEADER ── */
+    .wf-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 40px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .wf-header-left { display: flex; align-items: center; gap: 12px; }
+    .wf-ticket {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+      color: var(--accent); background: var(--accent-dim);
+      border: 1px solid var(--accent-border); padding: 3px 8px;
+    }
+    .wf-title { font-size: 13px; font-weight: 500; letter-spacing: -0.01em; }
+    .wf-meta { font-size: 11px; color: var(--text-tertiary); display: flex; align-items: center; gap: 10px; }
+    .wf-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-tertiary); }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 1180px; margin: 0 auto; padding: 40px; }
+    .section { margin-bottom: 80px; }
+    .section-eyebrow {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 4px; }
+    .section-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 28px; max-width: 680px; line-height: 1.65; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .stack { display: flex; flex-direction: column; gap: 12px; }
+
+    /* ── ANNOTATIONS ── */
+    .dims { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .dim {
+      font-family: var(--font-mono); font-size: 9px; color: var(--annot-text);
+      border: 1px dashed var(--annot); padding: 1px 5px; line-height: 18px;
+      background: rgba(13,17,23,0.7);
+    }
+    .annot-block {
+      background: rgba(13,17,23,0.6); border: 1px dashed var(--annot);
+      padding: 10px 14px; margin-top: 12px; font-size: 11px; color: var(--annot-text);
+      line-height: 1.55;
+    }
+    .annot-block strong {
+      color: var(--text-tertiary); font-weight: 700; font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px;
+    }
+    .annot-block a { color: var(--accent); text-decoration: none; }
+    .variant-lbl {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+      margin-bottom: 8px; color: var(--text-tertiary);
+    }
+    .a11y-note {
+      background: rgba(45,140,255,0.05); border: 1px dashed var(--accent-border);
+      padding: 8px 12px; margin-top: 10px; font-size: 11px; color: var(--text-secondary);
+      line-height: 1.55;
+    }
+    .a11y-note strong {
+      color: var(--accent); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 2px;
+    }
+
+    /* ── SHARED PANEL CHROME ── */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+    }
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-header-left { display: flex; align-items: center; gap: 10px; }
+    .panel-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+    .panel-badge {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em;
+      color: var(--text-tertiary); background: var(--bg-page);
+      border: 1px solid var(--border); padding: 1px 6px;
+    }
+    .panel-badge.danger {
+      color: var(--danger); background: var(--danger-dim);
+      border-color: var(--danger-border);
+    }
+    .panel-action {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 4px;
+    }
+    .panel-action.danger { color: var(--danger); }
+    .panel-body { padding: 20px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-border); }
+    .btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid var(--danger-border); }
+    .btn-danger-solid {
+      background: var(--danger); color: #fff; border: 1px solid var(--danger);
+      letter-spacing: 0.04em;
+    }
+    .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-success { background: var(--success-dim); color: var(--success); border: 1px solid var(--success-border); }
+
+    /* ── FORM ELEMENTS ── */
+    .form-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 6px; display: block;
+    }
+    .form-input {
+      width: 100%; background: var(--bg-page); border: 1px solid var(--border);
+      color: var(--text-primary); font-family: var(--font-ui); font-size: 12px;
+      padding: 8px 12px; line-height: 1.4;
+    }
+    .form-input:focus { outline: none; border-color: var(--border-focus); }
+    .form-input.mono { font-family: var(--font-mono); }
+    .form-textarea {
+      width: 100%; background: var(--bg-page); border: 1px solid var(--border);
+      color: var(--text-primary); font-family: var(--font-ui); font-size: 12px;
+      padding: 8px 12px; line-height: 1.55; resize: vertical; min-height: 72px;
+    }
+    .form-select {
+      width: 100%; background: var(--bg-page); border: 1px solid var(--border);
+      color: var(--text-primary); font-family: var(--font-ui); font-size: 12px;
+      padding: 8px 12px;
+    }
+    .form-hint { font-size: 10px; color: var(--text-tertiary); margin-top: 4px; }
+    .form-hint.danger { color: var(--danger); }
+    .form-group { margin-bottom: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── BADGES / STATUS PILLS ── */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 8px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .status-pill .dot { width: 5px; height: 5px; border-radius: 50%; }
+    .pill-success { background: var(--success-dim); color: var(--success); border: 1px solid var(--success-border); }
+    .pill-warning { background: var(--warning-dim); color: var(--warning); border: 1px solid var(--warning-border); }
+    .pill-danger  { background: var(--danger-dim);  color: var(--danger);  border: 1px solid var(--danger-border); }
+    .pill-accent  { background: var(--accent-dim);  color: var(--accent);  border: 1px solid var(--accent-border); }
+    .pill-neutral { background: transparent; color: var(--text-tertiary); border: 1px solid var(--border); }
+    .pill-purple  { background: var(--purple-dim);  color: var(--purple);  border: 1px solid var(--purple-border); }
+
+    /* ── STEP INDICATOR ── */
+    .step-row {
+      display: flex; align-items: center; gap: 0; margin-bottom: 24px;
+    }
+    .step-item {
+      display: flex; align-items: center; gap: 8px; flex: 1;
+    }
+    .step-item:last-child { flex: none; }
+    .step-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; flex-shrink: 0;
+    }
+    .step-num.active { background: var(--danger); color: #fff; }
+    .step-num.done   { background: var(--success-dim); color: var(--success); border: 1px solid var(--success-border); }
+    .step-num.idle   { background: var(--bg-card-raised); color: var(--text-tertiary); border: 1px solid var(--border); }
+    .step-label { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; }
+    .step-label.active { color: var(--text-primary); }
+    .step-label.done   { color: var(--success); }
+    .step-label.idle   { color: var(--text-tertiary); }
+    .step-connector { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
+    .step-connector.done { background: var(--success-border); }
+
+    /* ── ATTESTATION SELECTOR ── */
+    .attest-option {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      background: var(--bg-page);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .attest-option.selected {
+      border-color: var(--accent-border);
+      background: var(--accent-dim);
+    }
+    .attest-option-radio {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid var(--border); flex-shrink: 0; margin-top: 1px;
+    }
+    .attest-option.selected .attest-option-radio {
+      border-color: var(--accent);
+      background: radial-gradient(circle, var(--accent) 40%, transparent 40%);
+    }
+    .attest-option-label { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+    .attest-option-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; line-height: 1.5; }
+    .attest-option-tag {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 1px 5px; margin-top: 5px; display: inline-block;
+    }
+    .tag-hw { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
+    .tag-sw { background: var(--accent-dim);  color: var(--accent);  border: 1px solid var(--accent-border); }
+
+    /* ── BACKUP KEY LIST ITEM ── */
+    .key-row {
+      display: flex; align-items: center; gap: 0;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 18px;
+    }
+    .key-row:last-child { border-bottom: none; }
+    .key-row-left { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .key-fingerprint {
+      font-family: var(--font-mono); font-size: 11px; color: var(--text-primary);
+      letter-spacing: 0.04em;
+    }
+    .key-meta-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .key-meta-item { font-size: 10px; color: var(--text-tertiary); }
+    .key-row-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    /* ── ROTATION HISTORY TABLE ── */
+    .history-table { width: 100%; border-collapse: collapse; }
+    .history-table th {
+      text-align: left;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-tertiary);
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-page);
+    }
+    .history-table td {
+      padding: 10px 14px;
+      font-size: 11px; color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .history-table tr:last-child td { border-bottom: none; }
+    .history-table tr:hover td { background: var(--bg-hover); }
+    .history-table td.mono { font-family: var(--font-mono); font-size: 10px; color: var(--text-primary); }
+    .table-link {
+      color: var(--accent); font-size: 10px; display: inline-flex; align-items: center; gap: 3px;
+    }
+    .history-filter-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-page);
+    }
+    .filter-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); flex-shrink: 0; }
+    .filter-input-sm {
+      background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text-primary); font-family: var(--font-ui); font-size: 11px;
+      padding: 4px 10px; min-width: 120px;
+    }
+
+    /* ── COMPROMISE EMERGENCY BANNER ── */
+    .emergency-banner {
+      display: flex; align-items: flex-start; gap: 16px;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, rgba(239,68,68,0.14) 0%, rgba(239,68,68,0.06) 60%, transparent 100%);
+      border: 1px solid var(--danger-border-bright);
+      border-left: 3px solid var(--danger);
+      position: relative;
+    }
+    .emergency-banner-pulse {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--danger); flex-shrink: 0; margin-top: 3px;
+      animation: pulse-danger 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse-danger {
+      0%   { box-shadow: 0 0 0 0 rgba(239,68,68,0.6); }
+      60%  { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+      100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+    }
+    .emergency-banner-body { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .emergency-banner-title {
+      font-size: 13px; font-weight: 800; color: var(--danger);
+      letter-spacing: 0.01em;
+    }
+    .emergency-banner-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+    .emergency-banner-actions { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+
+    /* ── REVOCATION APPEAL PANEL ── */
+    .revoked-header-block {
+      display: flex; align-items: flex-start; gap: 20px;
+      padding: 24px;
+      background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(239,68,68,0.04) 80%, transparent 100%);
+      border: 1px solid var(--danger-border-bright);
+    }
+    .revoked-icon-zone {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--danger-dim); border: 2px solid var(--danger-border-bright);
+      flex-shrink: 0;
+      font-size: 22px;
+    }
+    .revoked-header-text { flex: 1; }
+    .revoked-header-title { font-size: 18px; font-weight: 800; color: var(--danger); letter-spacing: -0.02em; margin-bottom: 4px; }
+    .revoked-header-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+    .revoked-reason-row {
+      display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; margin-top: 14px;
+    }
+    .revoked-reason-item { display: flex; flex-direction: column; gap: 3px; }
+    .revoked-reason-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .revoked-reason-value { font-size: 12px; color: var(--text-secondary); }
+    .revoked-reason-value.mono { font-family: var(--font-mono); font-size: 11px; }
+
+    /* ── APPEAL PROGRESS TRACKER ── */
+    .appeal-track { display: flex; flex-direction: column; gap: 0; }
+    .appeal-track-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .appeal-track-item:last-child { border-bottom: none; }
+    .appeal-track-spine {
+      display: flex; flex-direction: column; align-items: center; gap: 0;
+      flex-shrink: 0;
+    }
+    .appeal-track-dot {
+      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+    }
+    .appeal-track-dot.done    { background: var(--success); }
+    .appeal-track-dot.active  { background: var(--warning); animation: pulse-danger 1.4s ease-in-out infinite; }
+    .appeal-track-dot.pending { background: var(--bg-card-raised); border: 1px solid var(--border); }
+    .appeal-track-line {
+      width: 1px; height: calc(100% + 28px); background: var(--border); margin-top: 4px;
+    }
+    .appeal-track-item:last-child .appeal-track-line { display: none; }
+    .appeal-track-content { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+    .appeal-track-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+    .appeal-track-name.done   { color: var(--success); }
+    .appeal-track-name.active { color: var(--warning); }
+    .appeal-track-name.pending{ color: var(--text-tertiary); }
+    .appeal-track-ts { font-size: 10px; color: var(--text-tertiary); }
+    .appeal-track-note { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-top: 4px; }
+
+    /* ── CONFIRMATION BOX ── */
+    .confirm-box {
+      background: var(--danger-dim);
+      border: 1px solid var(--danger-border);
+      padding: 14px 16px;
+    }
+    .confirm-box-title {
+      font-size: 11px; font-weight: 700; color: var(--danger);
+      letter-spacing: 0.04em; margin-bottom: 8px;
+    }
+    .confirm-checkbox-row {
+      display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px;
+    }
+    .confirm-checkbox {
+      width: 13px; height: 13px; border: 1px solid var(--danger-border); flex-shrink: 0; margin-top: 1px;
+    }
+    .confirm-checkbox-label { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* ── MODAL CHROME (inline simulation) ── */
+    .modal-shell {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hover);
+      box-shadow: 0 8px 48px rgba(0,0,0,0.6), 0 2px 12px rgba(0,0,0,0.4);
+      max-width: 560px;
+      width: 100%;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-header.danger-header {
+      background: linear-gradient(135deg, rgba(239,68,68,0.10) 0%, transparent 100%);
+      border-bottom-color: var(--danger-border);
+    }
+    .modal-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+    .modal-title.danger { color: var(--danger); }
+    .modal-close {
+      width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--text-tertiary); cursor: pointer;
+    }
+    .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+    }
+    .modal-footer.danger-footer {
+      border-top-color: var(--danger-border);
+      background: rgba(239,68,68,0.04);
+    }
+
+    /* ── INLINE MODAL WRAPPER ── */
+    .modal-scene {
+      background: rgba(13,17,23,0.85);
+      border: 1px dashed var(--annot);
+      padding: 32px;
+      display: flex; justify-content: center;
+    }
+
+    /* ── MISC ── */
+    .flex-row { display: flex; align-items: center; gap: 10px; }
+    .flex-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .monochip {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--text-secondary); background: var(--bg-page);
+      border: 1px solid var(--border); padding: 2px 6px;
+    }
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+    .info-row {
+      display: flex; align-items: flex-start; gap: 32px; flex-wrap: wrap;
+    }
+    .info-item { display: flex; flex-direction: column; gap: 3px; }
+    .info-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .info-value { font-size: 12px; color: var(--text-secondary); }
+    .info-value.mono { font-family: var(--font-mono); font-size: 11px; color: var(--text-primary); }
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 24px; gap: 8px;
+    }
+    .empty-state-icon { font-size: 28px; color: var(--text-disabled); }
+    .empty-state-text { font-size: 12px; color: var(--text-tertiary); text-align: center; }
+
+    /* ── SECTION NAV ── */
+    .section-nav {
+      display: flex; gap: 0; margin-bottom: 48px;
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .section-nav-item {
+      flex: 1; padding: 10px 14px; text-align: center;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-tertiary); border-right: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .section-nav-item:last-child { border-right: none; }
+    .section-nav-item.active { color: var(--accent); background: var(--accent-dim); }
+    .section-nav-item.danger-active { color: var(--danger); background: var(--danger-dim); }
+
+    /* ── WALLET SIGN MOCK ── */
+    .wallet-sign-block {
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .wallet-sign-header {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; color: var(--text-secondary);
+    }
+    .wallet-sign-detail { font-size: 10px; color: var(--text-tertiary); }
+    .wallet-sign-detail span { color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+
+<!-- STICKY HEADER -->
+<header class="wf-header">
+  <div class="wf-header-left">
+    <span class="wf-ticket">CAS-319</span>
+    <span class="wf-title">Emergency Recovery Flows · Backup Keys, Compromise, Revocation Appeal</span>
+  </div>
+  <div class="wf-meta">
+    <span>Holdfast Protocol · Custody Page</span>
+    <span class="wf-dot"></span>
+    <span>UI/UX Design · 2026-04-23 · rev 2</span>
+    <span class="wf-dot"></span>
+    <span>4 sections · §1 removed (no on-chain backup key support)</span>
+  </div>
+</header>
+
+<main class="page">
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       §0  CUSTODY PAGE OVERVIEW — placement of new sections
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-eyebrow">§0 <span>Custody page — structural overview</span></div>
+    <div class="section-title">Custody Page Layout — Post CAS-319</div>
+    <div class="section-desc">
+      Shows where the four new emergency-recovery zones sit within the existing custody page.
+      The key rotation section already exists; all zones below it are net-new.
+      The Revocation Appeal zone is conditionally rendered only when custody status = <code>REVOKED</code>.
+    </div>
+
+    <!-- Page skeleton -->
+    <div class="panel" style="max-width: 860px;">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <span class="panel-label">Custody Management</span>
+          <span class="panel-badge">Holdfast Protocol</span>
+        </div>
+        <span class="status-pill pill-success"><span class="dot" style="background:var(--success);border-radius:50%"></span>Registered</span>
+      </div>
+
+      <!-- Existing: Key Rotation -->
+      <div style="border-bottom:1px solid var(--border); padding:14px 18px; background:var(--bg-page);">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:2px;">Existing Section</div>
+        <div style="font-size:12px;color:var(--text-secondary);">Key Rotation — Initiate Key Rotation button + confirmation</div>
+      </div>
+
+      <!-- REMOVED: Backup Keys -->
+      <div style="border-bottom:1px solid var(--border); padding:14px 18px; background: rgba(77,94,114,0.06); opacity:0.5;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:2px;">Removed · §1 — No On-Chain Support</div>
+        <div style="font-size:12px;color:var(--text-tertiary);">Backup Keys — struck per CAS-361: <code>enroll/revoke_backup_key</code> stripped from program; <code>AgentWallet</code> has no backup key field. Extension tracked separately.</div>
+      </div>
+
+      <!-- NEW: Key Rotation History -->
+      <div style="border-bottom:1px solid var(--border); padding:14px 18px; background: rgba(45,140,255,0.03);">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:2px;">New · §3</div>
+        <div style="font-size:12px;color:var(--text-secondary);">Key Rotation History — log table, date filter</div>
+      </div>
+
+      <!-- NEW: Emergency Key Actions (danger zone) -->
+      <div style="border-bottom:1px solid var(--danger-border); padding:14px 18px; background: rgba(239,68,68,0.04);">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--danger);margin-bottom:2px;">New · §2 — Danger Zone (revised)</div>
+        <div style="font-size:12px;color:var(--text-secondary);">Emergency Key Actions — two explicit paths: (A) rotate now via <code>rotate_agent_key</code> if key is accessible; (B) no-signature governance appeal if key is lost/stolen</div>
+      </div>
+
+      <!-- CONDITIONAL: Revocation Appeal -->
+      <div style="padding:14px 18px; background: rgba(239,68,68,0.06); border-left:3px solid var(--danger);">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--danger);margin-bottom:2px;">Conditional · §4 — Renders only when status = REVOKED</div>
+        <div style="font-size:12px;color:var(--text-secondary);">Revocation Appeal — reason block, appeal form, governance tracker</div>
+      </div>
+    </div>
+
+    <div class="annot-block" style="max-width:860px">
+      <strong>Layout rule</strong>
+      Emergency zones appear below the normal rotation section so operators reach key rotation first.
+      The Danger Zone (compromise) uses a bottom-of-section position with a distinct background shift —
+      operators must scroll to reach it intentionally; it cannot be activated by accident.
+      The Revocation Appeal block replaces nothing — it is additive; existing sections remain visible for reference.
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       §1  BACKUP KEY ENROLLMENT — REMOVED
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-eyebrow">§1 <span>Backup key enrollment — removed</span></div>
+    <div style="background:rgba(77,94,114,0.08);border:1px dashed var(--border);padding:20px 24px;max-width:860px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:8px;">Section struck — no on-chain backup key support</div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
+        Per <strong style="color:var(--text-primary);">CAS-361</strong> engineering pre-check (2026-04-22), the Holdfast Protocol program
+        does not implement <code>register_backup_key</code>, <code>revoke_backup_key</code>, or
+        <code>report_key_compromise</code>. These were explicitly stripped in the fork (ADR-001, line 63).
+        The <code>AgentWallet</code> struct (132 bytes) stores one secp256r1 key pair only —
+        no secondary key field, no backup key array, no key count.
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-top:10px;">
+        <strong style="color:var(--text-primary);">Path forward:</strong> Backup key program extension
+        (<code>register_backup_key</code>, <code>revoke_backup_key</code>, <code>report_key_compromise</code>
+        instructions + <code>AgentWallet</code> struct extension) is tracked as a separate issue.
+        Once implemented and audited, this section will be re-designed. Until then, §4 (governance
+        appeal) is the sole key recovery path.
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       §2  EMERGENCY KEY ACTIONS (revised — two explicit paths)
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-eyebrow">§2 <span>Emergency key actions — revised</span></div>
+    <div class="section-title">Emergency Key Actions</div>
+    <div class="section-desc">
+      A persistent danger-zone panel at the bottom of the custody page.
+      Redesigned to present two explicit, accurate recovery paths based on what the on-chain program
+      actually supports: (A) <strong>Rotate Key Now</strong> — if you still control your key but
+      suspect it is at risk, use <code>rotate_agent_key</code> immediately; (B) <strong>Governance
+      Appeal</strong> — if you have lost control of the key and cannot sign, go directly to the
+      off-chain governance appeal flow (§4). No <code>report_key_compromise</code> instruction exists.
+    </div>
+
+    <!-- The revised danger zone panel -->
+    <div style="max-width:900px; margin-bottom:24px;">
+      <div class="variant-lbl">Panel: Emergency Key Actions (always visible, bottom of custody page)</div>
+      <div class="panel" style="border-color:var(--danger-border);">
+        <div class="panel-header" style="border-bottom-color:var(--danger-border); background:rgba(239,68,68,0.04);">
+          <div class="panel-header-left">
+            <span class="panel-label" style="color:var(--danger);">Emergency Actions</span>
+            <span class="panel-badge danger">Use with caution</span>
+          </div>
+        </div>
+        <div class="panel-body" style="display:flex;flex-direction:column;gap:0;">
+
+          <!-- Path A: Rotate Now -->
+          <div class="emergency-banner" style="border-left-color:var(--danger);margin-bottom:1px;">
+            <div class="emergency-banner-pulse"></div>
+            <div class="emergency-banner-body">
+              <div class="emergency-banner-title" style="font-size:12px;">Path A — Key Accessible: Rotate Immediately</div>
+              <div class="emergency-banner-desc">
+                If you still control your key but suspect it has been exposed or observed by an
+                unauthorized party — rotate now. This signs a <code>rotate_agent_key</code>
+                transaction, invalidating your current key and replacing it in one step.
+              </div>
+              <div class="emergency-banner-actions">
+                <span class="btn btn-danger-solid" style="font-size:10px;">⚡ Rotate Key Now</span>
+                <span style="font-size:10px;color:var(--text-tertiary);">Requires wallet signature · Immediate on-chain effect</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Path B: No-Signature Appeal -->
+          <div style="display:flex;align-items:flex-start;gap:16px;padding:16px 20px;background:rgba(239,68,68,0.04);border:1px solid var(--danger-border);border-top:none;">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--danger);flex-shrink:0;margin-top:3px;opacity:0.5;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+              <div style="font-size:12px;font-weight:800;color:var(--text-primary);">Path B — Key Lost or Stolen: Governance Appeal</div>
+              <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+                If you no longer control the key and cannot sign any transaction, the only recovery
+                path is a governance appeal. No on-chain signature is required — the governance oracle
+                will review your identity evidence and authorize a key replacement.
+                Resolution takes 48–72 hours.
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                <span class="btn btn-danger" style="font-size:10px;">Request Governance Appeal →</span>
+                <span style="font-size:10px;color:var(--text-tertiary);">No wallet signature required · Slower resolution</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="annot-block" style="max-width:900px;">
+      <strong>Visual distinction rule</strong>
+      Three independent danger signals remain: (1) pulsing dot on Path A, (2) left red border accent
+      on Path A banner, (3) overall panel red border. Path B is visually de-escalated (no pulse,
+      slightly dimmer) because it is slower and does not require an irreversible immediate action.
+      Both paths are still clearly in the red danger language — no risk of confusing either with a
+      standard info or warning banner.
+    </div>
+
+    <!-- §2b — Path A Modal: Emergency Key Rotation -->
+    <div style="margin-top:36px;">
+      <div class="variant-lbl" style="margin-bottom:12px;">§2b — Path A Modal: Emergency Key Rotation (2-step)</div>
+      <div class="section-desc" style="margin-bottom:20px;">
+        Triggered by "Rotate Key Now". Simplified two-step flow — reason + new key, then confirm
+        and sign. Uses the existing <code>rotate_agent_key</code> instruction. No backup key fallback.
+      </div>
+
+      <div class="grid-2" style="max-width:1160px; gap:16px;">
+        <!-- Step 1: Reason + New Key -->
+        <div>
+          <div class="variant-lbl" style="font-size:9px;margin-bottom:6px;">Step 1 of 2 — Reason &amp; New Key</div>
+          <div class="modal-scene">
+            <div class="modal-shell">
+              <div class="modal-header danger-header">
+                <span class="modal-title danger">⚡ Emergency Key Rotation</span>
+                <span class="modal-close" style="color:var(--danger);">✕</span>
+              </div>
+              <div class="modal-body">
+                <div class="step-row">
+                  <div class="step-item">
+                    <div class="step-num active" style="background:var(--danger);">1</div>
+                    <span class="step-label active">Reason &amp; New Key</span>
+                  </div>
+                  <div class="step-connector"></div>
+                  <div class="step-item">
+                    <div class="step-num idle">2</div>
+                    <span class="step-label idle">Confirm &amp; Sign</span>
+                  </div>
+                </div>
+
+                <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;background:var(--warning-dim);border:1px solid var(--warning-border);padding:10px 14px;">
+                  This rotation is immediate and irreversible. Your current key will be invalidated
+                  the moment the transaction confirms. Have your new key ready before continuing.
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Why are you doing an emergency rotation?</label>
+                  <select class="form-select">
+                    <option>Select a reason…</option>
+                    <option>Key exposure suspected (file, clipboard, screen)</option>
+                    <option>Unauthorized transaction observed</option>
+                    <option>Device may be compromised</option>
+                    <option>Phishing or social engineering attempt</option>
+                    <option>Infrastructure breach</option>
+                    <option>Other</option>
+                  </select>
+                  <div class="form-hint">Logged for your governance record. Does not affect the rotation itself.</div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">New replacement key (secp256r1, uncompressed hex)</label>
+                  <input class="form-input mono" placeholder="0x04…" style="font-size:11px;" />
+                  <div class="form-hint">Must be a fresh key not previously registered. Provide the full 65-byte uncompressed public key.</div>
+                </div>
+              </div>
+              <div class="modal-footer danger-footer">
+                <span class="btn btn-ghost">Cancel</span>
+                <span class="btn btn-danger">Continue →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Confirm & Sign -->
+        <div>
+          <div class="variant-lbl" style="font-size:9px;margin-bottom:6px;">Step 2 of 2 — Confirm &amp; Sign</div>
+          <div class="modal-scene">
+            <div class="modal-shell">
+              <div class="modal-header danger-header">
+                <span class="modal-title danger">⚡ Emergency Key Rotation</span>
+                <span class="modal-close" style="color:var(--danger);">✕</span>
+              </div>
+              <div class="modal-body">
+                <div class="step-row">
+                  <div class="step-item">
+                    <div class="step-num done" style="background:var(--danger-dim);color:var(--danger);border:1px solid var(--danger-border);">✓</div>
+                    <span class="step-label done" style="color:var(--danger);">Reason &amp; New Key</span>
+                  </div>
+                  <div class="step-connector done" style="background:var(--danger-border);"></div>
+                  <div class="step-item">
+                    <div class="step-num active" style="background:var(--danger);">2</div>
+                    <span class="step-label active">Confirm &amp; Sign</span>
+                  </div>
+                </div>
+
+                <!-- Summary -->
+                <div style="background:var(--danger-dim);border:1px solid var(--danger-border);padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+                  <div style="font-size:11px;font-weight:700;color:var(--danger);letter-spacing:0.04em;">This rotation will:</div>
+                  <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;display:flex;flex-direction:column;gap:5px;">
+                    <div>• Sign and submit a <strong style="color:var(--text-primary);">rotate_agent_key</strong> transaction to the Holdfast Protocol</div>
+                    <div>• Immediately invalidate your current key <span class="monochip" style="font-size:9px;display:inline;">8pGz…k7TW</span></div>
+                    <div>• Register your new key as the active custody key</div>
+                    <div>• Log the rotation in your Key Rotation History (§3)</div>
+                  </div>
+                </div>
+
+                <div class="confirm-box">
+                  <div class="confirm-box-title">I understand the consequences</div>
+                  <div class="confirm-checkbox-row">
+                    <div class="confirm-checkbox"></div>
+                    <div class="confirm-checkbox-label">My current key will be permanently invalidated. I have the new key ready and will not lose access.</div>
+                  </div>
+                  <div class="confirm-checkbox-row">
+                    <div class="confirm-checkbox"></div>
+                    <div class="confirm-checkbox-label">I am authorized to rotate the key for this agent.</div>
+                  </div>
+                </div>
+
+                <div class="wallet-sign-block">
+                  <div class="wallet-sign-header">
+                    <span>⬡</span>
+                    <span>On-chain key rotation transaction</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">
+                    Sign using your <strong>current</strong> custody key. The transaction atomically
+                    rotates to the new key — the current key cannot be used after confirmation.
+                  </div>
+                  <div class="wallet-sign-detail">
+                    Program: <span>HoldF…Vau1t</span> · Instruction: <span>rotate_agent_key</span>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer danger-footer">
+                <span class="btn btn-ghost">← Back</span>
+                <span class="btn btn-danger-solid">⚡ Sign &amp; Rotate Key</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Post-rotation success state -->
+      <div style="margin-top:16px;">
+        <div class="variant-lbl" style="font-size:9px;margin-bottom:6px;">Post-Rotation Success State</div>
+        <div class="modal-scene" style="max-width:600px;">
+          <div class="modal-shell">
+            <div class="modal-header">
+              <span class="modal-title" style="color:var(--success);">Key Rotated Successfully</span>
+              <span class="modal-close">✕</span>
+            </div>
+            <div class="modal-body" style="align-items:center;text-align:center;padding:32px 20px;">
+              <div style="font-size:36px;margin-bottom:8px;">✅</div>
+              <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:6px;">Emergency Rotation Complete</div>
+              <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;max-width:380px;">
+                Your old key has been invalidated and your new key is now active on-chain.
+                All future custody operations will require the new key.
+              </div>
+              <div class="monochip" style="margin-top:12px;">Tx: 3nQP…m5Wk</div>
+            </div>
+            <div class="modal-footer" style="justify-content:center;">
+              <span class="btn btn-success">Done</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- §2c — Path B: No-Signature Appeal Entry -->
+    <div style="margin-top:36px;">
+      <div class="variant-lbl" style="margin-bottom:12px;">§2c — Path B: No-Signature Appeal Entry</div>
+      <div class="section-desc" style="margin-bottom:20px;">
+        Triggered by "Request Governance Appeal". No modal — redirects the operator directly into
+        the §4 Revocation Appeal section with a contextual banner pre-explaining why they arrived.
+        No on-chain signature required. The governance oracle initiates and tracks the revocation status.
+      </div>
+
+      <div style="max-width:700px;">
+        <div class="variant-lbl" style="font-size:9px;margin-bottom:6px;">Contextual Handoff Banner — injected at top of §4</div>
+        <div style="background:rgba(239,68,68,0.06);border:1px solid var(--danger-border);border-left:3px solid var(--danger);padding:14px 18px;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:12px;font-weight:700;color:var(--danger);">You arrived here from Emergency Actions — Path B</div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            Because you cannot sign with your current key, recovery requires a governance appeal.
+            Fill out the form below with your identity evidence and new replacement key.
+            The governance oracle will review within 48–72 hours. No wallet connection needed.
+          </div>
+        </div>
+      </div>
+
+      <div class="annot-block" style="max-width:700px;margin-top:12px;">
+        <strong>Implementation note</strong>
+        "Request Governance Appeal" scrolls the page to §4 and injects the contextual banner via
+        a URL hash or React state flag. No navigation to a new page — the §4 section is already
+        present on the same custody page (when status is not yet REVOKED, display §4 in a
+        collapsed/accessible state so Path B can expand it).
+        Engineering open question: when status is not REVOKED, should §4 be hidden entirely or
+        collapsed with an expand trigger? Flag for product decision (see §5 Q3).
+      </div>
+    </div>
+
+    <div class="annot-block" style="margin-top:20px;max-width:900px;">
+      <strong>Why two paths, not one modal</strong>
+      The original design used a single "report_key_compromise" flow that doesn't correspond to any
+      on-chain instruction. The two-path redesign maps directly to what the program supports:
+      (A) <code>rotate_agent_key</code> — exists, requires signer; (B) governance appeal — off-chain,
+      no signer needed. The paths are visually and functionally separate so operators in a stressful
+      situation cannot accidentally start Path A when they need Path B.
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       §3  KEY ROTATION HISTORY
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-eyebrow">§3 <span>Key rotation history</span></div>
+    <div class="section-title">Key Rotation Log</div>
+    <div class="section-desc">
+      Chronological log of all key rotation events for this agent. Positioned below the key rotation
+      section and above the Emergency Actions panel. Filterable by date range. Explorer links open
+      Solana Explorer in a new tab.
+    </div>
+
+    <div style="max-width:1060px;">
+      <div class="variant-lbl" style="margin-bottom:8px;">State: Populated log with date filter</div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <span class="panel-label">Key Rotation History</span>
+            <span class="panel-badge">4 events</span>
+          </div>
+          <span class="panel-action">Export CSV</span>
+        </div>
+
+        <!-- Filter row -->
+        <div class="history-filter-row">
+          <span class="filter-label">Filter</span>
+          <input class="filter-input-sm" type="text" placeholder="From date" value="2026-01-01" />
+          <span style="font-size:10px;color:var(--text-tertiary);">→</span>
+          <input class="filter-input-sm" type="text" placeholder="To date" value="2026-04-22" />
+          <span class="btn btn-ghost" style="font-size:9px;padding:4px 10px;">Apply</span>
+          <span class="btn btn-ghost" style="font-size:9px;padding:4px 10px;margin-left:auto;">Clear</span>
+        </div>
+
+        <!-- Table -->
+        <div style="overflow-x:auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Triggered By</th>
+                <th>Old Key (truncated)</th>
+                <th>New Key (truncated)</th>
+                <th>Status</th>
+                <th>Explorer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Apr 22, 2026 09:14</td>
+                <td>Key Compromise Report</td>
+                <td class="mono">8pGz…k7TW</td>
+                <td class="mono">—</td>
+                <td><span class="status-pill pill-danger" style="font-size:9px;">Revoked</span></td>
+                <td><span class="table-link">Tx: 7mXQ…k2Rp ↗</span></td>
+              </tr>
+              <tr>
+                <td>Apr 18, 2026 14:33</td>
+                <td>Operator (manual rotation)</td>
+                <td class="mono">G7eK…p3YQ</td>
+                <td class="mono">8pGz…k7TW</td>
+                <td><span class="status-pill pill-success" style="font-size:9px;">Confirmed</span></td>
+                <td><span class="table-link">Tx: 4xNR…r1Jm ↗</span></td>
+              </tr>
+              <tr>
+                <td>Feb 14, 2026 09:01</td>
+                <td>Backup Key Rotation</td>
+                <td class="mono">BK9m…vW3L</td>
+                <td class="mono">G7eK…p3YQ</td>
+                <td><span class="status-pill pill-success" style="font-size:9px;">Confirmed</span></td>
+                <td><span class="table-link">Tx: 2kPT…m8Sf ↗</span></td>
+              </tr>
+              <tr>
+                <td>Jan 03, 2026 17:20</td>
+                <td>Initial Registration</td>
+                <td class="mono">—</td>
+                <td class="mono">BK9m…vW3L</td>
+                <td><span class="status-pill pill-success" style="font-size:9px;">Confirmed</span></td>
+                <td><span class="table-link">Tx: 9zCX…k4Qv ↗</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="dims">
+        <span class="dim">Date col: 160px</span>
+        <span class="dim">Triggered By: 200px</span>
+        <span class="dim">Key cols: 130px each</span>
+        <span class="dim">Status: 100px</span>
+        <span class="dim">Explorer: 120px</span>
+      </div>
+    </div>
+
+    <div class="annot-block" style="max-width:1060px; margin-top:12px;">
+      <strong>Data source</strong>
+      Events are indexed from on-chain program logs via the Holdfast indexer. The "Triggered By" field
+      is derived from the instruction context: operator wallet vs backup key vs governance instruction.
+      "Revoked" rows show no new key because the rotation was a unilateral revoke, not a rotation.
+      The date filter applies to the local display only (client-side); no pagination API required for
+      typical operator history volumes (&lt;100 events).
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       §4  REVOCATION APPEAL UI
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-eyebrow">§4 <span>Revocation appeal — conditional section</span></div>
+    <div class="section-title">Revocation Appeal</div>
+    <div class="section-desc">
+      Rendered only when the agent's custody status is <code>REVOKED</code>. Explains why the revocation
+      happened (populated from on-chain event data when available), provides an appeal form,
+      and shows a live governance/oracle resolution status tracker.
+    </div>
+
+    <!-- Revoked header block -->
+    <div style="max-width:900px;">
+      <div class="variant-lbl" style="margin-bottom:8px;">Full Revocation Appeal Panel</div>
+
+      <div class="stack" style="gap:0;">
+        <!-- Header block -->
+        <div class="revoked-header-block">
+          <div class="revoked-icon-zone">🔒</div>
+          <div class="revoked-header-text">
+            <div class="revoked-header-title">Custody Access Revoked</div>
+            <div class="revoked-header-sub">
+              Your primary custody key has been revoked. New escrow creation and key rotation are
+              suspended pending governance resolution. Existing locked escrows remain protected.
+            </div>
+            <div class="revoked-reason-row">
+              <div class="revoked-reason-item">
+                <div class="revoked-reason-label">Revocation Reason</div>
+                <div class="revoked-reason-value">Key Compromise Reported</div>
+              </div>
+              <div class="revoked-reason-item">
+                <div class="revoked-reason-label">Revoked At</div>
+                <div class="revoked-reason-value">Apr 22, 2026 · 09:14 UTC</div>
+              </div>
+              <div class="revoked-reason-item">
+                <div class="revoked-reason-label">Governance Case</div>
+                <div class="revoked-reason-value mono">GCV-2891</div>
+              </div>
+              <div class="revoked-reason-item">
+                <div class="revoked-reason-label">Revocation Tx</div>
+                <div class="revoked-reason-value"><span class="table-link" style="font-size:11px;">7mXQ…k2Rp ↗</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-column: Appeal form + Status tracker -->
+        <div class="grid-2" style="gap:0; border-top:1px solid var(--border);">
+          <!-- Appeal Form -->
+          <div style="border-right:1px solid var(--border);">
+            <div class="panel-header" style="background:var(--bg-page);">
+              <div class="panel-header-left">
+                <span class="panel-label">Submit Appeal</span>
+              </div>
+              <span class="status-pill pill-neutral" style="font-size:9px;">Not yet submitted</span>
+            </div>
+            <div class="panel-body" style="display:flex;flex-direction:column;gap:14px;">
+              <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+                Provide evidence that you are the legitimate operator and describe how you intend
+                to secure key access going forward. The governance oracle will review within 48–72 hours.
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">New Replacement Wallet Address</label>
+                <input class="form-input mono" placeholder="Solana address of your new custody key" />
+                <div class="form-hint">Must be a fresh key not previously registered.</div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Evidence of Legitimate Ownership</label>
+                <textarea class="form-textarea" placeholder="Describe proof of identity: prior registration tx hashes, deployment history, signed attestations, notarized documents, etc." style="min-height:88px;"></textarea>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Security Remediation Statement</label>
+                <textarea class="form-textarea" placeholder="How have you secured or will you secure the new key? Hardware wallet? Multi-sig? Key ceremony?" style="min-height:72px;"></textarea>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Contact Email (optional)</label>
+                <input class="form-input" placeholder="operator@example.com" />
+                <div class="form-hint">Used by governance reviewers for out-of-band verification only.</div>
+              </div>
+
+              <div class="annot-block" style="margin-top:0;">
+                <strong>No on-chain signature required for appeal</strong>
+                The appeal form is off-chain; evidence is hashed and stored in the governance system.
+                The replacement key registration (if approved) will require an on-chain tx signed by
+                the new key after governance resolution.
+              </div>
+
+              <div class="flex-row" style="justify-content:flex-end;">
+                <span class="btn btn-primary" style="font-size:11px;">Submit Appeal →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Tracker -->
+          <div>
+            <div class="panel-header" style="background:var(--bg-page);">
+              <div class="panel-header-left">
+                <span class="panel-label">Resolution Status</span>
+                <span class="panel-badge">GCV-2891</span>
+              </div>
+              <span class="status-pill pill-warning" style="font-size:9px;">
+                <span class="dot" style="background:var(--warning);border-radius:50%"></span>
+                In Review
+              </span>
+            </div>
+
+            <div class="appeal-track">
+              <div class="appeal-track-item">
+                <div class="appeal-track-spine">
+                  <div class="appeal-track-dot done"></div>
+                  <div class="appeal-track-line"></div>
+                </div>
+                <div class="appeal-track-content">
+                  <div class="appeal-track-name done">Revocation Submitted</div>
+                  <div class="appeal-track-ts">Apr 22, 2026 · 09:14 UTC</div>
+                  <div class="appeal-track-note">On-chain revocation tx confirmed. Governance case GCV-2891 opened.</div>
+                </div>
+              </div>
+
+              <div class="appeal-track-item">
+                <div class="appeal-track-spine">
+                  <div class="appeal-track-dot done"></div>
+                  <div class="appeal-track-line"></div>
+                </div>
+                <div class="appeal-track-content">
+                  <div class="appeal-track-name done">Appeal Received</div>
+                  <div class="appeal-track-ts">Apr 22, 2026 · 09:41 UTC</div>
+                  <div class="appeal-track-note">Appeal submitted with evidence. Assigned to oracle reviewer pool.</div>
+                </div>
+              </div>
+
+              <div class="appeal-track-item">
+                <div class="appeal-track-spine">
+                  <div class="appeal-track-dot active"></div>
+                  <div class="appeal-track-line"></div>
+                </div>
+                <div class="appeal-track-content">
+                  <div class="appeal-track-name active">Oracle Review in Progress</div>
+                  <div class="appeal-track-ts">In progress · Est. 48–72 hrs</div>
+                  <div class="appeal-track-note">2 of 3 oracle reviewers have responded. Awaiting quorum.</div>
+                </div>
+              </div>
+
+              <div class="appeal-track-item">
+                <div class="appeal-track-spine">
+                  <div class="appeal-track-dot pending"></div>
+                  <div class="appeal-track-line"></div>
+                </div>
+                <div class="appeal-track-content">
+                  <div class="appeal-track-name pending">Decision &amp; Key Re-registration</div>
+                  <div class="appeal-track-ts">Pending</div>
+                  <div class="appeal-track-note">If approved, you will receive an on-chain instruction to register your new key.</div>
+                </div>
+              </div>
+
+              <div class="appeal-track-item">
+                <div class="appeal-track-spine">
+                  <div class="appeal-track-dot pending"></div>
+                </div>
+                <div class="appeal-track-content">
+                  <div class="appeal-track-name pending">Access Restored</div>
+                  <div class="appeal-track-ts">Pending</div>
+                  <div class="appeal-track-note">Custody status returns to REGISTERED. Escrow operations resume.</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:14px 18px; border-top:1px solid var(--border); display:flex;flex-direction:column;gap:8px;">
+              <div class="annot-block" style="margin-top:0;">
+                <strong>Tracker data source</strong>
+                Polled from the governance API every 60 seconds. Status transitions are oracle-driven —
+                no manual refresh needed. If the governance system is unavailable, show last-known state
+                with a "Last updated X min ago" timestamp.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resolution outcome states -->
+        <div style="border-top:1px solid var(--border); padding:16px 0 0;">
+          <div class="variant-lbl" style="margin-bottom:12px;">§4b — Appeal Outcome States</div>
+          <div class="grid-2" style="gap:16px;">
+            <!-- Approved -->
+            <div>
+              <div class="variant-lbl" style="font-size:9px;margin-bottom:6px;">Outcome: Appeal Approved</div>
+              <div class="panel" style="border-color:var(--success-border);">
+                <div class="panel-header" style="background:var(--success-dim);border-bottom-color:var(--success-border);">
+                  <div class="panel-header-left">
+                    <span class="panel-label" style="color:var(--success);">Appeal Approved</span>
+                  </div>
+                  <span class="status-pill pill-success" style="font-size:9px;">Approved</span>
+                </div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:12px;">
+                  <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+                    Your appeal has been approved. Register your new key to restore custody access.
+                  </div>
+                  <div class="btn btn-primary" style="width:fit-content;">Register New Key →</div>
+                  <div class="annot-block" style="margin-top:0;">
+                    <strong>CTA state</strong>
+                    "Register New Key" opens the standard key rotation modal, pre-filled with the
+                    replacement wallet from the appeal form. The new key must sign the on-chain
+                    governance-resolution instruction.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Denied -->
+            <div>
+              <div class="variant-lbl" style="font-size:9px;margin-bottom:6px;">Outcome: Appeal Denied</div>
+              <div class="panel" style="border-color:var(--danger-border);">
+                <div class="panel-header" style="background:var(--danger-dim);border-bottom-color:var(--danger-border);">
+                  <div class="panel-header-left">
+                    <span class="panel-label" style="color:var(--danger);">Appeal Denied</span>
+                  </div>
+                  <span class="status-pill pill-danger" style="font-size:9px;">Denied</span>
+                </div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:12px;">
+                  <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+                    Your appeal has been denied. Reason: <strong style="color:var(--text-primary);">Insufficient evidence of operator identity.</strong>
+                    You may submit a second appeal with additional evidence, or escalate to the Holdfast Protocol governance board.
+                  </div>
+                  <div class="flex-row">
+                    <span class="btn btn-ghost" style="font-size:10px;">Submit Second Appeal</span>
+                    <span class="btn btn-ghost" style="font-size:10px;">Governance Board →</span>
+                  </div>
+                  <div class="annot-block" style="margin-top:0;">
+                    <strong>Max appeal attempts</strong>
+                    Two self-service appeals allowed. Third escalation goes to a manual governance
+                    board queue. Show a counter "1 of 2 appeals used" below the denied outcome.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       §5  DESIGN CONSTRAINTS SUMMARY
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-eyebrow">§5 <span>Design constraints &amp; implementation notes</span></div>
+    <div class="section-title">Constraints Reference</div>
+
+    <div class="grid-2" style="max-width:900px;">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-label">Visual Language Rules</span></div>
+        <div class="panel-body" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--text-primary);">Emergency = red, never yellow.</strong>
+            All yellow banners on the custody page are informational/soft warnings.
+            Red is reserved for irreversible or high-consequence actions only.
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--text-primary);">Three independent danger signals on Path A banner:</strong>
+            (1) pulsing dot, (2) left border accent, (3) background gradient.
+            Path B is de-escalated (no pulse) — still red but conveys "slower, deliberate" not "act now".
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--text-primary);">Path labels are action-first.</strong>
+            "Rotate Key Now" and "Request Governance Appeal" describe what happens, not what the
+            problem is. Operators in a stressful situation scan for verbs.
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-label">Interaction Guards</span></div>
+        <div class="panel-body" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--text-primary);">No accidental Path A activation.</strong>
+            Emergency rotation requires: (1) scroll to danger zone, (2) click "Rotate Key Now",
+            (3) complete 2-step modal, (4) check both confirm checkboxes, (5) wallet signature.
+            Five distinct friction points.
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--text-primary);">Path B has no friction gate</strong> beyond
+            the initial click — the operator is already locked out, so delaying appeal access hurts
+            them. The appeal form itself is the deliberate step.
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--text-primary);">Destructive modals never auto-close.</strong>
+            The close (✕) button and Escape key are disabled while a wallet signature is pending.
+            Shown as greyed-out with a tooltip: "Transaction in progress."
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-label">Accessibility</span></div>
+        <div class="panel-body" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            Emergency banner role: <code>role="alert" aria-live="assertive"</code> — announced
+            immediately by screen readers when the Revoked state is detected on load.
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            All three checkboxes in the compromise confirm step require explicit individual activation.
+            Group label via <code>fieldset + legend</code>. Submit button is disabled until all three are checked.
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            Step indicators: each step number node has <code>aria-current="step"</code> when active.
+            Completed steps have <code>aria-label="Step complete"</code>.
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-label">Open Questions for Engineering</span></div>
+        <div class="panel-body" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;color:var(--success);line-height:1.6;opacity:0.75;">
+            <strong>Q1 — CLOSED (CAS-361):</strong> <code>report_key_compromise</code> does not exist.
+            Backup key functionality was stripped. Design redesigned around <code>rotate_agent_key</code>
+            (Path A) and governance appeal (Path B).
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--success);line-height:1.6;opacity:0.75;">
+            <strong>Q2 — CLOSED (CAS-361):</strong> No backup keys. <code>AgentWallet</code> stores
+            one secp256r1 key pair only. "Max 2" assumption removed from design.
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--warning);">Q3:</strong> Does the governance API expose a real-time
+            case status endpoint for §4 tracker, or does it need to poll the indexer?
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--warning);">Q4:</strong> Appeal form data storage — Holdfast oracle
+            DB, IPFS, or governance smart contract state?
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--warning);">Q5 (new):</strong> When an operator's status is not yet
+            REVOKED, should the §4 Revocation Appeal section be hidden entirely, or collapsed/accessible
+            for Path B entry? Product decision needed — impacts Path B handoff from §2c.
+          </div>
+          <div class="divider" style="margin:4px 0;"></div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--warning);">Q6 (new):</strong> What triggers the
+            <strong>REVOKED</strong> status shown in §4? Is it a governance oracle write, an
+            on-chain instruction, or both? Needed to know whether §4 renders from on-chain state
+            or oracle state.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

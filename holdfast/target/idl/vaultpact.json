@@ -1,0 +1,1292 @@
+{
+  "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+  "metadata": {
+    "name": "vaultpact",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Holdfast Protocol — trust infrastructure for autonomous AI agents"
+  },
+  "instructions": [
+    {
+      "name": "close_agent_wallet",
+      "docs": [
+        "Close an agent wallet PDA and return lamports to the authority.",
+        "",
+        "The authority (ed25519 signer who registered the wallet) must sign.",
+        "The wallet must be in DeregisterPending status (3), set by admin via",
+        "set_agent_status after verifying no active pacts exist off-chain.",
+        "",
+        "A final secp256r1 signature over the deregistration challenge is required",
+        "to prove key possession at close time (anti-griefing):",
+        "sha256(\"vaultpact:close_agent_wallet:v1:\" || authority)",
+        "",
+        "PDA closure and lamport return handled by Anchor's `close` constraint."
+      ],
+      "discriminator": [
+        126,
+        71,
+        219,
+        130,
+        157,
+        136,
+        98,
+        77
+      ],
+      "accounts": [
+        {
+          "name": "agent_wallet",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116,
+                  95,
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_wallet.pubkey_x",
+                "account": "AgentWallet"
+              },
+              {
+                "kind": "account",
+                "path": "agent_wallet.pubkey_y",
+                "account": "AgentWallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "attestation_registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  116,
+                  116,
+                  101,
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "agent_wallet"
+          ]
+        },
+        {
+          "name": "instructions",
+          "address": "Sysvar1nstructions1111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_reputation",
+      "docs": [
+        "Create a fresh ReputationAccount for the signing agent.",
+        "Agent pays rent (~0.0036 SOL); provides sybil resistance against",
+        "subsidised-throwaway-account spam (see §3.1 of the design doc)."
+      ],
+      "discriminator": [
+        236,
+        239,
+        233,
+        112,
+        220,
+        149,
+        26,
+        175
+      ],
+      "accounts": [
+        {
+          "name": "reputation_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "agent",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "escrow_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_registry",
+      "docs": [
+        "One-time registry initialization. Caller must match INITIAL_AUTHORITY."
+      ],
+      "discriminator": [
+        189,
+        181,
+        20,
+        17,
+        174,
+        57,
+        249,
+        59
+      ],
+      "accounts": [
+        {
+          "name": "attestation_registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  116,
+                  116,
+                  101,
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "register_agent_wallet",
+      "docs": [
+        "Register an AI agent's secp256r1 identity key on-chain.",
+        "",
+        "The transaction must contain a Secp256r1Program instruction immediately",
+        "before this one. The secp256r1 key at (pubkey_x, pubkey_y) must sign",
+        "exactly the authority-bound challenge:",
+        "sha256(\"vaultpact:register_agent_wallet:v1:\" || authority || pubkey_x || pubkey_y)",
+        "",
+        "This proves key possession and binds the registration to the submitting",
+        "ed25519 authority, preventing cross-authority replay of captured signatures.",
+        "Replay on the same authority is blocked by the PDA `init` constraint.",
+        "",
+        "The PDA seed pattern (pubkey_x || pubkey_y) is kept from Hardline",
+        "(L-SOL-4): both coordinates are required because X alone does not",
+        "uniquely identify a point on the curve."
+      ],
+      "discriminator": [
+        40,
+        57,
+        22,
+        0,
+        76,
+        120,
+        80,
+        243
+      ],
+      "accounts": [
+        {
+          "name": "agent_wallet",
+          "docs": [
+            "PDA bound to both coordinates of the agent's secp256r1 key (L-SOL-4)."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116,
+                  95,
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pubkey_x"
+              },
+              {
+                "kind": "arg",
+                "path": "pubkey_y"
+              }
+            ]
+          }
+        },
+        {
+          "name": "attestation_registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  116,
+                  116,
+                  101,
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "instructions",
+          "address": "Sysvar1nstructions1111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pubkey_x",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "pubkey_y",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "rotate_agent_key",
+      "docs": [
+        "Rotate an agent's secp256r1 identity key to a new key pair.",
+        "",
+        "Atomically closes the old AgentWallet PDA (seeded by old coordinates)",
+        "and initialises a new one (seeded by new coordinates).  Authority,",
+        "nonce, and registration timestamp carry over; key_version increments",
+        "(saturating at u16::MAX).",
+        "",
+        "Reputation is unaffected: ReputationAccount is seeded by the ed25519",
+        "authority, not the secp256r1 key.",
+        "",
+        "Auth requirements (both must hold):",
+        "1. `authority` (ed25519) must sign the transaction.",
+        "2. The OLD secp256r1 key must sign the rotation challenge via the",
+        "Secp256r1Program precompile in the immediately preceding ix:",
+        "sha256(\"vaultpact:rotate_agent_key:v1:\" || authority",
+        "|| old_x || old_y || new_x || new_y)"
+      ],
+      "discriminator": [
+        85,
+        31,
+        17,
+        212,
+        162,
+        53,
+        153,
+        115
+      ],
+      "accounts": [
+        {
+          "name": "old_agent_wallet",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116,
+                  95,
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "old_agent_wallet.pubkey_x",
+                "account": "AgentWallet"
+              },
+              {
+                "kind": "account",
+                "path": "old_agent_wallet.pubkey_y",
+                "account": "AgentWallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "new_agent_wallet",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116,
+                  95,
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "new_pubkey_x"
+              },
+              {
+                "kind": "arg",
+                "path": "new_pubkey_y"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "old_agent_wallet"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "instructions",
+          "address": "Sysvar1nstructions1111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "new_pubkey_x",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "new_pubkey_y",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_agent_status",
+      "docs": [
+        "Admin-only: set an agent wallet's status field.",
+        "Gated by INITIAL_AUTHORITY. Status: 0=Active, 1=Frozen, 2=Blacklisted, 3=DeregisterPending."
+      ],
+      "discriminator": [
+        31,
+        193,
+        64,
+        189,
+        114,
+        155,
+        164,
+        218
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "agent_wallet",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116,
+                  95,
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_wallet.pubkey_x",
+                "account": "AgentWallet"
+              },
+              {
+                "kind": "account",
+                "path": "agent_wallet.pubkey_y",
+                "account": "AgentWallet"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_status",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "set_protocol_authority",
+      "docs": [
+        "Rotate the protocol authority stored in AttestationRegistry.",
+        "Gated by the compile-time INITIAL_AUTHORITY constant (Squads v4 multisig on mainnet).",
+        "Enables authority migration without program redeployment."
+      ],
+      "discriminator": [
+        96,
+        162,
+        46,
+        152,
+        72,
+        147,
+        175,
+        176
+      ],
+      "accounts": [
+        {
+          "name": "attestation_registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  116,
+                  116,
+                  101,
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "test_verify_webauthn",
+      "docs": [
+        "Test harness: invoke the full WebAuthn assertion pipeline on-chain.",
+        "",
+        "Not compiled for mainnet builds. Exists solely to enable TypeScript",
+        "integration coverage of verify_webauthn_signature(). See CAS-80.",
+        "",
+        "Transaction must include a Secp256r1Program instruction immediately before",
+        "this one, signing sha256(authenticator_data || sha256(client_data_json))",
+        "with the key registered in agent_wallet."
+      ],
+      "discriminator": [
+        200,
+        210,
+        87,
+        183,
+        126,
+        139,
+        160,
+        84
+      ],
+      "accounts": [
+        {
+          "name": "agent_wallet",
+          "docs": [
+            "AgentWallet whose secp256r1 key must sign the WebAuthn assertion payload."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116,
+                  95,
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent_wallet.pubkey_x",
+                "account": "AgentWallet"
+              },
+              {
+                "kind": "account",
+                "path": "agent_wallet.pubkey_y",
+                "account": "AgentWallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "instructions",
+          "address": "Sysvar1nstructions1111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "authenticator_data",
+          "type": "bytes"
+        },
+        {
+          "name": "client_data_json",
+          "type": "bytes"
+        },
+        {
+          "name": "expected_challenge",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_reputation",
+      "docs": [
+        "Update an agent's reputation after a pact outcome.",
+        "",
+        "Only callable by VAULTPACT_ESCROW_AUTHORITY or REPUTATION_ORACLE_AUTHORITY.",
+        "Applies lazy time-decay toward neutral before writing the new delta so",
+        "long-inactive agents cannot coast on stale high scores.",
+        "",
+        "Anti-replay: caller must pass `incoming_nonce == rep.nonce + 1`."
+      ],
+      "discriminator": [
+        194,
+        220,
+        43,
+        201,
+        54,
+        209,
+        49,
+        178
+      ],
+      "accounts": [
+        {
+          "name": "reputation_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "reputation_account.agent",
+                "account": "ReputationAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "update_authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "incoming_nonce",
+          "type": "u64"
+        },
+        {
+          "name": "outcome",
+          "type": {
+            "defined": {
+              "name": "PactOutcome"
+            }
+          }
+        },
+        {
+          "name": "score_delta",
+          "type": "i16"
+        },
+        {
+          "name": "pact_id",
+          "type": {
+            "array": [
+              "u8",
+              7
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "validate_reputation_for_pact",
+      "docs": [
+        "Gate check called by Holdfast escrow via CPI at sign_pact time.",
+        "Returns Ok if the agent meets all three minimums; errors otherwise."
+      ],
+      "discriminator": [
+        91,
+        173,
+        42,
+        7,
+        187,
+        48,
+        140,
+        230
+      ],
+      "accounts": [
+        {
+          "name": "reputation_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "reputation_account.agent",
+                "account": "ReputationAccount"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "min_score",
+          "type": "u64"
+        },
+        {
+          "name": "min_tier",
+          "type": {
+            "defined": {
+              "name": "VerifTier"
+            }
+          }
+        },
+        {
+          "name": "min_pacts",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AgentWallet",
+      "discriminator": [
+        127,
+        35,
+        180,
+        143,
+        201,
+        1,
+        100,
+        50
+      ]
+    },
+    {
+      "name": "AttestationRegistry",
+      "discriminator": [
+        152,
+        156,
+        134,
+        191,
+        142,
+        144,
+        217,
+        209
+      ]
+    },
+    {
+      "name": "ReputationAccount",
+      "discriminator": [
+        19,
+        185,
+        177,
+        157,
+        34,
+        87,
+        67,
+        233
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "MissingSignatureVerification",
+      "msg": "Missing secp256r1 signature verification instruction"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidSignatureProgram",
+      "msg": "Invalid signature program (expected Secp256r1Program)"
+    },
+    {
+      "code": 6002,
+      "name": "PublicKeyMismatch",
+      "msg": "Public key does not match registered agent wallet"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidInstructionsSysvar",
+      "msg": "Invalid instructions sysvar"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidSignatureData",
+      "msg": "Invalid signature data"
+    },
+    {
+      "code": 6005,
+      "name": "UnsupportedKeyFormat",
+      "msg": "Unsupported key format (expected 0x02/0x03 compressed or 0x04 uncompressed)"
+    },
+    {
+      "code": 6006,
+      "name": "MessageHashMismatch",
+      "msg": "WebAuthn message hash mismatch"
+    },
+    {
+      "code": 6007,
+      "name": "ChallengeMismatch",
+      "msg": "Challenge mismatch"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidClientData",
+      "msg": "Invalid clientDataJSON"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidOrigin",
+      "msg": "WebAuthn origin not in Holdfast allowed list"
+    },
+    {
+      "code": 6010,
+      "name": "DirectInvocationRequired",
+      "msg": "Direct invocation required — program instructions cannot be called via CPI"
+    },
+    {
+      "code": 6011,
+      "name": "UnauthorizedAuthority",
+      "msg": "Unauthorized: signer is not the protocol authority"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidAgentKey",
+      "msg": "Invalid agent key (zero coordinates not allowed)"
+    },
+    {
+      "code": 6013,
+      "name": "AttestationChallengeMismatch",
+      "msg": "Attestation challenge mismatch — secp256r1 key must sign the authority-bound registration challenge"
+    },
+    {
+      "code": 6014,
+      "name": "ArithmeticOverflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6015,
+      "name": "UnauthorizedReputationWriter",
+      "msg": "Caller is not an authorized reputation writer (escrow or oracle program)"
+    },
+    {
+      "code": 6016,
+      "name": "NonceMismatch",
+      "msg": "Nonce mismatch: expected rep.nonce + 1"
+    },
+    {
+      "code": 6017,
+      "name": "ReputationScoreTooLow",
+      "msg": "Agent reputation score is below the required minimum"
+    },
+    {
+      "code": 6018,
+      "name": "ReputationTierTooLow",
+      "msg": "Agent verification tier is below the required minimum"
+    },
+    {
+      "code": 6019,
+      "name": "ReputationInsufficientHistory",
+      "msg": "Agent does not have enough completed pacts"
+    },
+    {
+      "code": 6020,
+      "name": "InvalidAgentStatus",
+      "msg": "Invalid agent status (must be 0, 1, 2, or 3)"
+    },
+    {
+      "code": 6021,
+      "name": "AgentNotDeregisterPending",
+      "msg": "Agent wallet must be in DeregisterPending status (3) to close"
+    },
+    {
+      "code": 6022,
+      "name": "DeregistrationChallengeMismatch",
+      "msg": "Deregistration challenge mismatch — secp256r1 key must sign the authority-bound deregistration challenge"
+    },
+    {
+      "code": 6023,
+      "name": "AgentNotActive",
+      "msg": "Agent wallet must be Active (status 0) to rotate keys"
+    },
+    {
+      "code": 6024,
+      "name": "RotationChallengeMismatch",
+      "msg": "Rotation challenge mismatch — old secp256r1 key must sign the authority-bound rotation challenge"
+    },
+    {
+      "code": 6025,
+      "name": "RotationToSameKey",
+      "msg": "New key must differ from the current key"
+    }
+  ],
+  "types": [
+    {
+      "name": "AgentWallet",
+      "docs": [
+        "On-chain identity record for a single AI agent.",
+        "Analogous to Hardline's VaultState, stripped of all human-specific fields."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "pubkey_x",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "pubkey_y",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "registered_at",
+            "type": "i64"
+          },
+          {
+            "name": "status",
+            "type": "u8"
+          },
+          {
+            "name": "key_version",
+            "type": "u16"
+          },
+          {
+            "name": "deregister_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AttestationRegistry",
+      "docs": [
+        "Protocol-level singleton tracking all registered agent wallets."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "agent_count",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HistEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "outcome",
+            "type": {
+              "defined": {
+                "name": "PactOutcome"
+              }
+            }
+          },
+          {
+            "name": "score_delta",
+            "type": "i16"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "pact_id",
+            "type": {
+              "array": [
+                "u8",
+                7
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PactOutcome",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Fulfilled"
+          },
+          {
+            "name": "Disputed"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ReputationAccount",
+      "docs": [
+        "On-chain reputation record for a single AI agent.",
+        "",
+        "PDA seeds: [b\"reputation\", agent_pubkey]",
+        "On-chain space: 8 (discriminator) + 504 (fields) = 512 bytes",
+        "Rent cost: ~0.00358 SOL, paid by the agent at init_reputation."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "schema_version",
+            "type": "u8"
+          },
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "score",
+            "type": "u64"
+          },
+          {
+            "name": "tier",
+            "type": {
+              "defined": {
+                "name": "VerifTier"
+              }
+            }
+          },
+          {
+            "name": "total_pacts",
+            "type": "u64"
+          },
+          {
+            "name": "dispute_count",
+            "type": "u64"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "last_updated",
+            "type": "i64"
+          },
+          {
+            "name": "decay_cursor",
+            "type": "i64"
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "history_len",
+            "type": "u8"
+          },
+          {
+            "name": "history_head",
+            "type": "u8"
+          },
+          {
+            "name": "history",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "HistEntry"
+                  }
+                },
+                20
+              ]
+            }
+          },
+          {
+            "name": "_padding",
+            "type": {
+              "array": [
+                "u8",
+                51
+              ]
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VerifTier",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Unverified"
+          },
+          {
+            "name": "Attested"
+          },
+          {
+            "name": "Hardline"
+          }
+        ]
+      }
+    }
+  ]
+}

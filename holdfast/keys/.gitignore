@@ -1,0 +1,3 @@
+# All keypair files are sensitive — never commit to version control.
+# The pubkeys are documented in programs/vaultpact/src/lib.rs and docs/governance-devnet.md.
+*.json

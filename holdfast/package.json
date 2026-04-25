@@ -1,0 +1,24 @@
+{
+  "name": "holdfast-tests",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts",
+    "coverage:all": "npm run coverage --prefix sdk && npm run coverage --prefix oracle && npm run coverage --prefix indexer",
+    "demo": "node_modules/.bin/ts-node --transpile-only -P tsconfig.json scripts/hackathon-demo.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^22.0.0",
+    "anchor-bankrun": "^0.5.0",
+    "chai": "^4.3.0",
+    "mocha": "^10.0.0",
+    "solana-bankrun": "^0.4.0",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^5.8.0"
+  }
+}

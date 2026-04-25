@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Holdfast Protocol Brand Guide · Casemate Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ─────────────────────────────────────────────────────────────
+       CANONICAL DESIGN TOKENS — Holdfast Protocol Protocol / Casemate Labs
+       Version 1.1.0 · 2026-04-22
+    ───────────────────────────────────────────────────────────── */
+    :root {
+      --bg-page:        #0D1117;
+      --bg-card:        #141B27;
+      --bg-card-raised: #18202E;
+      --bg-hover:       #1A2438;
+
+      --border:         #1E2D42;
+      --border-hover:   #2D4060;
+      --border-focus:   rgba(45, 140, 255, 0.50);
+
+      --text-primary:   #E8EDF2;
+      --text-secondary: #8A99AC;
+      --text-tertiary:  #4D5E72;
+      --text-disabled:  #2D3E52;
+
+      --accent:         #2D8CFF;
+      --accent-dim:     rgba(45, 140, 255, 0.12);
+      --accent-border:  rgba(45, 140, 255, 0.22);
+
+      --success:        #22C55E;
+      --success-dim:    rgba(34, 197, 94, 0.08);
+      --success-border: rgba(34, 197, 94, 0.22);
+
+      --warning:        #F59E0B;
+      --warning-dim:    rgba(245, 158, 11, 0.08);
+      --warning-border: rgba(245, 158, 11, 0.22);
+
+      --danger:         #EF4444;
+      --danger-dim:     rgba(239, 68, 68, 0.08);
+      --danger-border:  rgba(239, 68, 68, 0.22);
+
+      --bronze:         #CD7F32;
+      --bronze-dim:     rgba(205, 127, 50, 0.08);
+      --bronze-border:  rgba(205, 127, 50, 0.28);
+      --silver:         #9BA5B0;
+      --silver-dim:     rgba(155, 165, 176, 0.08);
+      --silver-border:  rgba(155, 165, 176, 0.28);
+      --gold:           #D4AF37;
+      --gold-dim:       rgba(212, 175, 55, 0.08);
+      --gold-border:    rgba(212, 175, 55, 0.28);
+      --platinum:       #B8C5D0;
+      --platinum-dim:   rgba(184, 197, 208, 0.08);
+      --platinum-border:rgba(184, 197, 208, 0.28);
+
+      --font-display: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      --font-ui:      'Helvetica Neue', 'Arial Nova', Arial, sans-serif;
+      --font-mono:    'Courier New', Courier, monospace;
+
+      --nav-width: 220px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(13, 17, 23, 0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 44px;
+    }
+    .top-bar-left { display: flex; align-items: center; gap: 16px; }
+    .top-bar-logo {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      letter-spacing: -0.02em; color: var(--text-primary);
+      text-decoration: none;
+    }
+    .top-bar-logo svg { flex-shrink: 0; }
+    .top-bar-sep { width: 1px; height: 18px; background: var(--border); }
+    .top-bar-title {
+      font-size: 12px; color: var(--text-secondary); letter-spacing: 0.01em;
+    }
+    .top-bar-right { display: flex; align-items: center; gap: 12px; }
+    .version-tag {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em;
+      color: var(--accent); background: var(--accent-dim);
+      border: 1px solid var(--accent-border); padding: 2px 8px;
+    }
+    .updated-tag {
+      font-size: 11px; color: var(--text-tertiary);
+    }
+
+    /* ── SIDE NAV ── */
+    .side-nav {
+      position: fixed; top: 44px; left: 0; bottom: 0; width: var(--nav-width);
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      overflow-y: auto; z-index: 100;
+      padding: 24px 0;
+    }
+    .side-nav::-webkit-scrollbar { width: 4px; }
+    .side-nav::-webkit-scrollbar-track { background: transparent; }
+    .side-nav::-webkit-scrollbar-thumb { background: var(--border); }
+    .nav-group { margin-bottom: 24px; }
+    .nav-group-label {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-tertiary); padding: 0 20px 8px;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12px; color: var(--text-secondary);
+      padding: 7px 20px; text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .nav-link:hover {
+      color: var(--text-primary); background: var(--bg-hover);
+    }
+    .nav-link.active {
+      color: var(--accent); border-left-color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .nav-link-num {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--text-tertiary); min-width: 16px;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      margin-left: var(--nav-width);
+      margin-top: 44px;
+      padding: 60px 64px 120px;
+      max-width: calc(var(--nav-width) + 980px);
+    }
+
+    /* ── SECTION STRUCTURE ── */
+    .section {
+      padding-top: 80px;
+      margin-bottom: 0;
+      border-top: 1px solid var(--border);
+    }
+    .section:first-child { border-top: none; padding-top: 0; }
+
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .eyebrow-num {
+      color: var(--accent); opacity: 0.7;
+    }
+    .section-title {
+      font-family: var(--font-display); font-size: 32px; font-weight: 800;
+      letter-spacing: -0.04em; line-height: 1.1;
+      color: var(--text-primary); margin-bottom: 12px;
+    }
+    .section-desc {
+      font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+      max-width: 640px; margin-bottom: 48px;
+    }
+
+    /* ── GRID UTILITIES ── */
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 24px;
+    }
+    .card-sm { padding: 16px; }
+    .card-raised { background: var(--bg-card-raised); }
+
+    /* ─────────────────────────────────
+       SECTION 1 — BRAND POSITIONING
+    ───────────────────────────────── */
+    .hero-positioning {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 40px 48px;
+      margin-bottom: 32px;
+      position: relative; overflow: hidden;
+    }
+    .hero-positioning::before {
+      content: '';
+      position: absolute; top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(45,140,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-tagline {
+      font-family: var(--font-display); font-size: 48px; font-weight: 900;
+      letter-spacing: -0.05em; line-height: 1.0;
+      color: var(--text-primary); margin-bottom: 20px;
+    }
+    .hero-tagline span { color: var(--accent); }
+    .hero-mission {
+      font-size: 15px; color: var(--text-secondary); line-height: 1.75;
+      max-width: 680px; margin-bottom: 32px;
+    }
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+      border-top: 1px solid var(--border); padding-top: 28px;
+    }
+    .hero-stat { padding-right: 32px; }
+    .hero-stat + .hero-stat { padding-left: 32px; border-left: 1px solid var(--border); }
+    .hero-stat-label {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 6px;
+    }
+    .hero-stat-value {
+      font-family: var(--font-display); font-size: 16px; font-weight: 700;
+      letter-spacing: -0.02em; color: var(--text-primary);
+    }
+    .hero-stat-sub {
+      font-size: 11px; color: var(--text-tertiary); margin-top: 2px;
+    }
+
+    .positioning-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      margin-bottom: 32px;
+    }
+    .positioning-card {
+      background: var(--bg-card); border: 1px solid var(--border); padding: 24px;
+    }
+    .positioning-card-title {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 14px;
+    }
+    .positioning-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .positioning-row:last-child { border-bottom: none; }
+    .positioning-label {
+      min-width: 100px; color: var(--text-tertiary); font-size: 11px;
+    }
+    .positioning-value { color: var(--text-primary); line-height: 1.5; }
+    .positioning-value.accent { color: var(--accent); }
+
+    /* ─────────────────────────────────
+       SECTION 2 — COLOUR PALETTE
+    ───────────────────────────────── */
+    .palette-group { margin-bottom: 40px; }
+    .palette-group-label {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .palette-group-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .swatch-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .swatch-color {
+      height: 64px; position: relative;
+    }
+    .swatch-checker {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(45deg, #1a1a2e 25%, transparent 25%),
+        linear-gradient(-45deg, #1a1a2e 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1a1a2e 75%),
+        linear-gradient(-45deg, transparent 75%, #1a1a2e 75%);
+      background-size: 10px 10px;
+      background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+    }
+    .swatch-fill { position: absolute; inset: 0; }
+    .swatch-info { padding: 10px 12px; }
+    .swatch-name {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em;
+      color: var(--accent); margin-bottom: 3px;
+    }
+    .swatch-hex {
+      font-family: var(--font-mono); font-size: 11px; color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+    .swatch-use {
+      font-size: 10px; color: var(--text-tertiary); line-height: 1.4;
+    }
+
+    /* ─────────────────────────────────
+       SECTION 3 — TYPOGRAPHY
+    ───────────────────────────────── */
+    .type-row {
+      display: grid; grid-template-columns: 180px 1fr 160px;
+      align-items: baseline; gap: 24px;
+      padding: 20px 0; border-bottom: 1px solid var(--border);
+    }
+    .type-row:last-child { border-bottom: none; }
+    .type-meta-name {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em;
+      color: var(--accent); margin-bottom: 4px;
+    }
+    .type-meta-spec {
+      font-size: 10px; color: var(--text-tertiary); line-height: 1.6;
+    }
+    .type-meta-spec span { display: block; }
+    .type-sample { color: var(--text-primary); }
+    .type-token {
+      font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary);
+      text-align: right; line-height: 1.6;
+    }
+    .type-token span { display: block; }
+
+    .font-family-card {
+      background: var(--bg-card); border: 1px solid var(--border); padding: 24px;
+    }
+    .font-family-label {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 16px;
+    }
+    .font-family-name {
+      font-size: 28px; font-weight: 800; letter-spacing: -0.03em;
+      margin-bottom: 8px; color: var(--text-primary);
+    }
+    .font-family-specimen {
+      font-size: 12px; color: var(--text-secondary); line-height: 1.7;
+    }
+    .font-mono-demo {
+      font-family: var(--font-mono); font-size: 12px;
+      color: var(--text-secondary); line-height: 1.7;
+    }
+
+    /* ─────────────────────────────────
+       SECTION 4 — LOGOMARK
+    ───────────────────────────────── */
+    .logo-preview-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+      margin-bottom: 32px;
+    }
+    .logo-preview {
+      background: var(--bg-card); border: 1px solid var(--border);
+      padding: 40px 32px;
+      display: flex; flex-direction: column; align-items: center; gap: 20px;
+    }
+    .logo-preview.dark-bg { background: var(--bg-card); }
+    .logo-preview.light-bg { background: #F0F4F8; }
+    .logo-preview.black-bg { background: #000; }
+    .logo-preview-label {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-tertiary);
+    }
+    .logo-preview.light-bg .logo-preview-label { color: #6B7A8D; }
+
+    .logo-clearspace {
+      background: var(--bg-card); border: 1px solid var(--border); padding: 40px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; margin-bottom: 16px;
+    }
+    .clearspace-guide {
+      position: relative; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .clearspace-outline {
+      position: absolute; inset: -20px;
+      border: 1px dashed var(--accent-border);
+    }
+    .clearspace-label {
+      position: absolute; font-family: var(--font-mono); font-size: 9px;
+      color: var(--accent); opacity: 0.7; letter-spacing: 0.06em;
+    }
+    .clearspace-label.top { top: -28px; left: 50%; transform: translateX(-50%); }
+    .clearspace-label.right { right: -48px; top: 50%; transform: translateY(-50%); }
+
+    .logo-min-sizes {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    .logo-min-card {
+      background: var(--bg-card); border: 1px solid var(--border); padding: 20px 16px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }
+    .logo-min-label {
+      font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary);
+      text-align: center;
+    }
+
+    /* ─────────────────────────────────
+       SECTION 5 — ICONOGRAPHY
+    ───────────────────────────────── */
+    .icon-grid {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+      margin-bottom: 32px;
+    }
+    .icon-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      padding: 20px 16px;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      cursor: default;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .icon-card:hover {
+      border-color: var(--accent-border); background: var(--accent-dim);
+    }
+    .icon-card:hover svg { stroke: var(--accent); }
+    .icon-card svg {
+      stroke: var(--text-secondary);
+      transition: stroke 0.15s;
+    }
+    .icon-label {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.04em;
+      color: var(--text-tertiary); text-align: center; line-height: 1.4;
+    }
+
+    .icon-rules {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    }
+    .icon-rule-card {
+      background: var(--bg-card); border: 1px solid var(--border); padding: 20px;
+    }
+    .icon-rule-title {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 10px;
+    }
+    .icon-rule-body { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ─────────────────────────────────
+       SECTION 6 — TONE OF VOICE
+    ───────────────────────────────── */
+    .tov-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+    .tov-card {
+      background: var(--bg-card); border: 1px solid var(--border); padding: 24px;
+    }
+    .tov-card-title {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .tov-card-title.do { color: var(--success); }
+    .tov-card-title.dont { color: var(--danger); }
+    .tov-pair {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .tov-pair:last-child { border-bottom: none; }
+    .tov-icon {
+      font-size: 14px; margin-top: 1px; flex-shrink: 0;
+    }
+    .tov-word { color: var(--text-primary); font-weight: 500; }
+    .tov-note { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+    .tov-copy-samples { display: flex; flex-direction: column; gap: 16px; }
+    .copy-sample {
+      background: var(--bg-card); border: 1px solid var(--border); overflow: hidden;
+    }
+    .copy-sample-header {
+      background: var(--bg-card-raised); border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .copy-sample-context {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-tertiary);
+    }
+    .copy-sample-body { padding: 20px 24px; }
+    .copy-headline {
+      font-family: var(--font-display); font-size: 22px; font-weight: 800;
+      letter-spacing: -0.04em; color: var(--text-primary); line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .copy-sub {
+      font-size: 12px; color: var(--text-secondary); line-height: 1.65; margin-top: 8px;
+    }
+    .copy-error {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--danger-dim); border: 1px solid var(--danger-border);
+      padding: 14px 16px;
+    }
+    .copy-error-code {
+      font-family: var(--font-mono); font-size: 11px; color: var(--danger);
+      min-width: 100px;
+    }
+    .copy-error-msg { font-size: 12px; color: var(--text-primary); line-height: 1.5; }
+    .copy-error-detail { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+    /* ─────────────────────────────────
+       SECTION 7 — MOTION & ANIMATION
+    ───────────────────────────────── */
+    .motion-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
+    .motion-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      padding: 24px; overflow: hidden;
+    }
+    .motion-card-title {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 6px;
+    }
+    .motion-card-spec {
+      font-size: 11px; color: var(--text-tertiary); margin-bottom: 20px;
+    }
+    .motion-demo-area {
+      background: var(--bg-card-raised); border: 1px solid var(--border);
+      padding: 24px; min-height: 80px;
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      cursor: pointer;
+    }
+    .motion-demo-area:hover .demo-fade-up { animation: fadeUp 200ms ease-out forwards; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .demo-fade-up {
+      background: var(--bg-card); border: 1px solid var(--border);
+      padding: 10px 16px; font-size: 12px; color: var(--text-primary);
+      opacity: 1;
+    }
+    .motion-demo-area .demo-fade-up { animation: none; }
+
+    @keyframes accentPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(45, 140, 255, 0.4); }
+      70%  { box-shadow: 0 0 0 8px rgba(45, 140, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(45, 140, 255, 0); }
+    }
+    .demo-pulse {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent);
+      animation: accentPulse 2s ease-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .demo-shimmer {
+      width: 100%; height: 14px;
+      background: linear-gradient(
+        90deg,
+        var(--bg-card) 0px,
+        var(--border-hover) 80px,
+        var(--bg-card) 160px
+      );
+      background-size: 800px 100%;
+      animation: shimmer 1.4s linear infinite;
+    }
+    .demo-shimmer-stack { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .demo-shimmer.sm { height: 10px; width: 60%; }
+
+    @keyframes statusMorph {
+      0%   { background: var(--warning-dim); border-color: var(--warning-border); color: var(--warning); }
+      50%  { background: var(--accent-dim);  border-color: var(--accent-border);  color: var(--accent);  }
+      100% { background: var(--success-dim); border-color: var(--success-border); color: var(--success); }
+    }
+    .demo-status-pill {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 4px 10px; border: 1px solid;
+      animation: statusMorph 3s ease-in-out infinite alternate;
+    }
+
+    .motion-easing-table { width: 100%; border-collapse: collapse; }
+    .motion-easing-table th, .motion-easing-table td {
+      padding: 10px 16px; border-bottom: 1px solid var(--border);
+      text-align: left; font-size: 12px;
+    }
+    .motion-easing-table th {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-tertiary); background: var(--bg-card-raised);
+    }
+    .motion-easing-table td { color: var(--text-secondary); }
+    .motion-easing-table td:first-child {
+      font-family: var(--font-mono); font-size: 11px; color: var(--accent);
+    }
+    .motion-easing-table tr:last-child td { border-bottom: none; }
+
+    /* ─────────────────────────────────
+       SECTION 8 — COMPONENT PATTERNS
+    ───────────────────────────────── */
+    .component-section { margin-bottom: 40px; }
+    .component-section-title {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .component-section-title::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .component-demo-area {
+      background: var(--bg-card); border: 1px solid var(--border);
+      padding: 28px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 3px 9px; border: 1px solid;
+    }
+    .badge-vp    { color: var(--accent);         background: var(--accent-dim);         border-color: var(--accent-border); }
+    .badge-ok    { color: var(--success);         background: var(--success-dim);        border-color: var(--success-border); }
+    .badge-warn  { color: var(--warning);         background: var(--warning-dim);        border-color: var(--warning-border); }
+    .badge-error { color: var(--danger);          background: var(--danger-dim);         border-color: var(--danger-border); }
+    .badge-bronze   { color: var(--bronze);   background: var(--bronze-dim);   border-color: var(--bronze-border); }
+    .badge-silver   { color: var(--silver);   background: var(--silver-dim);   border-color: var(--silver-border); }
+    .badge-gold     { color: var(--gold);     background: var(--gold-dim);     border-color: var(--gold-border); }
+    .badge-platinum { color: var(--platinum); background: var(--platinum-dim); border-color: var(--platinum-border); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+      padding: 8px 18px; border: 1px solid; cursor: pointer;
+      letter-spacing: 0.01em; transition: opacity 0.15s, background 0.15s;
+      text-decoration: none;
+    }
+    .btn:active { opacity: 0.8; }
+    .btn-vp {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+    }
+    .btn-vp:hover { background: #4499FF; border-color: #4499FF; }
+    .btn-ghost {
+      background: transparent; border-color: var(--border); color: var(--text-secondary);
+    }
+    .btn-ghost:hover { border-color: var(--border-hover); color: var(--text-primary); background: var(--bg-hover); }
+    .btn-danger-ghost {
+      background: var(--danger-dim); border-color: var(--danger-border); color: var(--danger);
+    }
+
+    /* Input */
+    .input-group { display: flex; flex-direction: column; gap: 6px; width: 300px; }
+    .input-label {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-tertiary);
+    }
+    .input {
+      background: var(--bg-page); border: 1px solid var(--border);
+      color: var(--text-primary); font-family: var(--font-ui); font-size: 13px;
+      padding: 9px 12px; width: 100%; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+    .input::placeholder { color: var(--text-tertiary); }
+    .input-hint { font-size: 11px; color: var(--text-tertiary); }
+    .input.error { border-color: var(--danger); }
+    .input.error:focus { box-shadow: 0 0 0 3px var(--danger-dim); }
+    .input-error-msg { font-size: 11px; color: var(--danger); }
+
+    /* Status pill */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 500;
+      padding: 4px 10px; border: 1px solid;
+    }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .status-active   { color: var(--success); background: var(--success-dim); border-color: var(--success-border); }
+    .status-active   .status-dot { background: var(--success); }
+    .status-pending  { color: var(--warning); background: var(--warning-dim); border-color: var(--warning-border); }
+    .status-pending  .status-dot { background: var(--warning); }
+    .status-disputed { color: var(--danger);  background: var(--danger-dim);  border-color: var(--danger-border); }
+    .status-disputed .status-dot { background: var(--danger); }
+    .status-locked   { color: var(--accent);  background: var(--accent-dim);  border-color: var(--accent-border); }
+    .status-locked   .status-dot { background: var(--accent); }
+
+    /* Code snippet */
+    .code-block {
+      background: var(--bg-card-raised); border: 1px solid var(--border);
+      padding: 0; overflow: hidden;
+    }
+    .code-block-header {
+      background: var(--bg-card); border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .code-block-lang {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+    }
+    .code-block-copy {
+      font-family: var(--font-mono); font-size: 10px; color: var(--accent);
+      cursor: pointer; letter-spacing: 0.04em;
+    }
+    .code-block pre {
+      font-family: var(--font-mono); font-size: 12px; line-height: 1.7;
+      color: var(--text-secondary); padding: 16px 20px;
+      overflow-x: auto; white-space: pre;
+    }
+    .code-block pre .kw  { color: var(--accent-hardline); }
+    .code-block pre .str { color: var(--success); }
+    .code-block pre .num { color: var(--warning); }
+    .code-block pre .cmt { color: var(--text-tertiary); }
+    .code-block pre .fn  { color: var(--accent); }
+
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table thead th {
+      background: var(--bg-card-raised); border-bottom: 1px solid var(--border);
+      padding: 10px 16px; text-align: left;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary);
+    }
+    .data-table tbody td {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      font-size: 12px; color: var(--text-secondary);
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover td { background: var(--bg-hover); }
+    .data-table .td-mono {
+      font-family: var(--font-mono); font-size: 11px; color: var(--text-primary);
+    }
+    .data-table .td-accent { color: var(--accent); }
+
+    /* ── UTILITIES ── */
+    .mb-8  { margin-bottom: 8px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-24 { margin-bottom: 24px; }
+    .mb-32 { margin-bottom: 32px; }
+    .mb-48 { margin-bottom: 48px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mt-32 { margin-top: 32px; }
+    .text-mono { font-family: var(--font-mono); }
+    .text-accent { color: var(--accent); }
+    .text-tertiary { color: var(--text-tertiary); }
+    .text-secondary { color: var(--text-secondary); }
+
+    /* ── INFO BOX ── */
+    .info-box {
+      background: var(--accent-dim); border: 1px solid var(--accent-border);
+      border-left: 3px solid var(--accent);
+      padding: 14px 18px; font-size: 12px; color: var(--text-secondary); line-height: 1.65;
+      margin-bottom: 24px;
+    }
+    .info-box strong { color: var(--accent); font-weight: 600; }
+
+    /* ── SCROLL ACTIVE NAV ── */
+    @media (max-width: 900px) {
+      .side-nav { display: none; }
+      .main { margin-left: 0; padding: 60px 24px 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <a href="#positioning" class="top-bar-logo">
+      <!-- Inline logo mark (16px) -->
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 1.5L2 4.5V10C2 14.1 5.5 17.7 10 18.8C14.5 17.7 18 14.1 18 10V4.5L10 1.5Z" stroke="#2D8CFF" stroke-width="1.4" fill="rgba(45,140,255,0.08)"/>
+        <rect x="7" y="9.5" width="6" height="5" rx="0" stroke="#2D8CFF" stroke-width="1.2" fill="none"/>
+        <path d="M10 7.5C10 6.4 9.1 5.5 8 5.5" stroke="#2D8CFF" stroke-width="1.2" stroke-linecap="square"/>
+        <circle cx="10" cy="12" r="1" fill="#2D8CFF"/>
+      </svg>
+      Holdfast Protocol
+    </a>
+    <div class="top-bar-sep"></div>
+    <span class="top-bar-title">Brand Guide</span>
+  </div>
+  <div class="top-bar-right">
+    <span class="updated-tag">Last updated 2026-04-22</span>
+    <span class="version-tag">v1.1.0</span>
+  </div>
+</header>
+
+<!-- ── SIDE NAV ── -->
+<nav class="side-nav">
+  <div class="nav-group">
+    <div class="nav-group-label">Brand Guide</div>
+    <a href="#positioning" class="nav-link active">
+      <span class="nav-link-num">01</span> Positioning
+    </a>
+    <a href="#colours" class="nav-link">
+      <span class="nav-link-num">02</span> Colour Palette
+    </a>
+    <a href="#typography" class="nav-link">
+      <span class="nav-link-num">03</span> Typography
+    </a>
+    <a href="#logomark" class="nav-link">
+      <span class="nav-link-num">04</span> Logomark
+    </a>
+    <a href="#iconography" class="nav-link">
+      <span class="nav-link-num">05</span> Iconography
+    </a>
+    <a href="#tone" class="nav-link">
+      <span class="nav-link-num">06</span> Tone of Voice
+    </a>
+    <a href="#motion" class="nav-link">
+      <span class="nav-link-num">07</span> Motion
+    </a>
+    <a href="#components" class="nav-link">
+      <span class="nav-link-num">08</span> Components
+    </a>
+  </div>
+</nav>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="main">
+
+  <!-- ══════════════════════════════════════
+       01 · BRAND POSITIONING
+  ══════════════════════════════════════ -->
+  <section class="section" id="positioning">
+    <div class="eyebrow"><span class="eyebrow-num">01</span> Brand Positioning</div>
+    <h2 class="section-title">Holdfast Protocol Protocol</h2>
+    <p class="section-desc">Trust infrastructure for autonomous AI agents on Solana. A protocol-first identity built on auditability, on-chain proof, and zero tolerance for speculation theatre.</p>
+
+    <div class="hero-positioning mb-32">
+      <div class="hero-tagline">Trust is not a<br><span>feature.</span><br>It's the protocol.</div>
+      <p class="hero-mission">Holdfast Protocol provides the escrow, reputation, and attestation primitives that let autonomous AI agents transact value on Solana without human intermediaries. Security-first. Audited before shipped. Fees on real usage, never on token velocity.</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-label">Core Primitives</div>
+          <div class="hero-stat-value">Escrow · Reputation · Attestations</div>
+          <div class="hero-stat-sub">On-chain, composable, permissionless</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Ecosystem</div>
+          <div class="hero-stat-value">Solana Blockchain</div>
+          <div class="hero-stat-sub">Anchor programs · SPL tokens · CPI composable</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Parent Company</div>
+          <div class="hero-stat-value">Casemate Labs</div>
+          <div class="hero-stat-sub">Trust infrastructure on Solana</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="positioning-grid mb-32">
+      <div class="positioning-card">
+        <div class="positioning-card-title">Brand Values</div>
+        <div class="positioning-row">
+          <span class="positioning-label">Security-first</span>
+          <span class="positioning-value">Audited code ships before any marketing claim</span>
+        </div>
+        <div class="positioning-row">
+          <span class="positioning-label">Protocol fees</span>
+          <span class="positioning-value">Revenue from real usage, not token speculation</span>
+        </div>
+        <div class="positioning-row">
+          <span class="positioning-label">Agent-native</span>
+          <span class="positioning-value">Primitives designed for autonomous agents, not retrofitted</span>
+        </div>
+        <div class="positioning-row">
+          <span class="positioning-label">Composable</span>
+          <span class="positioning-value">CPI-compatible — integrate, don't replace</span>
+        </div>
+        <div class="positioning-row">
+          <span class="positioning-label">Transparent</span>
+          <span class="positioning-value">All program logic is open-source and on-chain</span>
+        </div>
+      </div>
+      <div class="positioning-card">
+        <div class="positioning-card-title">Competitive Positioning</div>
+        <div class="positioning-row">
+          <span class="positioning-label">vs Warden</span>
+          <span class="positioning-value">Agent-focused primitives vs general key management</span>
+        </div>
+        <div class="positioning-row">
+          <span class="positioning-label">vs Vouch</span>
+          <span class="positioning-value">On-chain escrow + reputation vs off-chain reputation only</span>
+        </div>
+        <div class="positioning-row">
+          <span class="positioning-label">vs EAS</span>
+          <span class="positioning-value">Solana-native performance vs EVM attestation model</span>
+        </div>
+        <div class="positioning-row">
+          <span class="positioning-label">Differentiator</span>
+          <span class="positioning-value accent">Escrow · reputation · attestations in one composable stack</span>
+        </div>
+        <div class="positioning-row">
+          <span class="positioning-label">Moat</span>
+          <span class="positioning-value">Network effects from agent reputation data over time</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-32">
+        <div class="positioning-card-title" style="margin-bottom:14px;">Holdfast Protocol Protocol</div>
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.7; margin-bottom:16px;">Trust infrastructure layer. Handles escrow lifecycle, reputation scoring, and on-chain attestations for agent-to-agent and agent-to-human transactions.</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span class="badge badge-vp">Escrow</span>
+          <span class="badge badge-vp">Reputation</span>
+          <span class="badge badge-vp">Attestations</span>
+          <span class="badge badge-vp">Solana</span>
+        </div>
+      </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       02 · COLOUR PALETTE
+  ══════════════════════════════════════ -->
+  <section class="section" id="colours">
+    <div class="eyebrow"><span class="eyebrow-num">02</span> Colour Palette</div>
+    <h2 class="section-title">Colour System</h2>
+    <p class="section-desc">A deep navy-to-near-black background hierarchy creates depth without gradients. Electric blue is the protocol accent — trust, precision, chain-native. Status and reputation colours complete the system.</p>
+
+    <div class="palette-group">
+      <div class="palette-group-label">Background Hierarchy</div>
+      <div class="grid-4 mb-16">
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#0D1117;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--bg-page</div>
+            <div class="swatch-hex">#0D1117</div>
+            <div class="swatch-use">Page background · Deepest layer</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#141B27;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--bg-card</div>
+            <div class="swatch-hex">#141B27</div>
+            <div class="swatch-use">Cards · Panels · Containers</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#18202E;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--bg-card-raised</div>
+            <div class="swatch-hex">#18202E</div>
+            <div class="swatch-use">Table headers · Secondary panels</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#1A2438;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--bg-hover</div>
+            <div class="swatch-hex">#1A2438</div>
+            <div class="swatch-use">Hover states · Selected rows</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="palette-group">
+      <div class="palette-group-label">Text Scale</div>
+      <div class="grid-4 mb-16">
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#E8EDF2;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--text-primary</div>
+            <div class="swatch-hex">#E8EDF2</div>
+            <div class="swatch-use">Primary text · Headings</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#8A99AC;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--text-secondary</div>
+            <div class="swatch-hex">#8A99AC</div>
+            <div class="swatch-use">Body copy · Descriptions</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#4D5E72;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--text-tertiary</div>
+            <div class="swatch-hex">#4D5E72</div>
+            <div class="swatch-use">Labels · Metadata · Captions</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#2D3E52;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--text-disabled</div>
+            <div class="swatch-hex">#2D3E52</div>
+            <div class="swatch-use">Disabled states · Placeholder</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="palette-group">
+      <div class="palette-group-label">Protocol Accent</div>
+      <div class="grid-3 mb-16">
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#2D8CFF;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--accent (Holdfast Protocol)</div>
+            <div class="swatch-hex">#2D8CFF</div>
+            <div class="swatch-use">Trust · Precision · Chain-native · Interactive elements</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-checker"></div><div class="swatch-fill" style="background:rgba(45,140,255,0.12);"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--accent-dim</div>
+            <div class="swatch-hex">rgba(45,140,255,0.12)</div>
+            <div class="swatch-use">Badge fills · Button backgrounds · Highlights</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-checker"></div><div class="swatch-fill" style="background:rgba(45,140,255,0.22);"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--accent-border</div>
+            <div class="swatch-hex">rgba(45,140,255,0.22)</div>
+            <div class="swatch-use">Badge borders · Card outlines</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="palette-group">
+      <div class="palette-group-label">Status Colours</div>
+      <div class="grid-3 mb-16">
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#22C55E;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--success</div>
+            <div class="swatch-hex">#22C55E</div>
+            <div class="swatch-use">Completed · Verified · Active</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#F59E0B;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--warning</div>
+            <div class="swatch-hex">#F59E0B</div>
+            <div class="swatch-use">Pending · Expiring · Attention needed</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#EF4444;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--danger</div>
+            <div class="swatch-hex">#EF4444</div>
+            <div class="swatch-use">Disputed · Failed · Slashed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="palette-group">
+      <div class="palette-group-label">Reputation Tiers</div>
+      <div class="grid-4">
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#CD7F32;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--bronze</div>
+            <div class="swatch-hex">#CD7F32</div>
+            <div class="swatch-use">Tier 1 · New agents · Entry level</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#9BA5B0;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--silver</div>
+            <div class="swatch-hex">#9BA5B0</div>
+            <div class="swatch-use">Tier 2 · Established · Reliable</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#D4AF37;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--gold</div>
+            <div class="swatch-hex">#D4AF37</div>
+            <div class="swatch-use">Tier 3 · Trusted · High volume</div>
+          </div>
+        </div>
+        <div class="swatch-card">
+          <div class="swatch-color"><div class="swatch-fill" style="background:#B8C5D0;"></div></div>
+          <div class="swatch-info">
+            <div class="swatch-name">--platinum</div>
+            <div class="swatch-hex">#B8C5D0</div>
+            <div class="swatch-use">Tier 4 · Elite · Fully attested</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       03 · TYPOGRAPHY
+  ══════════════════════════════════════ -->
+  <section class="section" id="typography">
+    <div class="eyebrow"><span class="eyebrow-num">03</span> Typography</div>
+    <h2 class="section-title">Type System</h2>
+    <p class="section-desc">Two families — Inter for display and headings (authority through weight), Helvetica Neue for body UI (neutral legibility). Courier New for all monospace: addresses, hashes, code.</p>
+
+    <div class="grid-3 mb-32">
+      <div class="font-family-card">
+        <div class="font-family-label">Display & Headings</div>
+        <div class="font-family-name" style="font-family:'Inter','Helvetica Neue',sans-serif; font-weight:800;">Inter</div>
+        <div class="font-family-specimen" style="font-family:'Inter','Helvetica Neue',sans-serif;">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>0123456789 !@#$%^&*()</div>
+      </div>
+      <div class="font-family-card">
+        <div class="font-family-label">UI & Body</div>
+        <div class="font-family-name" style="font-family:'Helvetica Neue',Arial,sans-serif;">Helvetica Neue</div>
+        <div class="font-family-specimen" style="font-family:'Helvetica Neue',Arial,sans-serif;">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>0123456789 !@#$%^&*()</div>
+      </div>
+      <div class="font-family-card">
+        <div class="font-family-label">Monospace</div>
+        <div class="font-family-name" style="font-family:'Courier New',Courier,monospace; font-size:22px;">Courier New</div>
+        <div class="font-mono-demo">0x2D8CFF · CAS-224<br>VLT3xK9p...QmR7<br>escrow.lockFunds()</div>
+      </div>
+    </div>
+
+    <div class="mb-48">
+      <div class="type-row">
+        <div>
+          <div class="type-meta-name">Display / Hero</div>
+          <div class="type-meta-spec">
+            <span>48px · weight 900</span>
+            <span>letter-spacing: -0.05em</span>
+            <span>line-height: 1.0</span>
+          </div>
+        </div>
+        <div class="type-sample" style="font-family:'Inter',sans-serif;font-size:48px;font-weight:900;letter-spacing:-0.05em;line-height:1.0;">Trust is the protocol.</div>
+        <div class="type-token"><span>--font-display</span><span>48px / 900</span></div>
+      </div>
+      <div class="type-row">
+        <div>
+          <div class="type-meta-name">Section Title</div>
+          <div class="type-meta-spec">
+            <span>32px · weight 800</span>
+            <span>letter-spacing: -0.04em</span>
+            <span>line-height: 1.1</span>
+          </div>
+        </div>
+        <div class="type-sample" style="font-family:'Inter',sans-serif;font-size:32px;font-weight:800;letter-spacing:-0.04em;line-height:1.1;">Escrow Infrastructure</div>
+        <div class="type-token"><span>--font-display</span><span>32px / 800</span></div>
+      </div>
+      <div class="type-row">
+        <div>
+          <div class="type-meta-name">Card Title</div>
+          <div class="type-meta-spec">
+            <span>22px · weight 700</span>
+            <span>letter-spacing: -0.03em</span>
+            <span>line-height: 1.2</span>
+          </div>
+        </div>
+        <div class="type-sample" style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.03em;">Reputation Score</div>
+        <div class="type-token"><span>--font-display</span><span>22px / 700</span></div>
+      </div>
+      <div class="type-row">
+        <div>
+          <div class="type-meta-name">UI Label</div>
+          <div class="type-meta-spec">
+            <span>16px · weight 600</span>
+            <span>letter-spacing: -0.01em</span>
+            <span>line-height: 1.4</span>
+          </div>
+        </div>
+        <div class="type-sample" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;font-weight:600;letter-spacing:-0.01em;">Stake beneficiary address</div>
+        <div class="type-token"><span>--font-ui</span><span>16px / 600</span></div>
+      </div>
+      <div class="type-row">
+        <div>
+          <div class="type-meta-name">Body Default</div>
+          <div class="type-meta-spec">
+            <span>13px · weight 400</span>
+            <span>letter-spacing: 0</span>
+            <span>line-height: 1.6</span>
+          </div>
+        </div>
+        <div class="type-sample" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;font-weight:400;line-height:1.6;">Holdfast Protocol escrow accounts hold lamports on behalf of a depositor until conditions are met. The beneficiary may claim funds once the protocol verifies completion.</div>
+        <div class="type-token"><span>--font-ui</span><span>13px / 400</span></div>
+      </div>
+      <div class="type-row">
+        <div>
+          <div class="type-meta-name">Body Small</div>
+          <div class="type-meta-spec">
+            <span>12px · weight 400</span>
+            <span>letter-spacing: 0</span>
+            <span>line-height: 1.65</span>
+          </div>
+        </div>
+        <div class="type-sample" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;font-weight:400;line-height:1.65;color:var(--text-secondary);">Disputes must be raised before the deadline_secs window closes. After expiry, the beneficiary may auto-claim without arbitration.</div>
+        <div class="type-token"><span>--font-ui</span><span>12px / 400</span></div>
+      </div>
+      <div class="type-row">
+        <div>
+          <div class="type-meta-name">Caption / Hint</div>
+          <div class="type-meta-spec">
+            <span>11px · weight 400</span>
+            <span>letter-spacing: 0</span>
+            <span>line-height: 1.5</span>
+          </div>
+        </div>
+        <div class="type-sample" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:400;line-height:1.5;color:var(--text-tertiary);">Minimum stake: 0.1 SOL · Max deadline: 90 days</div>
+        <div class="type-token"><span>--font-ui</span><span>11px / 400</span></div>
+      </div>
+      <div class="type-row">
+        <div>
+          <div class="type-meta-name">Eyebrow / Label</div>
+          <div class="type-meta-spec">
+            <span>10px · weight 600</span>
+            <span>letter-spacing: 0.14em</span>
+            <span>UPPERCASE</span>
+          </div>
+        </div>
+        <div class="type-sample" style="font-family:'Courier New',Courier,monospace;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);">ESCROW STATUS · PROGRAM ID · REPUTATION TIER</div>
+        <div class="type-token"><span>--font-mono</span><span>10px / 600</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       04 · LOGOMARK
+  ══════════════════════════════════════ -->
+  <section class="section" id="logomark">
+    <div class="eyebrow"><span class="eyebrow-num">04</span> Logomark</div>
+    <h2 class="section-title">Logo System</h2>
+    <p class="section-desc">A vault shield with an integrated chain-link motif. The shield communicates security and custody; the chain-link communicates on-chain composability and agent connectivity. Strictly geometric, 0° rotation, no gradients on the mark itself.</p>
+
+    <div class="logo-preview-grid mb-32">
+      <!-- Full Colour on Dark -->
+      <div class="logo-preview dark-bg">
+        <svg width="160" height="52" viewBox="0 0 160 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Shield mark -->
+          <path d="M14 4L4 7.5V18C4 26.3 8.8 33.7 14 37C19.2 33.7 24 26.3 24 18V7.5L14 4Z" stroke="#2D8CFF" stroke-width="1.8" fill="rgba(45,140,255,0.1)"/>
+          <!-- Lock body -->
+          <rect x="9.5" y="20" width="9" height="8" stroke="#2D8CFF" stroke-width="1.6" fill="none"/>
+          <!-- Lock shackle -->
+          <path d="M12 20V17C12 15.3 13.3 14 15 14" stroke="#2D8CFF" stroke-width="1.6" stroke-linecap="square" fill="none"/>
+          <!-- Lock dot -->
+          <circle cx="14" cy="24" r="1.2" fill="#2D8CFF"/>
+          <!-- Chain link left -->
+          <rect x="27" y="20" width="7" height="4" rx="2" stroke="#2D8CFF" stroke-width="1.4" fill="none"/>
+          <!-- Chain link right -->
+          <rect x="32" y="20" width="7" height="4" rx="2" stroke="#2D8CFF" stroke-width="1.4" fill="none"/>
+          <!-- Wordmark -->
+          <text x="44" y="28" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="-0.04em" fill="#E8EDF2">Holdfast Protocol</text>
+        </svg>
+        <span class="logo-preview-label">Full colour · Dark background</span>
+      </div>
+
+      <!-- White on Black -->
+      <div class="logo-preview black-bg">
+        <svg width="160" height="52" viewBox="0 0 160 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 4L4 7.5V18C4 26.3 8.8 33.7 14 37C19.2 33.7 24 26.3 24 18V7.5L14 4Z" stroke="#E8EDF2" stroke-width="1.8" fill="rgba(232,237,242,0.08)"/>
+          <rect x="9.5" y="20" width="9" height="8" stroke="#E8EDF2" stroke-width="1.6" fill="none"/>
+          <path d="M12 20V17C12 15.3 13.3 14 15 14" stroke="#E8EDF2" stroke-width="1.6" stroke-linecap="square" fill="none"/>
+          <circle cx="14" cy="24" r="1.2" fill="#E8EDF2"/>
+          <rect x="27" y="20" width="7" height="4" rx="2" stroke="#E8EDF2" stroke-width="1.4" fill="none"/>
+          <rect x="32" y="20" width="7" height="4" rx="2" stroke="#E8EDF2" stroke-width="1.4" fill="none"/>
+          <text x="44" y="28" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="-0.04em" fill="#E8EDF2">Holdfast Protocol</text>
+        </svg>
+        <span class="logo-preview-label" style="color:#4D5E72;">White · Black background</span>
+      </div>
+
+      <!-- Monochrome on Light -->
+      <div class="logo-preview light-bg">
+        <svg width="160" height="52" viewBox="0 0 160 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 4L4 7.5V18C4 26.3 8.8 33.7 14 37C19.2 33.7 24 26.3 24 18V7.5L14 4Z" stroke="#1A2438" stroke-width="1.8" fill="rgba(26,36,56,0.06)"/>
+          <rect x="9.5" y="20" width="9" height="8" stroke="#1A2438" stroke-width="1.6" fill="none"/>
+          <path d="M12 20V17C12 15.3 13.3 14 15 14" stroke="#1A2438" stroke-width="1.6" stroke-linecap="square" fill="none"/>
+          <circle cx="14" cy="24" r="1.2" fill="#1A2438"/>
+          <rect x="27" y="20" width="7" height="4" rx="2" stroke="#1A2438" stroke-width="1.4" fill="none"/>
+          <rect x="32" y="20" width="7" height="4" rx="2" stroke="#1A2438" stroke-width="1.4" fill="none"/>
+          <text x="44" y="28" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="-0.04em" fill="#0D1117">Holdfast Protocol</text>
+        </svg>
+        <span class="logo-preview-label">Monochrome · Light background</span>
+      </div>
+    </div>
+
+    <!-- Clear Space -->
+    <div class="info-box mb-24">
+      <strong>Clear space rule:</strong> Maintain a minimum clear space equal to the cap-height of the wordmark (≈ the height of the "V" in "Holdfast Protocol") on all four sides. Never place copy, icons, or other logos within this zone.
+    </div>
+
+    <!-- Min Sizes -->
+    <div class="palette-group-label mb-16">Minimum Sizes</div>
+    <div class="logo-min-sizes mb-32">
+      <div class="logo-min-card">
+        <svg width="120" height="40" viewBox="0 0 160 52" fill="none">
+          <path d="M14 4L4 7.5V18C4 26.3 8.8 33.7 14 37C19.2 33.7 24 26.3 24 18V7.5L14 4Z" stroke="#2D8CFF" stroke-width="1.8" fill="rgba(45,140,255,0.1)"/>
+          <rect x="9.5" y="20" width="9" height="8" stroke="#2D8CFF" stroke-width="1.6" fill="none"/>
+          <path d="M12 20V17C12 15.3 13.3 14 15 14" stroke="#2D8CFF" stroke-width="1.6" stroke-linecap="square"/>
+          <circle cx="14" cy="24" r="1.2" fill="#2D8CFF"/>
+          <rect x="27" y="20" width="7" height="4" rx="2" stroke="#2D8CFF" stroke-width="1.4" fill="none"/>
+          <rect x="32" y="20" width="7" height="4" rx="2" stroke="#2D8CFF" stroke-width="1.4" fill="none"/>
+          <text x="44" y="28" font-family="'Inter',sans-serif" font-size="20" font-weight="800" letter-spacing="-0.04em" fill="#E8EDF2">Holdfast Protocol</text>
+        </svg>
+        <div class="logo-min-label">Full lockup<br>Min. 120px wide</div>
+      </div>
+      <div class="logo-min-card">
+        <svg width="80" height="40" viewBox="0 0 160 52" fill="none">
+          <path d="M14 4L4 7.5V18C4 26.3 8.8 33.7 14 37C19.2 33.7 24 26.3 24 18V7.5L14 4Z" stroke="#2D8CFF" stroke-width="1.8" fill="rgba(45,140,255,0.1)"/>
+          <rect x="9.5" y="20" width="9" height="8" stroke="#2D8CFF" stroke-width="1.6" fill="none"/>
+          <path d="M12 20V17C12 15.3 13.3 14 15 14" stroke="#2D8CFF" stroke-width="1.6" stroke-linecap="square"/>
+          <circle cx="14" cy="24" r="1.2" fill="#2D8CFF"/>
+          <rect x="27" y="20" width="7" height="4" rx="2" stroke="#2D8CFF" stroke-width="1.4" fill="none"/>
+          <rect x="32" y="20" width="7" height="4" rx="2" stroke="#2D8CFF" stroke-width="1.4" fill="none"/>
+          <text x="44" y="28" font-family="'Inter',sans-serif" font-size="20" font-weight="800" letter-spacing="-0.04em" fill="#E8EDF2">Holdfast Protocol</text>
+        </svg>
+        <div class="logo-min-label">Compact (80%)<br>Min. 96px wide</div>
+      </div>
+      <div class="logo-min-card">
+        <!-- Icon only -->
+        <svg width="32" height="32" viewBox="0 0 28 36" fill="none">
+          <path d="M14 2L2 6V17C2 24.7 7.4 31.5 14 33.5C20.6 31.5 26 24.7 26 17V6L14 2Z" stroke="#2D8CFF" stroke-width="1.8" fill="rgba(45,140,255,0.1)"/>
+          <rect x="8.5" y="18.5" width="11" height="9" stroke="#2D8CFF" stroke-width="1.6" fill="none"/>
+          <path d="M11 18.5V15C11 13 12.3 11.5 14 11.5" stroke="#2D8CFF" stroke-width="1.6" stroke-linecap="square"/>
+          <circle cx="14" cy="23" r="1.4" fill="#2D8CFF"/>
+        </svg>
+        <div class="logo-min-label">Icon only<br>Min. 24px</div>
+      </div>
+      <div class="logo-min-card">
+        <!-- Favicon -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 1.5L2 4.5V10C2 14.1 5.5 17.7 10 18.8C14.5 17.7 18 14.1 18 10V4.5L10 1.5Z" stroke="#2D8CFF" stroke-width="1.4" fill="rgba(45,140,255,0.15)"/>
+          <rect x="7" y="9.5" width="6" height="5" stroke="#2D8CFF" stroke-width="1.2" fill="none"/>
+          <path d="M8.5 9.5V7.5C8.5 6.7 9.2 6 10 6" stroke="#2D8CFF" stroke-width="1.2" stroke-linecap="square"/>
+          <circle cx="10" cy="12" r="0.9" fill="#2D8CFF"/>
+        </svg>
+        <div class="logo-min-label">Favicon<br>Min. 16px</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       05 · ICONOGRAPHY
+  ══════════════════════════════════════ -->
+  <section class="section" id="iconography">
+    <div class="eyebrow"><span class="eyebrow-num">05</span> Iconography</div>
+    <h2 class="section-title">Icon System</h2>
+    <p class="section-desc">Stroke-based icons on a 24×24 grid. 1.5px stroke weight, square linecaps (butt cap), miter joins. No fills on interior paths. Consistent 2px padding within the grid boundary.</p>
+
+    <div class="icon-grid mb-32">
+      <!-- Escrow Lock -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <rect x="5" y="11" width="14" height="10" stroke="currentColor"/>
+          <path d="M8 11V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V11" stroke="currentColor"/>
+          <circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/>
+          <line x1="12" y1="17.5" x2="12" y2="19.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span class="icon-label">Escrow<br>Lock</span>
+      </div>
+
+      <!-- Reputation Star -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <path d="M12 2L14.4 8.6H21.5L15.8 12.7L18.2 19.3L12 15.2L5.8 19.3L8.2 12.7L2.5 8.6H9.6L12 2Z" stroke="currentColor"/>
+        </svg>
+        <span class="icon-label">Reputation<br>Star</span>
+      </div>
+
+      <!-- Attestation Badge -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <path d="M12 2L14.5 4.5H18.5L19.5 8.5L22 11L19.5 13.5L18.5 17.5H14.5L12 20L9.5 17.5H5.5L4.5 13.5L2 11L4.5 8.5L5.5 4.5H9.5L12 2Z" stroke="currentColor"/>
+          <path d="M8.5 11L11 13.5L15.5 8.5" stroke="currentColor" stroke-linecap="round"/>
+        </svg>
+        <span class="icon-label">Attestation<br>Badge</span>
+      </div>
+
+      <!-- Wallet Key -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <circle cx="8" cy="10" r="4" stroke="currentColor"/>
+          <path d="M11.5 12L20 20" stroke="currentColor"/>
+          <path d="M16 17L18 19" stroke="currentColor"/>
+          <path d="M14 15L16 17" stroke="currentColor"/>
+        </svg>
+        <span class="icon-label">Wallet<br>Key</span>
+      </div>
+
+      <!-- Chain Link -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <rect x="3" y="9" width="8" height="6" rx="3" stroke="currentColor"/>
+          <rect x="13" y="9" width="8" height="6" rx="3" stroke="currentColor"/>
+          <line x1="11" y1="12" x2="13" y2="12" stroke="currentColor"/>
+        </svg>
+        <span class="icon-label">Chain<br>Link</span>
+      </div>
+
+      <!-- Shield -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <path d="M12 2L3 5.5V12C3 16.9 7 21.2 12 22.5C17 21.2 21 16.9 21 12V5.5L12 2Z" stroke="currentColor"/>
+        </svg>
+        <span class="icon-label">Shield</span>
+      </div>
+
+      <!-- Clock / Deadline -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <circle cx="12" cy="12" r="9" stroke="currentColor"/>
+          <path d="M12 6V12L16 15" stroke="currentColor"/>
+        </svg>
+        <span class="icon-label">Deadline<br>Clock</span>
+      </div>
+
+      <!-- Dispute Gavel -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <rect x="10" y="3" width="6" height="10" transform="rotate(45 10 3)" stroke="currentColor"/>
+          <line x1="4" y1="20" x2="12" y2="12" stroke="currentColor"/>
+          <line x1="3" y1="20" x2="9" y2="20" stroke="currentColor"/>
+        </svg>
+        <span class="icon-label">Dispute<br>Gavel</span>
+      </div>
+
+      <!-- Agent Node -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <circle cx="12" cy="12" r="3" stroke="currentColor"/>
+          <circle cx="4" cy="6" r="2" stroke="currentColor"/>
+          <circle cx="20" cy="6" r="2" stroke="currentColor"/>
+          <circle cx="4" cy="18" r="2" stroke="currentColor"/>
+          <circle cx="20" cy="18" r="2" stroke="currentColor"/>
+          <line x1="9.5" y1="10.5" x2="5.5" y2="7.5" stroke="currentColor"/>
+          <line x1="14.5" y1="10.5" x2="18.5" y2="7.5" stroke="currentColor"/>
+          <line x1="9.5" y1="13.5" x2="5.5" y2="16.5" stroke="currentColor"/>
+          <line x1="14.5" y1="13.5" x2="18.5" y2="16.5" stroke="currentColor"/>
+        </svg>
+        <span class="icon-label">Agent<br>Node</span>
+      </div>
+
+      <!-- Solana Diamond -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <path d="M5 9H17C18.1 9 18.6 10.4 17.8 11.2L7.8 21.2C7 22 5.5 21.5 5.5 20.3V10C5.5 9.4 5.6 9 5 9Z" stroke="currentColor"/>
+          <path d="M19 15H7C5.9 15 5.4 13.6 6.2 12.8L16.2 2.8C17 2 18.5 2.5 18.5 3.7V14C18.5 14.6 18.4 15 19 15Z" stroke="currentColor" opacity="0.5"/>
+        </svg>
+        <span class="icon-label">Solana<br>Diamond</span>
+      </div>
+
+      <!-- Stake Arrow -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <path d="M12 3V15M12 3L8 7M12 3L16 7" stroke="currentColor"/>
+          <path d="M6 19H18" stroke="currentColor"/>
+          <path d="M9 21H15" stroke="currentColor"/>
+        </svg>
+        <span class="icon-label">Stake<br>Arrow</span>
+      </div>
+
+      <!-- Check / Verified -->
+      <div class="icon-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+          <circle cx="12" cy="12" r="9" stroke="currentColor"/>
+          <path d="M7.5 12L10.5 15L16.5 9" stroke="currentColor"/>
+        </svg>
+        <span class="icon-label">Check /<br>Verified</span>
+      </div>
+    </div>
+
+    <div class="icon-rules">
+      <div class="icon-rule-card">
+        <div class="icon-rule-title">Grid & Sizing</div>
+        <div class="icon-rule-body">All icons live on a 24×24px grid with 2px internal padding. Scale at 16px, 20px, or 24px — never between. The 1.5px stroke weight is maintained at all standard sizes.</div>
+      </div>
+      <div class="icon-rule-card">
+        <div class="icon-rule-title">Stroke Style</div>
+        <div class="icon-rule-body">Square linecaps (butt cap), miter joins. No fills on path interiors — only solid dots or nodes as fill accent. Opacity variants (50%) used for secondary paths only.</div>
+      </div>
+      <div class="icon-rule-card">
+        <div class="icon-rule-title">Colour Usage</div>
+        <div class="icon-rule-body">Icons default to <code style="font-family:var(--font-mono);font-size:10px;color:var(--text-primary)">currentColor</code>. Use <code style="font-family:var(--font-mono);font-size:10px;color:var(--text-primary)">--text-secondary</code> at rest, <code style="font-family:var(--font-mono);font-size:10px;color:var(--accent)">--accent</code> on hover/active states.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       06 · TONE OF VOICE
+  ══════════════════════════════════════ -->
+  <section class="section" id="tone">
+    <div class="eyebrow"><span class="eyebrow-num">06</span> Tone of Voice</div>
+    <h2 class="section-title">How Holdfast Protocol Communicates</h2>
+    <p class="section-desc">Authoritative, technical, and trustworthy. Holdfast Protocol speaks like a senior protocol engineer writing documentation — precise, no-hype, confident without being arrogant. Never speculative. Never consumer-facing fluff.</p>
+
+    <div class="tov-grid mb-32">
+      <div class="tov-card">
+        <div class="tov-card-title do">✓  Write this</div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--success)">✓</span>
+          <div>
+            <div class="tov-word">Secure</div>
+            <div class="tov-note">Implies technical rigour, auditability</div>
+          </div>
+        </div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--success)">✓</span>
+          <div>
+            <div class="tov-word">On-chain verified</div>
+            <div class="tov-note">Specific, protocol-native</div>
+          </div>
+        </div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--success)">✓</span>
+          <div>
+            <div class="tov-word">Audited</div>
+            <div class="tov-note">References actual audit process</div>
+          </div>
+        </div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--success)">✓</span>
+          <div>
+            <div class="tov-word">Composable</div>
+            <div class="tov-note">Developer-native, accurate</div>
+          </div>
+        </div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--success)">✓</span>
+          <div>
+            <div class="tov-word">Protocol fees</div>
+            <div class="tov-note">Revenue model transparency</div>
+          </div>
+        </div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--success)">✓</span>
+          <div>
+            <div class="tov-word">Autonomous agents</div>
+            <div class="tov-note">Precise audience descriptor</div>
+          </div>
+        </div>
+      </div>
+      <div class="tov-card">
+        <div class="tov-card-title dont">✗  Avoid this</div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--danger)">✗</span>
+          <div>
+            <div class="tov-word">Revolutionary / Game-changing</div>
+            <div class="tov-note">Hype language, undermines credibility</div>
+          </div>
+        </div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--danger)">✗</span>
+          <div>
+            <div class="tov-word">Blazing fast / Lightning speed</div>
+            <div class="tov-note">Unsubstantiated, consumer-facing</div>
+          </div>
+        </div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--danger)">✗</span>
+          <div>
+            <div class="tov-word">Token holders will benefit</div>
+            <div class="tov-note">Speculative, regulatory risk</div>
+          </div>
+        </div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--danger)">✗</span>
+          <div>
+            <div class="tov-word">Easy / Simple / Just</div>
+            <div class="tov-note">Dismissive of technical depth</div>
+          </div>
+        </div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--danger)">✗</span>
+          <div>
+            <div class="tov-word">Moon / WAGMI / Pump</div>
+            <div class="tov-note">Crypto-bro language, brand violation</div>
+          </div>
+        </div>
+        <div class="tov-pair">
+          <span class="tov-icon" style="color:var(--danger)">✗</span>
+          <div>
+            <div class="tov-word">Industry-disrupting</div>
+            <div class="tov-note">Vague, overused, non-technical</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="palette-group-label mb-16">Copy in Context</div>
+    <div class="tov-copy-samples">
+      <!-- Protocol page headline -->
+      <div class="copy-sample">
+        <div class="copy-sample-header">
+          <span class="copy-sample-context">Context: Protocol page headline</span>
+        </div>
+        <div class="copy-sample-body">
+          <div class="copy-headline">Trust infrastructure for autonomous AI agents.</div>
+          <p class="copy-sub">Holdfast Protocol provides escrow, reputation, and attestation primitives on Solana — the building blocks that let AI agents transact value without human intermediaries. Audited. On-chain. Composable.</p>
+        </div>
+      </div>
+      <!-- Docs intro paragraph -->
+      <div class="copy-sample">
+        <div class="copy-sample-header">
+          <span class="copy-sample-context">Context: Documentation introduction</span>
+        </div>
+        <div class="copy-sample-body">
+          <div class="copy-headline" style="font-size:16px;font-weight:700;">Getting started with the Holdfast Protocol SDK</div>
+          <p class="copy-sub">The Holdfast Protocol SDK exposes a typed TypeScript interface to the on-chain Anchor program. You can lock funds into an escrow account, stake a beneficiary, and manage the full escrow lifecycle without writing raw instruction data. This guide covers installation, wallet integration, and your first escrow transaction on devnet.</p>
+        </div>
+      </div>
+      <!-- Error message -->
+      <div class="copy-sample">
+        <div class="copy-sample-header">
+          <span class="copy-sample-context">Context: Protocol error message</span>
+        </div>
+        <div class="copy-sample-body" style="padding: 20px 24px;">
+          <div class="copy-error">
+            <div class="copy-error-code">ERR_ESCROW_LOCKED</div>
+            <div>
+              <div class="copy-error-msg">This escrow account is locked and cannot be modified.</div>
+              <div class="copy-error-detail">The depositor locked this escrow on 2026-04-21. Unlocking requires both parties to sign a release transaction or the deadline to expire. Check the escrow state on-chain for the current deadline.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       07 · MOTION & ANIMATION
+  ══════════════════════════════════════ -->
+  <section class="section" id="motion">
+    <div class="eyebrow"><span class="eyebrow-num">07</span> Motion & Animation</div>
+    <h2 class="section-title">Motion Principles</h2>
+    <p class="section-desc">Motion is purposeful and subtle. It communicates state changes — not decoration. Entrances are fast (150–250ms). Persistent animations (pulses, shimmers) are low-energy. Nothing bounces. Nothing slides in from off-screen.</p>
+
+    <div class="motion-grid mb-32">
+      <!-- Entrance Fade-Up -->
+      <div class="motion-card">
+        <div class="motion-card-title">01 — Entrance Fade-Up</div>
+        <div class="motion-card-spec">200ms · ease-out · opacity 0→1 · translateY 12px→0 · Hover to replay</div>
+        <div class="motion-demo-area" title="Hover to replay">
+          <div class="demo-fade-up">
+            <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">Escrow account loaded</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accent Pulse -->
+      <div class="motion-card">
+        <div class="motion-card-title">02 — Accent Pulse</div>
+        <div class="motion-card-spec">2000ms · ease-out · infinite · active status indicator</div>
+        <div class="motion-demo-area">
+          <div class="demo-pulse"></div>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">Program active</span>
+        </div>
+      </div>
+
+      <!-- Shimmer Load -->
+      <div class="motion-card">
+        <div class="motion-card-title">03 — Data Load Shimmer</div>
+        <div class="motion-card-spec">1400ms · linear · infinite · skeleton loading state</div>
+        <div class="motion-demo-area">
+          <div class="demo-shimmer-stack">
+            <div class="demo-shimmer"></div>
+            <div class="demo-shimmer sm"></div>
+            <div class="demo-shimmer"></div>
+            <div class="demo-shimmer sm" style="width:40%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Transition -->
+      <div class="motion-card">
+        <div class="motion-card-title">04 — Status Colour Morph</div>
+        <div class="motion-card-spec">3000ms · ease-in-out · infinite alternate · pending→processing→complete</div>
+        <div class="motion-demo-area">
+          <span class="demo-status-pill">Processing</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="positioning-card-title" style="margin-bottom:16px;">Easing Curve Reference</div>
+      <table class="motion-easing-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>CSS Value</th>
+            <th>Duration Range</th>
+            <th>Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ease-out-fast</td>
+            <td>cubic-bezier(0.0, 0.0, 0.2, 1.0)</td>
+            <td>150–200ms</td>
+            <td>Element entrances, hover state reveal</td>
+          </tr>
+          <tr>
+            <td>ease-out-standard</td>
+            <td>ease-out</td>
+            <td>200–300ms</td>
+            <td>Panel open, modal appear, page transitions</td>
+          </tr>
+          <tr>
+            <td>ease-in-out</td>
+            <td>ease-in-out</td>
+            <td>250–400ms</td>
+            <td>Status transitions, colour morphs</td>
+          </tr>
+          <tr>
+            <td>linear</td>
+            <td>linear</td>
+            <td>1200–2000ms</td>
+            <td>Shimmer loader, progress fills</td>
+          </tr>
+          <tr>
+            <td>pulse</td>
+            <td>ease-out</td>
+            <td>2000ms · infinite</td>
+            <td>Active state indicator dots</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       08 · COMPONENT PATTERNS
+  ══════════════════════════════════════ -->
+  <section class="section" id="components">
+    <div class="eyebrow"><span class="eyebrow-num">08</span> Component Patterns</div>
+    <h2 class="section-title">UI Components</h2>
+    <p class="section-desc">All components use the canonical token set. Sharp corners throughout — no border-radius on cards, panels, or buttons. Monospace for identifiers, addresses, amounts, and all on-chain data.</p>
+
+    <!-- Badges & Tags -->
+    <div class="component-section">
+      <div class="component-section-title">Badges & Tags</div>
+      <div class="component-demo-area">
+        <span class="badge badge-vp">Holdfast Protocol</span>
+        <span class="badge badge-ok">Verified</span>
+        <span class="badge badge-warn">Pending</span>
+        <span class="badge badge-error">Disputed</span>
+      </div>
+      <div class="component-demo-area">
+        <span class="badge badge-bronze">Bronze</span>
+        <span class="badge badge-silver">Silver</span>
+        <span class="badge badge-gold">Gold</span>
+        <span class="badge badge-platinum">Platinum</span>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="component-section">
+      <div class="component-section-title">Buttons</div>
+      <div class="component-demo-area">
+        <button class="btn btn-vp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="square"><rect x="5" y="11" width="14" height="10"/><path d="M8 11V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V11"/></svg>
+          Lock Escrow
+        </button>
+        <button class="btn btn-ghost">View on Explorer</button>
+        <button class="btn btn-ghost">Cancel</button>
+        <button class="btn btn-danger-ghost">Raise Dispute</button>
+      </div>
+    </div>
+
+    <!-- Input Fields -->
+    <div class="component-section">
+      <div class="component-section-title">Input Fields</div>
+      <div class="component-demo-area" style="align-items:flex-start; flex-wrap: wrap; gap:24px;">
+        <div class="input-group">
+          <label class="input-label">Beneficiary Address</label>
+          <input class="input" type="text" placeholder="VLT3xK9p...QmR7" value=""/>
+          <span class="input-hint">Solana wallet address or program ID</span>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Amount (SOL)</label>
+          <input class="input" type="text" placeholder="0.00" value="1.5"/>
+          <span class="input-hint">Minimum: 0.1 SOL</span>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Deadline (days)</label>
+          <input class="input error" type="text" placeholder="30" value="95"/>
+          <span class="input-error-msg">Maximum deadline is 90 days</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Pills -->
+    <div class="component-section">
+      <div class="component-section-title">Status Pills</div>
+      <div class="component-demo-area">
+        <span class="status-pill status-active"><span class="status-dot"></span>Active</span>
+        <span class="status-pill status-pending"><span class="status-dot"></span>Pending Release</span>
+        <span class="status-pill status-disputed"><span class="status-dot"></span>Disputed</span>
+        <span class="status-pill status-locked"><span class="status-dot"></span>Locked</span>
+      </div>
+    </div>
+
+    <!-- Code Block -->
+    <div class="component-section">
+      <div class="component-section-title">Code Snippets</div>
+      <div class="code-block mb-16">
+        <div class="code-block-header">
+          <span class="code-block-lang">typescript</span>
+          <span class="code-block-copy">Copy</span>
+        </div>
+        <pre><span class="kw">import</span> { Holdfast ProtocolClient } <span class="kw">from</span> <span class="str">'@holdfastprotocol/sdk'</span>;
+
+<span class="kw">const</span> client = <span class="kw">new</span> <span class="fn">Holdfast ProtocolClient</span>({ cluster: <span class="str">'devnet'</span> });
+
+<span class="cmt">// Lock funds into escrow with a 30-day deadline</span>
+<span class="kw">const</span> tx = <span class="kw">await</span> client.escrow.<span class="fn">lockEscrow</span>({
+  depositor:         wallet.publicKey,
+  beneficiary:       beneficiaryPubkey,
+  amount:            <span class="num">1_500_000_000</span>, <span class="cmt">// 1.5 SOL in lamports</span>
+  deadlineSecs:      <span class="num">2_592_000</span>,    <span class="cmt">// 30 days</span>
+});</pre>
+      </div>
+    </div>
+
+    <!-- Table Row -->
+    <div class="component-section">
+      <div class="component-section-title">Data Table</div>
+      <div class="card" style="padding:0; overflow:hidden;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Escrow ID</th>
+              <th>Depositor</th>
+              <th>Amount</th>
+              <th>Deadline</th>
+              <th>Reputation</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-mono td-accent">ESC-0041</td>
+              <td class="td-mono" style="font-size:10px;">VLT3xK9p…QmR7</td>
+              <td class="td-mono">1.50 SOL</td>
+              <td>29d 14h</td>
+              <td><span class="badge badge-gold">Gold</span></td>
+              <td><span class="status-pill status-active" style="padding:2px 8px;font-size:10px;"><span class="status-dot"></span>Active</span></td>
+            </tr>
+            <tr>
+              <td class="td-mono td-accent">ESC-0040</td>
+              <td class="td-mono" style="font-size:10px;">J9pKmW2x…fN4T</td>
+              <td class="td-mono">0.25 SOL</td>
+              <td>2d 3h</td>
+              <td><span class="badge badge-silver">Silver</span></td>
+              <td><span class="status-pill status-pending" style="padding:2px 8px;font-size:10px;"><span class="status-dot"></span>Pending</span></td>
+            </tr>
+            <tr>
+              <td class="td-mono td-accent">ESC-0039</td>
+              <td class="td-mono" style="font-size:10px;">Bx7RnP1q…vW8K</td>
+              <td class="td-mono">5.00 SOL</td>
+              <td>Expired</td>
+              <td><span class="badge badge-bronze">Bronze</span></td>
+              <td><span class="status-pill status-disputed" style="padding:2px 8px;font-size:10px;"><span class="status-dot"></span>Disputed</span></td>
+            </tr>
+            <tr>
+              <td class="td-mono td-accent">ESC-0038</td>
+              <td class="td-mono" style="font-size:10px;">Hy4KpL9m…cQ2N</td>
+              <td class="td-mono">0.75 SOL</td>
+              <td>12d 7h</td>
+              <td><span class="badge badge-platinum">Platinum</span></td>
+              <td><span class="status-pill status-locked" style="padding:2px 8px;font-size:10px;"><span class="status-dot"></span>Locked</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── ACTIVE NAV SCRIPT ── -->
+<script>
+  (function() {
+    const sections = document.querySelectorAll('.section[id]');
+    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+    function setActive() {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 80) current = s.id;
+      });
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+      });
+    }
+    window.addEventListener('scroll', setActive, { passive: true });
+    setActive();
+  })();
+</script>
+
+</body>
+</html>

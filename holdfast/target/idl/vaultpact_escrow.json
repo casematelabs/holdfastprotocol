@@ -1,0 +1,2858 @@
+{
+  "address": "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H",
+  "metadata": {
+    "name": "vaultpact_escrow",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Holdfast Escrow Engine — trustless pact escrow for AI agents"
+  },
+  "instructions": [
+    {
+      "name": "auto_release",
+      "discriminator": [
+        212,
+        34,
+        30,
+        246,
+        192,
+        13,
+        97,
+        31
+      ],
+      "accounts": [
+        {
+          "name": "crank",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pact_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          },
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "initiator_token_account",
+          "writable": true
+        },
+        {
+          "name": "beneficiary_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "cancel_pending_escrow",
+      "discriminator": [
+        82,
+        179,
+        206,
+        250,
+        78,
+        219,
+        168,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "initiator",
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "initiator_token_account",
+          "writable": true
+        },
+        {
+          "name": "beneficiary_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_released",
+      "discriminator": [
+        100,
+        246,
+        196,
+        73,
+        207,
+        173,
+        212,
+        201
+      ],
+      "accounts": [
+        {
+          "name": "beneficiary",
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "beneficiary_token_account",
+          "writable": true
+        },
+        {
+          "name": "initiator_token_account",
+          "writable": true
+        },
+        {
+          "name": "beneficiary_wallet"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "initiator_reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.initiator",
+                "account": "EscrowAccount"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "vaultpact_program"
+            }
+          }
+        },
+        {
+          "name": "beneficiary_reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.beneficiary",
+                "account": "EscrowAccount"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "vaultpact_program"
+            }
+          }
+        },
+        {
+          "name": "escrow_authority",
+          "docs": [
+            "Derived from this program's ID; no on-chain account needed."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  112,
+                  95,
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vaultpact_program",
+          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_escrow",
+      "discriminator": [
+        139,
+        171,
+        94,
+        146,
+        191,
+        91,
+        144,
+        50
+      ],
+      "accounts": [
+        {
+          "name": "initiator",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pact_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          },
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "dispute_record",
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  115,
+                  112,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "deposit_funds",
+      "discriminator": [
+        202,
+        39,
+        52,
+        211,
+        53,
+        20,
+        250,
+        88
+      ],
+      "accounts": [
+        {
+          "name": "initiator",
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "initiator_token_account",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "escalate_dispute",
+      "discriminator": [
+        129,
+        70,
+        111,
+        75,
+        130,
+        29,
+        225,
+        35
+      ],
+      "accounts": [
+        {
+          "name": "escalator",
+          "signer": true
+        },
+        {
+          "name": "escrow_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "dispute_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  115,
+                  112,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_escrow",
+      "discriminator": [
+        243,
+        160,
+        77,
+        153,
+        11,
+        92,
+        48,
+        209
+      ],
+      "accounts": [
+        {
+          "name": "initiator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "params.escrow_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pact_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "params.escrow_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "escrow_account"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "initiator_reputation"
+        },
+        {
+          "name": "initiator_wallet"
+        },
+        {
+          "name": "beneficiary_wallet"
+        },
+        {
+          "name": "arbiter_wallet"
+        },
+        {
+          "name": "vaultpact_program",
+          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "InitializeEscrowParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "lock_escrow",
+      "discriminator": [
+        55,
+        16,
+        5,
+        80,
+        13,
+        102,
+        206,
+        104
+      ],
+      "accounts": [
+        {
+          "name": "initiator",
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "beneficiary",
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pact_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          },
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "vault",
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "initiator_wallet"
+        },
+        {
+          "name": "beneficiary_wallet"
+        },
+        {
+          "name": "arbiter_wallet"
+        },
+        {
+          "name": "initiator_reputation"
+        },
+        {
+          "name": "beneficiary_reputation"
+        },
+        {
+          "name": "vaultpact_program",
+          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "mutual_cancel_escrow",
+      "discriminator": [
+        241,
+        12,
+        37,
+        171,
+        212,
+        236,
+        201,
+        151
+      ],
+      "accounts": [
+        {
+          "name": "initiator",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "beneficiary",
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "initiator_token_account",
+          "writable": true
+        },
+        {
+          "name": "beneficiary_token_account",
+          "writable": true
+        },
+        {
+          "name": "dispute_record",
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  115,
+                  112,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "initiator_wallet"
+        },
+        {
+          "name": "beneficiary_wallet"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "protocol_freeze_pact",
+      "discriminator": [
+        25,
+        87,
+        85,
+        254,
+        46,
+        150,
+        25,
+        241
+      ],
+      "accounts": [
+        {
+          "name": "protocol_authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pact",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "dispute_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  115,
+                  112,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "blacklisted_wallet"
+        },
+        {
+          "name": "second_blacklisted_wallet",
+          "optional": true
+        },
+        {
+          "name": "attestation_registry"
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "relations": [
+            "escrow"
+          ]
+        },
+        {
+          "name": "beneficiary_token_account",
+          "writable": true
+        },
+        {
+          "name": "initiator_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "initiator_reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow.initiator",
+                "account": "EscrowAccount"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "vaultpact_program"
+            }
+          }
+        },
+        {
+          "name": "beneficiary_reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow.beneficiary",
+                "account": "EscrowAccount"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "vaultpact_program"
+            }
+          }
+        },
+        {
+          "name": "escrow_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  112,
+                  95,
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vaultpact_program",
+          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "raise_dispute",
+      "discriminator": [
+        41,
+        243,
+        1,
+        51,
+        150,
+        95,
+        246,
+        73
+      ],
+      "accounts": [
+        {
+          "name": "raiser",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pact_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          },
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "dispute_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  115,
+                  112,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "RaiseDisputeParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "refund",
+      "discriminator": [
+        2,
+        96,
+        183,
+        251,
+        63,
+        208,
+        46,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "crank",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "initiator_token_account",
+          "writable": true
+        },
+        {
+          "name": "beneficiary_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "dispute_record",
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  115,
+                  112,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "release_escrow",
+      "discriminator": [
+        146,
+        253,
+        129,
+        233,
+        20,
+        145,
+        181,
+        206
+      ],
+      "accounts": [
+        {
+          "name": "initiator",
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pact_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          },
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "initiator_wallet"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "resolve_dispute",
+      "discriminator": [
+        231,
+        6,
+        202,
+        6,
+        96,
+        103,
+        12,
+        230
+      ],
+      "accounts": [
+        {
+          "name": "arbiter",
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pact_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          },
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "dispute_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  115,
+                  112,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "beneficiary_token_account",
+          "writable": true
+        },
+        {
+          "name": "initiator_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "arbiter_wallet"
+        },
+        {
+          "name": "initiator_reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.initiator",
+                "account": "EscrowAccount"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "vaultpact_program"
+            }
+          }
+        },
+        {
+          "name": "beneficiary_reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.beneficiary",
+                "account": "EscrowAccount"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "vaultpact_program"
+            }
+          }
+        },
+        {
+          "name": "escrow_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  112,
+                  95,
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vaultpact_program",
+          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "ResolveDisputeParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "stake_beneficiary",
+      "discriminator": [
+        8,
+        78,
+        226,
+        39,
+        5,
+        2,
+        249,
+        30
+      ],
+      "accounts": [
+        {
+          "name": "beneficiary",
+          "signer": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "escrow_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pact_record",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow_account.escrow_id",
+                "account": "EscrowAccount"
+              }
+            ]
+          },
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "beneficiary_token_account",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "relations": [
+            "escrow_account"
+          ]
+        },
+        {
+          "name": "beneficiary_reputation"
+        },
+        {
+          "name": "beneficiary_wallet"
+        },
+        {
+          "name": "vaultpact_program",
+          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AgentWallet",
+      "discriminator": [
+        127,
+        35,
+        180,
+        143,
+        201,
+        1,
+        100,
+        50
+      ]
+    },
+    {
+      "name": "AttestationRegistry",
+      "discriminator": [
+        152,
+        156,
+        134,
+        191,
+        142,
+        144,
+        217,
+        209
+      ]
+    },
+    {
+      "name": "DisputeRecord",
+      "discriminator": [
+        198,
+        199,
+        79,
+        209,
+        12,
+        215,
+        34,
+        47
+      ]
+    },
+    {
+      "name": "EscrowAccount",
+      "discriminator": [
+        36,
+        69,
+        48,
+        18,
+        128,
+        225,
+        125,
+        135
+      ]
+    },
+    {
+      "name": "PactRecord",
+      "discriminator": [
+        4,
+        150,
+        233,
+        227,
+        17,
+        138,
+        140,
+        33
+      ]
+    },
+    {
+      "name": "ReputationAccount",
+      "discriminator": [
+        19,
+        185,
+        177,
+        157,
+        34,
+        87,
+        67,
+        233
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "DisputeEscalated",
+      "discriminator": [
+        118,
+        176,
+        240,
+        103,
+        220,
+        243,
+        199,
+        13
+      ]
+    },
+    {
+      "name": "PactFrozenByProtocol",
+      "discriminator": [
+        206,
+        223,
+        19,
+        96,
+        160,
+        128,
+        9,
+        222
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ZeroEscrowAmount",
+      "msg": "Escrow amount must be greater than zero"
+    },
+    {
+      "code": 6001,
+      "name": "DuplicateParticipants",
+      "msg": "Initiator, beneficiary, and arbiter must all be distinct"
+    },
+    {
+      "code": 6002,
+      "name": "TimeLockInPast",
+      "msg": "Time lock expiry must be in the future"
+    },
+    {
+      "code": 6003,
+      "name": "UnsupportedMintVersion",
+      "msg": "Mint is owned by Token-2022 program; only classic SPL Token is supported in v0.1"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidStatus",
+      "msg": "Invalid escrow status for this operation"
+    },
+    {
+      "code": 6005,
+      "name": "UnauthorizedSigner",
+      "msg": "Unauthorized signer for this operation"
+    },
+    {
+      "code": 6006,
+      "name": "VaultBalanceMismatch",
+      "msg": "Vault balance does not match expected total"
+    },
+    {
+      "code": 6007,
+      "name": "TimeLockNotExpired",
+      "msg": "Time lock has not yet expired"
+    },
+    {
+      "code": 6008,
+      "name": "DisputeWindowOpen",
+      "msg": "Dispute window has not ended"
+    },
+    {
+      "code": 6009,
+      "name": "DisputeWindowClosed",
+      "msg": "Dispute window has ended"
+    },
+    {
+      "code": 6010,
+      "name": "NotParticipant",
+      "msg": "Signer must be initiator or beneficiary"
+    },
+    {
+      "code": 6011,
+      "name": "ArithmeticOverflow",
+      "msg": "Arithmetic overflow in payout calculation"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidBasisPoints",
+      "msg": "SplitFunds beneficiary_bps must be <= 10000"
+    },
+    {
+      "code": 6013,
+      "name": "VaultNotEmpty",
+      "msg": "Vault must be empty before closing escrow"
+    },
+    {
+      "code": 6014,
+      "name": "ResolutionDeadlineNotPassed",
+      "msg": "Dispute resolution deadline has not passed"
+    },
+    {
+      "code": 6015,
+      "name": "DecisionRequired",
+      "msg": "Arbiter decision must not be None when resolving"
+    },
+    {
+      "code": 6016,
+      "name": "AgentNotActive",
+      "msg": "Agent wallet status is not Active; new pact commitments require Active status"
+    },
+    {
+      "code": 6017,
+      "name": "AgentBlacklisted",
+      "msg": "Agent is blacklisted; settlement and claims are blocked"
+    },
+    {
+      "code": 6018,
+      "name": "AgentWalletAuthorityMismatch",
+      "msg": "Agent wallet authority does not match the expected escrow party"
+    },
+    {
+      "code": 6019,
+      "name": "AgentNotBlacklisted",
+      "msg": "Blacklisted wallet is not actually blacklisted (status != 2)"
+    },
+    {
+      "code": 6020,
+      "name": "WalletNotPactParty",
+      "msg": "Blacklisted wallet does not belong to either escrow party"
+    },
+    {
+      "code": 6021,
+      "name": "UnauthorizedProtocolAuthority",
+      "msg": "Caller is not the protocol authority from AttestationRegistry"
+    },
+    {
+      "code": 6022,
+      "name": "UnauthorizedTokenAccount",
+      "msg": "Token account owner does not match the expected escrow party"
+    },
+    {
+      "code": 6023,
+      "name": "BeneficiaryAlreadyStaked",
+      "msg": "Beneficiary has already staked; cannot stake twice"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidVerifTier",
+      "msg": "Invalid verification tier value (must be 0, 1, or 2)"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidDisputeDeadline",
+      "msg": "dispute_deadline_secs must be >= 3600 (minimum 1-hour arbiter window)"
+    },
+    {
+      "code": 6026,
+      "name": "DisputeAlreadyEscalated",
+      "msg": "Dispute has already been escalated; escalation is a one-shot operation"
+    },
+    {
+      "code": 6027,
+      "name": "DisputeNotEscalated",
+      "msg": "Dispute has not been escalated; call escalate_dispute first"
+    },
+    {
+      "code": 6028,
+      "name": "EscalationGracePeriodNotPassed",
+      "msg": "Escalation grace period has not passed; fallback refund not yet available"
+    },
+    {
+      "code": 6029,
+      "name": "PactEscrowMismatch",
+      "msg": "PactRecord does not belong to this EscrowAccount"
+    },
+    {
+      "code": 6030,
+      "name": "ReputationAccountMismatch",
+      "msg": "Reputation account does not belong to the expected escrow party"
+    },
+    {
+      "code": 6031,
+      "name": "StakeBelowMinimum",
+      "msg": "Stake amount is below the protocol minimum (1000 base units)"
+    },
+    {
+      "code": 6032,
+      "name": "SlashRequiresStake",
+      "msg": "slash_loser_stake requires both initiator_stake and beneficiary_stake to be non-zero"
+    },
+    {
+      "code": 6033,
+      "name": "DisputeInProgress",
+      "msg": "A dispute is in progress; mutual cancellation is not allowed"
+    },
+    {
+      "code": 6034,
+      "name": "BlacklistedSigner",
+      "msg": "One or more signers are blacklisted; mutual cancellation is blocked"
+    }
+  ],
+  "types": [
+    {
+      "name": "AgentWallet",
+      "docs": [
+        "On-chain identity record for a single AI agent.",
+        "Analogous to Hardline's VaultState, stripped of all human-specific fields."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "pubkey_x",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "pubkey_y",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "registered_at",
+            "type": "i64"
+          },
+          {
+            "name": "status",
+            "type": "u8"
+          },
+          {
+            "name": "key_version",
+            "type": "u16"
+          },
+          {
+            "name": "deregister_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ArbiterDecision",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "ReleaseToBeneficiary"
+          },
+          {
+            "name": "RefundToInitiator"
+          },
+          {
+            "name": "SplitFunds",
+            "fields": [
+              {
+                "name": "beneficiary_bps",
+                "type": "u16"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "AttestationRegistry",
+      "docs": [
+        "Protocol-level singleton tracking all registered agent wallets."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "agent_count",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DisputeEscalated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "escrow",
+            "type": "pubkey"
+          },
+          {
+            "name": "escalated_by",
+            "type": "pubkey"
+          },
+          {
+            "name": "resolution_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "escalation_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DisputeRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "dispute_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "escrow",
+            "type": "pubkey"
+          },
+          {
+            "name": "pact",
+            "type": "pubkey"
+          },
+          {
+            "name": "raised_by",
+            "type": "pubkey"
+          },
+          {
+            "name": "evidence_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "evidence_uri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          },
+          {
+            "name": "arbiter_decision",
+            "type": {
+              "defined": {
+                "name": "ArbiterDecision"
+              }
+            }
+          },
+          {
+            "name": "arbiter_reasoning_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "resolution_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "resolved_at",
+            "type": "i64"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "escalated_at",
+            "type": "i64"
+          },
+          {
+            "name": "escalation_deadline",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EscrowAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "escrow_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "initiator",
+            "type": "pubkey"
+          },
+          {
+            "name": "beneficiary",
+            "type": "pubkey"
+          },
+          {
+            "name": "arbiter",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "escrow_amount",
+            "type": "u64"
+          },
+          {
+            "name": "initiator_stake",
+            "type": "u64"
+          },
+          {
+            "name": "beneficiary_stake",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "EscrowStatus"
+              }
+            }
+          },
+          {
+            "name": "time_lock_expires_at",
+            "type": "i64"
+          },
+          {
+            "name": "dispute_window_ends_at",
+            "type": "i64"
+          },
+          {
+            "name": "pact_record",
+            "type": "pubkey"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "locked_at",
+            "type": "i64"
+          },
+          {
+            "name": "released_at",
+            "type": "i64"
+          },
+          {
+            "name": "resolved_at",
+            "type": "i64"
+          },
+          {
+            "name": "beneficiary_staked",
+            "type": "bool"
+          },
+          {
+            "name": "cancelled_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EscrowStatus",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Funded"
+          },
+          {
+            "name": "Locked"
+          },
+          {
+            "name": "Released"
+          },
+          {
+            "name": "Disputed"
+          },
+          {
+            "name": "Refunded"
+          },
+          {
+            "name": "Closed"
+          },
+          {
+            "name": "Claimed"
+          },
+          {
+            "name": "MutuallyCancelled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HistEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "outcome",
+            "type": {
+              "defined": {
+                "name": "PactOutcome"
+              }
+            }
+          },
+          {
+            "name": "score_delta",
+            "type": "i16"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "pact_id",
+            "type": {
+              "array": [
+                "u8",
+                7
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitializeEscrowParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "escrow_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "beneficiary",
+            "type": "pubkey"
+          },
+          {
+            "name": "arbiter",
+            "type": "pubkey"
+          },
+          {
+            "name": "escrow_amount",
+            "type": "u64"
+          },
+          {
+            "name": "initiator_stake",
+            "type": "u64"
+          },
+          {
+            "name": "beneficiary_stake",
+            "type": "u64"
+          },
+          {
+            "name": "time_lock_expires_at",
+            "type": "i64"
+          },
+          {
+            "name": "deliverables_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "deliverables_uri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          },
+          {
+            "name": "auto_release_on_expiry",
+            "type": "bool"
+          },
+          {
+            "name": "slash_loser_stake",
+            "type": "bool"
+          },
+          {
+            "name": "dispute_deadline_secs",
+            "type": "i64"
+          },
+          {
+            "name": "initiator_reputation_min",
+            "type": "u64"
+          },
+          {
+            "name": "beneficiary_reputation_min",
+            "type": "u64"
+          },
+          {
+            "name": "initiator_min_tier",
+            "type": "u8"
+          },
+          {
+            "name": "initiator_min_pacts",
+            "type": "u64"
+          },
+          {
+            "name": "beneficiary_min_tier",
+            "type": "u8"
+          },
+          {
+            "name": "beneficiary_min_pacts",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PactFrozenByProtocol",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "escrow",
+            "type": "pubkey"
+          },
+          {
+            "name": "blacklisted_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "decision",
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PactOutcome",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Fulfilled"
+          },
+          {
+            "name": "Disputed"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PactRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "pact_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "escrow",
+            "type": "pubkey"
+          },
+          {
+            "name": "initiator_reputation_min",
+            "type": "u64"
+          },
+          {
+            "name": "beneficiary_reputation_min",
+            "type": "u64"
+          },
+          {
+            "name": "deliverables_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "deliverables_uri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          },
+          {
+            "name": "auto_release_on_expiry",
+            "type": "bool"
+          },
+          {
+            "name": "slash_loser_stake",
+            "type": "bool"
+          },
+          {
+            "name": "dispute_deadline_secs",
+            "type": "i64"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "initiator_min_tier",
+            "type": "u8"
+          },
+          {
+            "name": "initiator_min_pacts",
+            "type": "u64"
+          },
+          {
+            "name": "beneficiary_min_tier",
+            "type": "u8"
+          },
+          {
+            "name": "beneficiary_min_pacts",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RaiseDisputeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "evidence_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "evidence_uri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ReputationAccount",
+      "docs": [
+        "On-chain reputation record for a single AI agent.",
+        "",
+        "PDA seeds: [b\"reputation\", agent_pubkey]",
+        "On-chain space: 8 (discriminator) + 504 (fields) = 512 bytes",
+        "Rent cost: ~0.00358 SOL, paid by the agent at init_reputation."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "schema_version",
+            "type": "u8"
+          },
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "score",
+            "type": "u64"
+          },
+          {
+            "name": "tier",
+            "type": {
+              "defined": {
+                "name": "VerifTier"
+              }
+            }
+          },
+          {
+            "name": "total_pacts",
+            "type": "u64"
+          },
+          {
+            "name": "dispute_count",
+            "type": "u64"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "last_updated",
+            "type": "i64"
+          },
+          {
+            "name": "decay_cursor",
+            "type": "i64"
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "history_len",
+            "type": "u8"
+          },
+          {
+            "name": "history_head",
+            "type": "u8"
+          },
+          {
+            "name": "history",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "HistEntry"
+                  }
+                },
+                20
+              ]
+            }
+          },
+          {
+            "name": "_padding",
+            "type": {
+              "array": [
+                "u8",
+                51
+              ]
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ResolveDisputeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "decision",
+            "type": {
+              "defined": {
+                "name": "ArbiterDecision"
+              }
+            }
+          },
+          {
+            "name": "reasoning_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "VerifTier",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Unverified"
+          },
+          {
+            "name": "Attested"
+          },
+          {
+            "name": "Hardline"
+          }
+        ]
+      }
+    }
+  ]
+}

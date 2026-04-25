@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAS-72 · Reputation Score Display · Wireframe Spec</title>
+  <style>
+    :root {
+      --bg-page: #0D1117;
+      --bg-card: #141B27;
+      --bg-card-raised: #18202E;
+      --bg-hover: #1A2438;
+      --border: #1E2D42;
+      --border-hover: #2D4060;
+      --text-primary: #E8EDF2;
+      --text-secondary: #8A99AC;
+      --text-tertiary: #4D5E72;
+      --text-disabled: #2D3E52;
+      --accent: #2D8CFF;
+      --accent-dim: rgba(45, 140, 255, 0.12);
+      --bronze: #CD7F32;
+      --bronze-dim: rgba(205, 127, 50, 0.08);
+      --bronze-border: rgba(205, 127, 50, 0.28);
+      --silver: #9BA5B0;
+      --silver-dim: rgba(155, 165, 176, 0.08);
+      --silver-border: rgba(155, 165, 176, 0.28);
+      --gold: #D4AF37;
+      --gold-dim: rgba(212, 175, 55, 0.08);
+      --gold-border: rgba(212, 175, 55, 0.28);
+      --platinum: #B8C5D0;
+      --platinum-dim: rgba(184, 197, 208, 0.08);
+      --platinum-border: rgba(184, 197, 208, 0.28);
+      --success: #22C55E;
+      --success-dim: rgba(34, 197, 94, 0.08);
+      --warning: #F59E0B;
+      --warning-dim: rgba(245, 158, 11, 0.08);
+      --danger: #EF4444;
+      --danger-dim: rgba(239, 68, 68, 0.08);
+      --annot: #253344;
+      --annot-text: #3D5268;
+      --font-ui: 'Helvetica Neue', 'Arial Nova', Arial, sans-serif;
+      --font-mono: 'Courier New', Courier, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ── HEADER ── */
+    .wf-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 40px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .wf-header-left { display: flex; align-items: center; gap: 12px; }
+    .wf-ticket {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+      color: var(--accent); background: var(--accent-dim);
+      border: 1px solid rgba(45,140,255,0.22); padding: 3px 8px;
+    }
+    .wf-title { font-size: 13px; font-weight: 500; letter-spacing: -0.01em; }
+    .wf-meta { font-size: 11px; color: var(--text-tertiary); display: flex; align-items: center; gap: 10px; }
+    .wf-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-tertiary); }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 1180px; margin: 0 auto; padding: 40px; }
+    .section { margin-bottom: 60px; }
+    .section-eyebrow {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 4px; }
+    .section-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 24px; max-width: 620px; line-height: 1.6; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+
+    /* ── ANNOTATION DIMS ── */
+    .dims { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .dim {
+      font-family: var(--font-mono); font-size: 9px; color: var(--annot-text);
+      border: 1px dashed var(--annot); padding: 1px 5px; line-height: 18px;
+      background: rgba(13,17,23,0.7);
+    }
+
+    /* ── TIER BADGE ── */
+    .tier-state {
+      background: var(--bg-card); border: 1px solid var(--border);
+      padding: 24px 16px; display: flex; flex-direction: column; align-items: center;
+      gap: 12px; position: relative; cursor: default;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .tier-state:hover { background: var(--bg-hover); border-color: var(--tier-border); }
+    .tier-state.t-bronze { --tier-color: var(--bronze); --tier-dim: var(--bronze-dim); --tier-border: var(--bronze-border); }
+    .tier-state.t-silver { --tier-color: var(--silver); --tier-dim: var(--silver-dim); --tier-border: var(--silver-border); }
+    .tier-state.t-gold   { --tier-color: var(--gold);   --tier-dim: var(--gold-dim);   --tier-border: var(--gold-border);   }
+    .tier-state.t-plat   { --tier-color: var(--platinum); --tier-dim: var(--platinum-dim); --tier-border: var(--platinum-border); }
+    .tier-icon {
+      width: 52px; height: 52px; background: var(--tier-dim);
+      border: 1.5px solid var(--tier-border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--tier-color); flex-shrink: 0;
+    }
+    .tier-name {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--tier-color);
+    }
+    .tier-range {
+      font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); letter-spacing: 0.04em;
+    }
+    .tier-tip {
+      position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+      background: #18263A; border: 1px solid var(--tier-border);
+      padding: 10px 12px; font-size: 11px; color: var(--text-secondary);
+      width: 210px; line-height: 1.55; text-align: left;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.15s ease; z-index: 20;
+    }
+    .tier-tip strong { display: block; margin-bottom: 4px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tier-color); }
+    .tier-tip::after {
+      content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      border: 5px solid transparent; border-top-color: var(--tier-border);
+    }
+    .tier-state:hover .tier-tip { opacity: 1; }
+
+    /* ── SPARKLINE CARD ── */
+    .sparkline-card { background: var(--bg-card); border: 1px solid var(--border); padding: 20px; }
+    .sparkline-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+    .score-num {
+      font-family: var(--font-mono); font-size: 38px; font-weight: 700;
+      letter-spacing: -0.05em; line-height: 1; color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+    .score-num.dim { color: var(--text-tertiary); }
+    .score-denom { font-family: var(--font-mono); font-size: 14px; color: var(--text-tertiary); margin-left: 6px; }
+    .trend {
+      display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px;
+      font-size: 11px; font-weight: 700; font-family: var(--font-mono); letter-spacing: 0.03em;
+      margin-top: 6px;
+    }
+    .trend.up   { background: var(--success-dim); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
+    .trend.down { background: var(--warning-dim); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .trend.neutral { background: rgba(138,153,172,0.07); color: var(--text-secondary); border: 1px solid rgba(138,153,172,0.2); }
+    .toggle-tabs { display: flex; border: 1px solid var(--border); overflow: hidden; }
+    .toggle-tabs button {
+      background: none; border: none; padding: 4px 11px;
+      font-size: 10px; font-family: var(--font-ui); font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--text-tertiary); cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+    }
+    .toggle-tabs button.on { background: var(--accent-dim); color: var(--accent); }
+    .toggle-tabs button:hover:not(.on) { background: var(--bg-hover); color: var(--text-secondary); }
+    .svg-wrap { position: relative; padding-left: 30px; }
+    .y-labels {
+      position: absolute; left: 0; top: 0; height: 80px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      pointer-events: none;
+    }
+    .y-label { font-family: var(--font-mono); font-size: 9px; color: var(--text-tertiary); line-height: 1; }
+    .empty-overlay {
+      position: absolute; top: 0; left: 30px; right: 0; height: 80px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .empty-text { font-size: 11px; color: var(--text-disabled); text-align: center; line-height: 1.6; }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      background: var(--bg-card); border: 1px solid var(--border); padding: 0;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+    }
+    .stat-cell { padding: 14px 20px; border-right: 1px solid var(--border); }
+    .stat-cell:last-child { border-right: none; }
+    .stat-lbl {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 5px;
+    }
+    .stat-val {
+      font-family: var(--font-mono); font-size: 17px; color: var(--text-primary);
+      font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+    }
+    .stat-ctx { font-size: 11px; color: var(--text-secondary); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .dot.good { background: var(--success); }
+    .dot.warn { background: var(--warning); }
+    .dot.bad  { background: var(--danger); }
+    .tt {
+      position: relative; cursor: default;
+      text-decoration: underline; text-decoration-style: dotted; text-decoration-color: var(--text-tertiary);
+    }
+    .tt .tt-body {
+      position: absolute; bottom: calc(100% + 4px); left: 0;
+      background: #18263A; border: 1px solid var(--border-hover);
+      padding: 5px 8px; font-size: 10px; color: var(--text-secondary);
+      white-space: nowrap; font-family: var(--font-mono);
+      opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 30;
+    }
+    .tt:hover .tt-body { opacity: 1; }
+    .decay-pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px;
+      font-size: 11px; font-weight: 500; color: var(--warning);
+      background: var(--warning-dim); border: 1px solid rgba(245,158,11,0.18);
+    }
+    .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--warning); animation: blink 2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    /* ── PRE-FLIGHT ── */
+    .preflight { background: var(--bg-card); border: 1px solid var(--border); padding: 16px 20px; }
+    .pf-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .pf-status { display: flex; align-items: center; gap: 8px; }
+    .pf-lbl { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; }
+    .pf-lbl.pass { color: var(--success); }
+    .pf-lbl.fail { color: var(--danger); }
+    .pf-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); }
+    .pf-thresholds { display: flex; gap: 8px; flex-wrap: wrap; }
+    .threshold {
+      display: flex; align-items: flex-start; gap: 8px;
+      background: var(--bg-page); border: 1px solid var(--border);
+      padding: 7px 12px; font-size: 11px;
+    }
+    .threshold.met  { border-color: rgba(34,197,94,0.2); background: rgba(34,197,94,0.03); }
+    .threshold.unmet{ border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.03); }
+    .th-check { color: var(--success); font-size: 12px; margin-top: 1px; flex-shrink: 0; }
+    .th-fail  { color: var(--danger);  font-size: 12px; margin-top: 1px; flex-shrink: 0; }
+    .th-lbl { font-size: 10px; color: var(--text-tertiary); letter-spacing: 0.05em; }
+    .th-val { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--text-primary); }
+    .th-val.bad { color: var(--danger); }
+    .edit-btn {
+      background: none; border: none; padding: 1px; color: var(--text-tertiary);
+      cursor: pointer; display: inline-flex; align-items: center;
+      opacity: 0.4; transition: opacity 0.1s, color 0.1s; vertical-align: middle; margin-left: 3px;
+    }
+    .edit-btn:hover { opacity: 1; color: var(--accent); }
+
+    /* ── SKELETON ── */
+    .skel {
+      background: linear-gradient(90deg, var(--border) 0%, var(--bg-card-raised) 50%, var(--border) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+    /* ── DASHBOARD CARD ── */
+    .dash-card { background: var(--bg-card); border: 1px solid var(--border); overflow: hidden; }
+    .dash-card-head {
+      padding: 13px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .dash-head-lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); }
+    .badge-inline {
+      display: flex; align-items: center; gap: 7px; padding: 4px 10px;
+      border: 1px solid var(--tier-border); background: var(--tier-dim); color: var(--tier-color);
+    }
+    .badge-inline-name { font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+    .dash-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .dash-score-row { display: flex; align-items: flex-end; justify-content: space-between; }
+    .mini-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--border); padding-top: 12px;
+    }
+    .mini-stat { padding: 0 12px; border-right: 1px solid var(--border); }
+    .mini-stat:first-child { padding-left: 0; }
+    .mini-stat:last-child { border-right: none; }
+    .mini-stat-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 3px; }
+    .mini-stat-val { font-family: var(--font-mono); font-size: 14px; color: var(--text-primary); }
+    .pf-bar {
+      padding: 8px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; font-weight: 700;
+    }
+    .pf-bar.pass { background: var(--success-dim); border: 1px solid rgba(34,197,94,0.18); color: var(--success); }
+    .pf-bar.fail { background: var(--danger-dim); border: 1px solid rgba(239,68,68,0.18); color: var(--danger); }
+    .pf-bar-detail { font-size: 10px; font-family: var(--font-mono); opacity: 0.7; }
+
+    /* ── TOKENS TABLE ── */
+    .tokens-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .token-group-title { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 10px; }
+    .token-row { display: flex; align-items: center; gap: 10px; font-size: 11px; margin-bottom: 5px; }
+    .color-swatch { width: 16px; height: 16px; flex-shrink: 0; }
+    .token-name { font-family: var(--font-mono); color: var(--text-secondary); }
+
+    /* ── STATE VARIANT LABEL ── */
+    .variant-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- ───────────────────────── HEADER ───────────────────────── -->
+<header class="wf-header">
+  <div class="wf-header-left">
+    <span class="wf-ticket">CAS-72</span>
+    <span class="wf-title">Reputation Score Display — Wireframe & Component Spec</span>
+  </div>
+  <div class="wf-meta">
+    <span>Holdfast Protocol</span><span class="wf-dot"></span>
+    <span>P0 Dashboard</span><span class="wf-dot"></span>
+    <span>2026-04-19 · v1.0</span>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       01 · TIER BADGE
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">01 — Tier Badge</div>
+    <div class="section-title">Tier Badge</div>
+    <div class="section-desc">Four discrete states. Visual authority increases with tier — Bronze reads as provisional, Platinum as hardened and earned. Amber/gold palette chosen to avoid clash with green (pass) and red (fail) status states. Hover reveals protocol-context tooltip.</div>
+
+    <div class="grid-4">
+
+      <!-- BRONZE -->
+      <div class="tier-state t-bronze">
+        <div class="tier-tip">
+          <strong>Bronze</strong>
+          Operator is building protocol history. Counterparties may require higher collateral for pacts with Bronze operators. Score range: 100–399.
+        </div>
+        <div class="tier-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2.5L4.5 5.5V11c0 4.75 3.25 8.5 7.5 10C16.25 19.5 19.5 15.75 19.5 11V5.5L12 2.5z"
+              stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="tier-name">Bronze</div>
+        <div class="tier-range">100 – 399</div>
+      </div>
+
+      <!-- SILVER -->
+      <div class="tier-state t-silver">
+        <div class="tier-tip">
+          <strong>Silver</strong>
+          Established operator with demonstrated pact history. Standard collateral terms apply. Eligible for most pact types. Score range: 400–649.
+        </div>
+        <div class="tier-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2.5L4.5 5.5V11c0 4.75 3.25 8.5 7.5 10C16.25 19.5 19.5 15.75 19.5 11V5.5L12 2.5z"
+              fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <line x1="12" y1="2.5" x2="12" y2="21" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2.5" opacity="0.35"/>
+          </svg>
+        </div>
+        <div class="tier-name">Silver</div>
+        <div class="tier-range">400 – 649</div>
+      </div>
+
+      <!-- GOLD -->
+      <div class="tier-state t-gold">
+        <div class="tier-tip">
+          <strong>Gold</strong>
+          Trusted operator with strong track record. Reduced collateral terms. Priority oracle resolution. High counterparty confidence. Score range: 650–849.
+        </div>
+        <div class="tier-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2.5L4.5 5.5V11c0 4.75 3.25 8.5 7.5 10C16.25 19.5 19.5 15.75 19.5 11V5.5L12 2.5z"
+              fill="currentColor" fill-opacity="0.22" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M12 8L9.5 10.5L11 12L12 13.5L13 12L14.5 10.5L12 8z" fill="currentColor" opacity="0.55"/>
+          </svg>
+        </div>
+        <div class="tier-name">Gold</div>
+        <div class="tier-range">650 – 849</div>
+      </div>
+
+      <!-- PLATINUM -->
+      <div class="tier-state t-plat">
+        <div class="tier-tip">
+          <strong>Platinum</strong>
+          Elite operator. Near-zero collateral, priority dispute resolution, whitelist access to restricted pact types. Exceptional protocol standing. Score range: 850–1000.
+        </div>
+        <div class="tier-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <!-- outer shield -->
+            <path d="M12 2.5L4.5 5.5V11c0 4.75 3.25 8.5 7.5 10C16.25 19.5 19.5 15.75 19.5 11V5.5L12 2.5z"
+              fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <!-- inner shield (fortified) -->
+            <path d="M12 5.5L7.5 7.5V10.5c0 3 2.25 5.5 4.5 6.5 2.25-1 4.5-3.5 4.5-6.5V7.5L12 5.5z"
+              fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>
+            <!-- center pip -->
+            <circle cx="12" cy="11" r="1.5" fill="currentColor" opacity="0.7"/>
+          </svg>
+        </div>
+        <div class="tier-name">Platinum</div>
+        <div class="tier-range">850 – 1000</div>
+      </div>
+
+    </div>
+    <div class="dims">
+      <span class="dim">badge-height: ~140px</span>
+      <span class="dim">icon-container: 52×52px</span>
+      <span class="dim">grid: 4-col, 14px gap</span>
+      <span class="dim">padding: 24px top/bottom · 16px side</span>
+      <span class="dim">tier-name: 11px / 800wt / 0.12em track / uppercase</span>
+      <span class="dim">score-range: mono 10px · --text-tertiary</span>
+      <span class="dim">hover: border → --tier-border · bg → --bg-hover</span>
+      <span class="dim">tooltip: 210px · 11px · opacity 0→1 on hover</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       02 · SCORE HISTORY SPARKLINE
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">02 — Score History Sparkline</div>
+    <div class="section-title">Score History</div>
+    <div class="section-desc">Interactive oracle-driven score trajectory. 30-day default. Trend delta computed against prior equivalent period. Tier-colored area fill. Empty state shown until first oracle update is processed.</div>
+
+    <div class="grid-2">
+
+      <!-- ACTIVE STATE -->
+      <div>
+        <div class="variant-lbl" style="color: var(--gold);">Active data · Gold operator</div>
+        <div class="sparkline-card">
+          <div class="sparkline-head">
+            <div>
+              <div style="display:flex; align-items:baseline;">
+                <span class="score-num">738</span>
+                <span class="score-denom">/ 1000</span>
+              </div>
+              <span class="trend up">↑ +24 pts (30d)</span>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+              <div class="toggle-tabs" id="tabs30">
+                <button class="on" onclick="setView('30d')">30D</button>
+                <button onclick="setView('90d')">90D</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="svg-wrap">
+            <div class="y-labels">
+              <span class="y-label">800</span>
+              <span class="y-label">680</span>
+            </div>
+            <svg id="spkSvg" viewBox="0 0 280 80" style="width:100%; height:80px; overflow:visible; display:block;">
+              <defs>
+                <linearGradient id="goldArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.22"/>
+                  <stop offset="100%" stop-color="#D4AF37" stop-opacity="0.01"/>
+                </linearGradient>
+                <linearGradient id="bronzeArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#CD7F32" stop-opacity="0.22"/>
+                  <stop offset="100%" stop-color="#CD7F32" stop-opacity="0.01"/>
+                </linearGradient>
+              </defs>
+              <!-- grid -->
+              <line x1="0" y1="0"  x2="280" y2="0"  stroke="#1E2D42" stroke-width="0.5"/>
+              <line x1="0" y1="40" x2="280" y2="40" stroke="#1E2D42" stroke-width="0.5" stroke-dasharray="4 4"/>
+              <line x1="0" y1="80" x2="280" y2="80" stroke="#1E2D42" stroke-width="0.5"/>
+              <!-- 30d area -->
+              <path id="area30" d="M0,60 C10,62 20,54 30,52 C40,50 50,56 60,48 C70,40 80,44 90,38 C100,32 110,38 120,30 C130,22 140,28 150,22 C160,16 170,20 180,16 C190,12 200,18 210,14 C220,10 230,14 240,9 C250,4 260,7 270,4 L280,2 L280,80 L0,80 Z"
+                fill="url(#goldArea)"/>
+              <!-- 30d line -->
+              <path id="line30" d="M0,60 C10,62 20,54 30,52 C40,50 50,56 60,48 C70,40 80,44 90,38 C100,32 110,38 120,30 C130,22 140,28 150,22 C160,16 170,20 180,16 C190,12 200,18 210,14 C220,10 230,14 240,9 C250,4 260,7 270,4 L280,2"
+                fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- current dot -->
+              <circle id="endDot" cx="280" cy="2" r="3" fill="#D4AF37"/>
+              <circle cx="280" cy="2" r="6" fill="none" stroke="#D4AF37" stroke-width="1" opacity="0.3"/>
+            </svg>
+          </div>
+        </div>
+        <div class="dims">
+          <span class="dim">svg-height: 80px · viewBox 0 0 280 80</span>
+          <span class="dim">score-num: mono 38px / 700wt / -0.05em</span>
+          <span class="dim">trend: mono 11px / 700wt</span>
+          <span class="dim">toggle: 10px / 700wt / uppercase</span>
+          <span class="dim">30d default · 90d widens historical range</span>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div>
+        <div class="variant-lbl" style="color: var(--text-tertiary);">Empty state · New operator</div>
+        <div class="sparkline-card">
+          <div class="sparkline-head">
+            <div>
+              <div style="display:flex; align-items:baseline;">
+                <span class="score-num dim">—</span>
+                <span class="score-denom">/ 1000</span>
+              </div>
+              <span class="trend neutral">Awaiting oracle</span>
+            </div>
+            <div class="toggle-tabs">
+              <button class="on">30D</button>
+              <button>90D</button>
+            </div>
+          </div>
+
+          <div class="svg-wrap" style="position:relative;">
+            <div class="y-labels">
+              <span class="y-label" style="color:var(--text-disabled);">1000</span>
+              <span class="y-label" style="color:var(--text-disabled);">0</span>
+            </div>
+            <svg viewBox="0 0 280 80" style="width:100%; height:80px; display:block;">
+              <line x1="0" y1="0"  x2="280" y2="0"  stroke="#1A2030" stroke-width="0.5"/>
+              <line x1="0" y1="40" x2="280" y2="40" stroke="#1A2030" stroke-width="0.5" stroke-dasharray="4 4"/>
+              <line x1="0" y1="80" x2="280" y2="80" stroke="#1A2030" stroke-width="0.5"/>
+              <!-- ghost baseline -->
+              <path d="M0,40 L280,40" stroke="#253344" stroke-width="1" stroke-dasharray="5 7" opacity="0.7"/>
+            </svg>
+            <div class="empty-overlay">
+              <div class="empty-text">
+                No score history yet<br>
+                <span style="font-size:10px; font-style:italic;">First oracle update pending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dims">
+          <span class="dim">score-num: --text-tertiary when no score</span>
+          <span class="dim">ghost line: dashed · --annot color · centered at y=40</span>
+          <span class="dim">empty text: 11px + 10px italic · centered overlay</span>
+          <span class="dim">toggle: disabled appearance (grayed), non-interactive</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       03 · STATS ROW
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">03 — Stats Row</div>
+    <div class="section-title">Stats Row</div>
+    <div class="section-desc">Three-column secondary context strip beneath the sparkline. Score decay pill renders conditionally when protocol decay is active. Oracle timestamp shows relative time with absolute on hover.</div>
+
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div class="stats-row">
+        <div class="stat-cell">
+          <div class="stat-lbl">Pact Count</div>
+          <div class="stat-val">12</div>
+          <div class="stat-ctx">total / <strong style="color:var(--text-primary); margin: 0 2px;">3</strong> active</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-lbl">Dispute Rate</div>
+          <div class="stat-val">2.4%</div>
+          <div class="stat-ctx"><span class="dot good"></span> below network average</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-lbl">Last Oracle Update</div>
+          <div class="stat-val">
+            <span class="tt">3h ago<span class="tt-body">2026-04-19 02:11:04 UTC</span></span>
+          </div>
+          <div class="stat-ctx">oracle v2.4.1</div>
+        </div>
+      </div>
+
+      <!-- Decay pill (conditional) -->
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="decay-pill">
+          <span class="pulse"></span>
+          Score decay active — −2 pts/day
+        </span>
+        <span style="font-size:11px; color:var(--text-tertiary); font-style:italic;">Conditional — renders when protocol decay is active for this operator</span>
+      </div>
+    </div>
+
+    <div class="dims">
+      <span class="dim">stats-row-height: 64px min</span>
+      <span class="dim">3-col even grid · border-right dividers</span>
+      <span class="dim">stat-val: mono 17px / -0.02em</span>
+      <span class="dim">oracle-time: dotted underline → absolute timestamp on hover</span>
+      <span class="dim">decay-pill: amber · pulse animation · conditional render</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       04 · PRE-FLIGHT INDICATOR
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">04 — Pre-flight Indicator</div>
+    <div class="section-title">Pre-flight Indicator</div>
+    <div class="section-desc">Inline gate check before entering a pact. Evaluates operator-defined thresholds against the counterparty's current score and tier. Thresholds are editable inline via pencil affordance.</div>
+
+    <div class="grid-2">
+
+      <!-- PASS -->
+      <div>
+        <div class="variant-lbl" style="color:var(--success);">Pass state</div>
+        <div class="preflight">
+          <div class="pf-head">
+            <div class="pf-status">
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="7" fill="rgba(34,197,94,0.1)" stroke="#22C55E" stroke-width="1"/>
+                <path d="M5 8l2 2 4-4" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="pf-lbl pass">Requirements met</span>
+            </div>
+            <span class="pf-eyebrow">Pre-flight</span>
+          </div>
+          <div class="pf-thresholds">
+            <div class="threshold met">
+              <span class="th-check">✓</span>
+              <div>
+                <div class="th-lbl">MIN SCORE</div>
+                <div class="th-val">
+                  738 ≥ 400
+                  <button class="edit-btn" title="Edit threshold">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M7 1L9 3L3.5 8.5H1.5V6.5L7 1z" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="threshold met">
+              <span class="th-check">✓</span>
+              <div>
+                <div class="th-lbl">MIN TIER</div>
+                <div class="th-val" style="color:var(--gold);">
+                  Gold ≥ Silver
+                  <button class="edit-btn" title="Edit threshold">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M7 1L9 3L3.5 8.5H1.5V6.5L7 1z" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAIL -->
+      <div>
+        <div class="variant-lbl" style="color:var(--danger);">Fail state</div>
+        <div class="preflight" style="border-color:rgba(239,68,68,0.2);">
+          <div class="pf-head">
+            <div class="pf-status">
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="7" fill="rgba(239,68,68,0.08)" stroke="#EF4444" stroke-width="1"/>
+                <path d="M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span class="pf-lbl fail">Below minimum threshold</span>
+            </div>
+            <span class="pf-eyebrow">Pre-flight</span>
+          </div>
+          <div class="pf-thresholds">
+            <div class="threshold unmet">
+              <span class="th-fail">✕</span>
+              <div>
+                <div class="th-lbl">MIN SCORE</div>
+                <div class="th-val bad">
+                  182 &lt; 400
+                  <button class="edit-btn" title="Edit threshold">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M7 1L9 3L3.5 8.5H1.5V6.5L7 1z" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="threshold unmet">
+              <span class="th-fail">✕</span>
+              <div>
+                <div class="th-lbl">MIN TIER</div>
+                <div class="th-val bad">
+                  Bronze &lt; Silver
+                  <button class="edit-btn" title="Edit threshold">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M7 1L9 3L3.5 8.5H1.5V6.5L7 1z" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="dims">
+      <span class="dim">threshold-item: 7px+12px padding</span>
+      <span class="dim">edit-btn: 10×10 pencil · opacity 0.4→1 + color→--accent on hover</span>
+      <span class="dim">pass-card: default border · fail-card: rgba(239,68,68,0.2) border</span>
+      <span class="dim">threshold-check: --success · threshold-fail: --danger</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       05 · LOADING / SKELETON
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">05 — Loading State</div>
+    <div class="section-title">Skeleton / Loading</div>
+    <div class="section-desc">Shimmer skeleton while oracle data is being fetched. 1.5s ease cycle. Preserves layout structure so there is no layout shift on load.</div>
+
+    <div style="background:var(--bg-card); border:1px solid var(--border); padding:20px; max-width:480px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+        <div>
+          <div class="skel" style="width:100px; height:38px; margin-bottom:8px;"></div>
+          <div class="skel" style="width:80px; height:18px;"></div>
+        </div>
+        <div class="skel" style="width:72px; height:28px;"></div>
+      </div>
+      <div class="skel" style="height:80px; margin-bottom:16px;"></div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr);">
+        <div style="padding-right:16px; border-right:1px solid var(--border);">
+          <div class="skel" style="width:55%; height:11px; margin-bottom:6px;"></div>
+          <div class="skel" style="width:70%; height:18px;"></div>
+        </div>
+        <div style="padding:0 16px; border-right:1px solid var(--border);">
+          <div class="skel" style="width:55%; height:11px; margin-bottom:6px;"></div>
+          <div class="skel" style="width:60%; height:18px;"></div>
+        </div>
+        <div style="padding-left:16px;">
+          <div class="skel" style="width:55%; height:11px; margin-bottom:6px;"></div>
+          <div class="skel" style="width:80%; height:18px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="dims">
+      <span class="dim">shimmer: 1.5s ease-in-out infinite · gradient 200% sweep</span>
+      <span class="dim">skel bg: --border → --bg-card-raised → --border</span>
+      <span class="dim">no border-radius (aligns with sharp component aesthetic)</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       06 · FULL DASHBOARD CARD ASSEMBLY
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">06 — Full Assembly</div>
+    <div class="section-title">Dashboard Card — Assembled</div>
+    <div class="section-desc">Complete assembled card as it appears on the operator dashboard. Tier badge is the dominant visual element. Two representative variants: Gold/active/pass and Bronze/empty/fail.</div>
+
+    <div class="grid-2">
+
+      <!-- GOLD CARD -->
+      <div>
+        <div class="variant-lbl" style="color:var(--gold);">Gold · Active data · Pass</div>
+        <div class="dash-card" style="--tier-color:var(--gold); --tier-dim:var(--gold-dim); --tier-border:var(--gold-border);">
+          <div class="dash-card-head">
+            <span class="dash-head-lbl">Reputation</span>
+            <div class="badge-inline">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2.5L4.5 5.5V11c0 4.75 3.25 8.5 7.5 10C16.25 19.5 19.5 15.75 19.5 11V5.5L12 2.5z"
+                  fill="currentColor" fill-opacity="0.22" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M12 8L9.5 10.5L11 12L12 13.5L13 12L14.5 10.5L12 8z" fill="currentColor" opacity="0.55"/>
+              </svg>
+              <span class="badge-inline-name">Gold</span>
+            </div>
+          </div>
+          <div class="dash-body">
+            <!-- Score + mini sparkline -->
+            <div class="dash-score-row">
+              <div>
+                <div style="display:flex; align-items:baseline;">
+                  <span class="score-num" style="font-size:30px;">738</span>
+                  <span class="score-denom">/ 1000</span>
+                </div>
+                <span class="trend up" style="margin-top:4px; display:inline-flex;">↑ +24</span>
+              </div>
+              <svg viewBox="0 0 120 40" style="width:110px; height:40px; flex-shrink:0;">
+                <path d="M0,30 C12,30 12,32 24,26 C36,20 36,24 48,18 C60,12 60,16 72,10 C84,4 96,6 108,2 L120,0"
+                  fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <circle cx="120" cy="0" r="2.5" fill="#D4AF37"/>
+              </svg>
+            </div>
+            <!-- Mini stats -->
+            <div class="mini-stats">
+              <div class="mini-stat">
+                <div class="mini-stat-lbl">Pacts</div>
+                <div class="mini-stat-val">12<span style="font-size:10px; color:var(--text-tertiary);">/3</span></div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-lbl">Disputes</div>
+                <div style="display:flex; align-items:center; gap:5px;">
+                  <span class="dot good"></span>
+                  <span class="mini-stat-val">2.4%</span>
+                </div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-lbl">Oracle</div>
+                <div class="mini-stat-val">3h</div>
+              </div>
+            </div>
+            <!-- Pre-flight bar -->
+            <div class="pf-bar pass">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="7" fill="rgba(34,197,94,0.12)" stroke="#22C55E" stroke-width="1"/>
+                  <path d="M5 8l2 2 4-4" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Requirements met
+              </div>
+              <span class="pf-bar-detail">Score 400 · Silver+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BRONZE CARD -->
+      <div>
+        <div class="variant-lbl" style="color:var(--bronze);">Bronze · No history · Fail + Decay</div>
+        <div class="dash-card" style="--tier-color:var(--bronze); --tier-dim:var(--bronze-dim); --tier-border:var(--bronze-border);">
+          <div class="dash-card-head">
+            <span class="dash-head-lbl">Reputation</span>
+            <div class="badge-inline">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2.5L4.5 5.5V11c0 4.75 3.25 8.5 7.5 10C16.25 19.5 19.5 15.75 19.5 11V5.5L12 2.5z"
+                  stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+              <span class="badge-inline-name">Bronze</span>
+            </div>
+          </div>
+          <div class="dash-body">
+            <!-- Score + ghost sparkline -->
+            <div class="dash-score-row">
+              <div>
+                <div style="display:flex; align-items:baseline;">
+                  <span class="score-num" style="font-size:30px; color:var(--text-secondary);">182</span>
+                  <span class="score-denom">/ 1000</span>
+                </div>
+                <span class="trend down" style="margin-top:4px; display:inline-flex;">↓ −18</span>
+              </div>
+              <!-- ghost mini sparkline -->
+              <svg viewBox="0 0 120 40" style="width:110px; height:40px; flex-shrink:0; opacity:0.25;">
+                <line x1="0" y1="20" x2="120" y2="20" stroke="#2D3E52" stroke-width="1" stroke-dasharray="4 5"/>
+              </svg>
+            </div>
+            <!-- Mini stats -->
+            <div class="mini-stats">
+              <div class="mini-stat">
+                <div class="mini-stat-lbl">Pacts</div>
+                <div class="mini-stat-val">2<span style="font-size:10px; color:var(--text-tertiary);">/1</span></div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-lbl">Disputes</div>
+                <div style="display:flex; align-items:center; gap:5px;">
+                  <span class="dot warn"></span>
+                  <span class="mini-stat-val">8.3%</span>
+                </div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-lbl">Oracle</div>
+                <div class="mini-stat-val" style="color:var(--text-tertiary);">—</div>
+              </div>
+            </div>
+            <!-- Decay pill -->
+            <span class="decay-pill" style="align-self:flex-start;">
+              <span class="pulse"></span>
+              Score decay active — −2 pts/day
+            </span>
+            <!-- Pre-flight bar -->
+            <div class="pf-bar fail">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="7" fill="rgba(239,68,68,0.08)" stroke="#EF4444" stroke-width="1"/>
+                  <path d="M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Below minimum threshold
+              </div>
+              <span class="pf-bar-detail" style="color:var(--danger);">182 / req. 400 · Bronze / req. Silver</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="dims">
+      <span class="dim">card: full-width · 2-col grid · 24px gap</span>
+      <span class="dim">card-header: 48px height · tier-badge right-aligned</span>
+      <span class="dim">dash-body-padding: 20px · gap: 16px</span>
+      <span class="dim">pf-bar: full-width strip at card bottom</span>
+      <span class="dim">mini-sparkline: 110×40px SVG · right-aligned to score block</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       07 · DESIGN TOKENS
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">07 — Design Tokens</div>
+    <div class="section-title">Token Reference</div>
+    <div class="section-desc">CSS custom properties for frontend handoff. All values are set in <code style="font-family:var(--font-mono); font-size:11px; color:var(--text-secondary);">:root</code> — tier state is applied via scoped variable override on the component container.</div>
+
+    <div class="tokens-grid">
+      <div>
+        <div class="token-group-title">Tier Colors</div>
+        <div class="token-row"><span class="color-swatch" style="background:#CD7F32;"></span><span class="token-name">--bronze: #CD7F32</span></div>
+        <div class="token-row"><span class="color-swatch" style="background:#9BA5B0;"></span><span class="token-name">--silver: #9BA5B0</span></div>
+        <div class="token-row"><span class="color-swatch" style="background:#D4AF37;"></span><span class="token-name">--gold: #D4AF37</span></div>
+        <div class="token-row"><span class="color-swatch" style="background:#B8C5D0;"></span><span class="token-name">--platinum: #B8C5D0</span></div>
+        <div style="margin-top:16px;" class="token-group-title">Surface</div>
+        <div class="token-row"><span class="color-swatch" style="background:#0D1117;"></span><span class="token-name">--bg-page: #0D1117</span></div>
+        <div class="token-row"><span class="color-swatch" style="background:#141B27;"></span><span class="token-name">--bg-card: #141B27</span></div>
+        <div class="token-row"><span class="color-swatch" style="background:#1E2D42; border:1px solid #2D4060;"></span><span class="token-name">--border: #1E2D42</span></div>
+      </div>
+      <div>
+        <div class="token-group-title">Status Colors</div>
+        <div class="token-row"><span class="color-swatch" style="background:#22C55E;"></span><span class="token-name">--success: #22C55E</span></div>
+        <div class="token-row"><span class="color-swatch" style="background:#F59E0B;"></span><span class="token-name">--warning: #F59E0B</span></div>
+        <div class="token-row"><span class="color-swatch" style="background:#EF4444;"></span><span class="token-name">--danger: #EF4444</span></div>
+        <div class="token-row"><span class="color-swatch" style="background:#2D8CFF;"></span><span class="token-name">--accent: #2D8CFF</span></div>
+        <div style="margin-top:16px;" class="token-group-title">Typography</div>
+        <div class="token-row"><span class="token-name">--font-ui: 'Helvetica Neue', 'Arial Nova', Arial, sans-serif</span></div>
+        <div class="token-row"><span class="token-name">--font-mono: 'Courier New', Courier, monospace</span></div>
+        <div class="token-row"><span class="token-name">Score numbers: mono 38px / 700 / -0.05em / tabular-nums</span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+  function setView(range) {
+    const btns = document.querySelectorAll('#tabs30 button');
+    btns[0].classList.toggle('on', range === '30d');
+    btns[1].classList.toggle('on', range === '90d');
+
+    const line = document.getElementById('line30');
+    const area = document.getElementById('area30');
+    const dot  = document.getElementById('endDot');
+
+    if (range === '90d') {
+      // 90-day: broader historical context, score starting lower
+      line.setAttribute('d', 'M0,72 C14,70 28,64 42,58 C56,52 70,58 84,50 C98,42 112,46 126,38 C140,30 154,36 168,26 C182,16 196,20 210,12 C224,4 238,8 252,5 L280,2');
+      area.setAttribute('d', 'M0,72 C14,70 28,64 42,58 C56,52 70,58 84,50 C98,42 112,46 126,38 C140,30 154,36 168,26 C182,16 196,20 210,12 C224,4 238,8 252,5 L280,2 L280,80 L0,80 Z');
+      dot.setAttribute('cy', '2');
+    } else {
+      line.setAttribute('d', 'M0,60 C10,62 20,54 30,52 C40,50 50,56 60,48 C70,40 80,44 90,38 C100,32 110,38 120,30 C130,22 140,28 150,22 C160,16 170,20 180,16 C190,12 200,18 210,14 C220,10 230,14 240,9 C250,4 260,7 270,4 L280,2');
+      area.setAttribute('d', 'M0,60 C10,62 20,54 30,52 C40,50 50,56 60,48 C70,40 80,44 90,38 C100,32 110,38 120,30 C130,22 140,28 150,22 C160,16 170,20 180,16 C190,12 200,18 210,14 C220,10 230,14 240,9 C250,4 260,7 270,4 L280,2 L280,80 L0,80 Z');
+      dot.setAttribute('cy', '2');
+    }
+  }
+</script>
+</body>
+</html>

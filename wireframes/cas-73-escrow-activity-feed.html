@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAS-73 · Escrow Activity Feed · Wireframe Spec</title>
+  <style>
+    :root {
+      --bg-page: #0D1117;
+      --bg-card: #141B27;
+      --bg-card-raised: #18202E;
+      --bg-hover: #1A2438;
+      --border: #1E2D42;
+      --border-hover: #2D4060;
+      --text-primary: #E8EDF2;
+      --text-secondary: #8A99AC;
+      --text-tertiary: #4D5E72;
+      --text-disabled: #2D3E52;
+      --accent: #2D8CFF;
+      --accent-dim: rgba(45, 140, 255, 0.12);
+      --success: #22C55E;
+      --success-dim: rgba(34, 197, 94, 0.08);
+      --success-border: rgba(34, 197, 94, 0.22);
+      --warning: #F59E0B;
+      --warning-dim: rgba(245, 158, 11, 0.08);
+      --warning-border: rgba(245, 158, 11, 0.22);
+      --danger: #EF4444;
+      --danger-dim: rgba(239, 68, 68, 0.08);
+      --danger-border: rgba(239, 68, 68, 0.22);
+      /* Dispute urgency — orange tier between amber and red */
+      --urgent: #F97316;
+      --urgent-dim: rgba(249, 115, 22, 0.08);
+      --urgent-border: rgba(249, 115, 22, 0.22);
+      --annot: #253344;
+      --annot-text: #3D5268;
+      --font-ui: 'Helvetica Neue', 'Arial Nova', Arial, sans-serif;
+      --font-mono: 'Courier New', Courier, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ── HEADER ── */
+    .wf-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 40px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .wf-header-left { display: flex; align-items: center; gap: 12px; }
+    .wf-ticket {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+      color: var(--accent); background: var(--accent-dim);
+      border: 1px solid rgba(45,140,255,0.22); padding: 3px 8px;
+    }
+    .wf-title { font-size: 13px; font-weight: 500; letter-spacing: -0.01em; }
+    .wf-meta { font-size: 11px; color: var(--text-tertiary); display: flex; align-items: center; gap: 10px; }
+    .wf-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-tertiary); }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 1180px; margin: 0 auto; padding: 40px; }
+    .section { margin-bottom: 64px; }
+    .section-eyebrow {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 4px; }
+    .section-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 24px; max-width: 680px; line-height: 1.65; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .grid-2-wide { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+    .stack { display: flex; flex-direction: column; gap: 12px; }
+
+    /* ── ANNOTATION DIMS ── */
+    .dims { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .dim {
+      font-family: var(--font-mono); font-size: 9px; color: var(--annot-text);
+      border: 1px dashed var(--annot); padding: 1px 5px; line-height: 18px;
+      background: rgba(13,17,23,0.7);
+    }
+    .annot-block {
+      background: rgba(13,17,23,0.6); border: 1px dashed var(--annot);
+      padding: 10px 14px; margin-top: 12px; font-size: 11px; color: var(--annot-text);
+      line-height: 1.55;
+    }
+    .annot-block strong { color: var(--text-tertiary); font-weight: 700; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+
+    /* ── SKELETON ── */
+    .skel {
+      background: linear-gradient(90deg, var(--border) 0%, var(--bg-card-raised) 50%, var(--border) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+    /* ── PULSE ANIMATION ── */
+    .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--danger); animation: blink 1.4s ease-in-out infinite; }
+    .pulse.warn { background: var(--urgent); }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* ── VARIANT LABEL ── */
+    .variant-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-tertiary); }
+
+    /* ── STATUS PILLS ── */
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 9px; font-size: 10px; font-weight: 800;
+      letter-spacing: 0.1em; text-transform: uppercase; line-height: 1;
+      white-space: nowrap;
+    }
+    .pill-icon { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .pill.deposited {
+      background: var(--accent-dim); color: var(--accent);
+      border: 1px solid rgba(45,140,255,0.28);
+    }
+    .pill.deposited .pill-icon { background: var(--accent); }
+    .pill.released {
+      background: var(--success-dim); color: var(--success);
+      border: 1px solid var(--success-border);
+    }
+    .pill.released .pill-icon { background: var(--success); }
+    .pill.disputed {
+      background: var(--danger-dim); color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+    .pill.disputed .pill-icon { background: var(--danger); animation: blink 1.4s ease-in-out infinite; }
+    .pill.cancelled {
+      background: rgba(77,94,114,0.1); color: var(--text-tertiary);
+      border: 1px solid rgba(77,94,114,0.2);
+    }
+    .pill.cancelled .pill-icon { background: var(--text-tertiary); }
+
+    /* ── CONDITION ICONS ── */
+    .condition-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      padding: 3px 9px; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary);
+    }
+    .condition-chip svg { color: var(--text-tertiary); flex-shrink: 0; }
+
+    /* ── PACT TABLE ── */
+    .pact-table-wrap { background: var(--bg-card); border: 1px solid var(--border); overflow: hidden; }
+    .pact-table-head {
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .table-head-lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); }
+    .filter-tabs { display: flex; border: 1px solid var(--border); overflow: hidden; }
+    .filter-tabs button {
+      background: none; border: none; padding: 4px 12px;
+      font-size: 10px; font-family: var(--font-ui); font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--text-tertiary); cursor: pointer;
+      transition: background 0.1s, color 0.1s; border-right: 1px solid var(--border);
+    }
+    .filter-tabs button:last-child { border-right: none; }
+    .filter-tabs button.on { background: var(--accent-dim); color: var(--accent); }
+    .filter-tabs button:hover:not(.on) { background: var(--bg-hover); color: var(--text-secondary); }
+    .table-cols {
+      display: grid;
+      grid-template-columns: 180px 110px 120px 100px 80px 36px;
+      padding: 7px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.12);
+    }
+    .col-hdr {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-tertiary); display: flex; align-items: center; gap: 4px; cursor: pointer;
+      user-select: none;
+    }
+    .col-hdr:hover { color: var(--text-secondary); }
+    .col-hdr svg { opacity: 0.5; }
+    .pact-row {
+      display: grid;
+      grid-template-columns: 180px 110px 120px 100px 80px 36px;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+      min-height: 44px;
+      transition: background 0.1s;
+      cursor: pointer;
+    }
+    .pact-row:last-child { border-bottom: none; }
+    .pact-row:hover { background: var(--bg-hover); }
+    .pact-row.disputed-row { background: rgba(239,68,68,0.03); }
+    .pact-row.disputed-row:hover { background: rgba(239,68,68,0.06); }
+    .address-cell { display: flex; align-items: center; gap: 6px; }
+    .addr-mono {
+      font-family: var(--font-mono); font-size: 11px; color: var(--text-primary);
+      letter-spacing: 0.02em;
+    }
+    .copy-btn {
+      background: none; border: none; padding: 2px; cursor: pointer;
+      color: var(--text-tertiary); display: inline-flex; align-items: center;
+      transition: color 0.1s; flex-shrink: 0;
+    }
+    .copy-btn:hover { color: var(--accent); }
+    .amount-cell {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+      color: var(--text-primary); font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
+    .amount-token { font-size: 9px; color: var(--text-tertiary); display: block; margin-top: 1px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+    .age-cell { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+    .expand-btn {
+      background: none; border: none; padding: 4px; cursor: pointer;
+      color: var(--text-tertiary); display: inline-flex; align-items: center;
+      transition: color 0.1s, transform 0.15s;
+    }
+    .expand-btn:hover { color: var(--accent); }
+    .expand-btn.open { transform: rotate(180deg); }
+
+    /* expanded row detail */
+    .pact-row-detail {
+      padding: 12px 20px 16px;
+      background: rgba(0,0,0,0.18);
+      border-bottom: 1px solid var(--border);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .row-detail-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px; }
+    .row-detail-val {
+      font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);
+      word-break: break-all; line-height: 1.5;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .explorer-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-mono); font-size: 10px; color: var(--accent);
+      border: 1px solid rgba(45,140,255,0.2); padding: 2px 8px;
+      text-decoration: none; cursor: pointer;
+      transition: background 0.1s;
+    }
+    .explorer-link:hover { background: var(--accent-dim); }
+
+    /* ── DISPUTE PANEL ── */
+    .disputes-panel { display: flex; flex-direction: column; gap: 12px; }
+    .dispute-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      padding: 16px 18px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px 16px;
+      transition: border-color 0.15s;
+    }
+    .dispute-card.tier-1 {
+      border-left-color: var(--warning);
+      background: rgba(245,158,11,0.03);
+    }
+    .dispute-card.tier-2 {
+      border-left-color: var(--urgent);
+      background: rgba(249,115,22,0.04);
+    }
+    .dispute-card.tier-3 {
+      border-left-color: var(--danger);
+      background: rgba(239,68,68,0.05);
+    }
+    .countdown-block { display: flex; flex-direction: column; gap: 2px; align-items: center; }
+    .countdown-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); }
+    .countdown-time {
+      font-family: var(--font-mono); font-size: 22px; font-weight: 700;
+      letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1;
+    }
+    .countdown-time.tier-1 { color: var(--warning); }
+    .countdown-time.tier-2 { color: var(--urgent); }
+    .countdown-time.tier-3 { color: var(--danger); }
+    .countdown-sub { font-family: var(--font-mono); font-size: 9px; color: var(--text-tertiary); letter-spacing: 0.04em; }
+    .dispute-meta { display: flex; flex-direction: column; gap: 8px; }
+    .dispute-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .urgency-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 1px 7px; font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .urgency-badge.tier-1 { background: var(--warning-dim); color: var(--warning); border: 1px solid var(--warning-border); }
+    .urgency-badge.tier-2 { background: var(--urgent-dim); color: var(--urgent); border: 1px solid var(--urgent-border); }
+    .urgency-badge.tier-3 { background: var(--danger-dim); color: var(--danger); border: 1px solid var(--danger-border); }
+    .dispute-counterparty { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+    .dispute-amount { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+    .dispute-reason { font-size: 11px; color: var(--text-secondary); line-height: 1.5; max-width: 520px; }
+    .dispute-reason em { color: var(--text-primary); font-style: normal; }
+    .dispute-actions { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .btn-dispute {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+      cursor: pointer; border: none; transition: background 0.1s;
+    }
+    .btn-dispute.primary {
+      background: var(--danger-dim); color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+    .btn-dispute.primary:hover { background: rgba(239,68,68,0.14); }
+    .btn-dispute.secondary {
+      background: none; color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-dispute.secondary:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+    /* ── COMPLETED FEED ── */
+    .completed-list { background: var(--bg-card); border: 1px solid var(--border); overflow: hidden; }
+    .completed-head {
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .completed-head-lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); }
+    .page-info { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
+    .completed-item {
+      display: grid; grid-template-columns: 100px 150px 100px 1fr 90px;
+      align-items: center; padding: 9px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .completed-item:last-of-type { border-bottom: none; }
+    .completed-item:hover { background: var(--bg-hover); }
+    .outcome-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; font-size: 9px; font-weight: 800;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .outcome-pill.released { background: var(--success-dim); color: var(--success); border: 1px solid var(--success-border); }
+    .outcome-pill.disputed-res { background: var(--warning-dim); color: var(--warning); border: 1px solid var(--warning-border); }
+    .outcome-pill.cancelled { background: rgba(77,94,114,0.1); color: var(--text-tertiary); border: 1px solid rgba(77,94,114,0.2); }
+    .completed-ts { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); text-align: right; }
+    .load-more-row {
+      padding: 12px 20px; text-align: center; border-top: 1px solid var(--border);
+    }
+    .load-more-btn {
+      background: none; border: 1px solid var(--border); padding: 6px 18px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-secondary); cursor: pointer; transition: background 0.1s, color 0.1s;
+    }
+    .load-more-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+    /* ── EMPTY STATES ── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px; padding: 48px 20px; text-align: center;
+    }
+    .empty-icon { color: var(--text-disabled); margin-bottom: 4px; }
+    .empty-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .empty-desc { font-size: 11px; color: var(--text-tertiary); max-width: 260px; line-height: 1.6; }
+    .empty-cta {
+      margin-top: 6px; background: none; border: 1px solid var(--border);
+      padding: 6px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--text-secondary); cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+    }
+    .empty-cta:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+    /* ── ERROR STATE ── */
+    .error-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; padding: 40px 20px; text-align: center;
+    }
+    .error-title { font-size: 12px; color: var(--danger); font-weight: 600; }
+    .error-desc { font-size: 11px; color: var(--text-tertiary); }
+    .retry-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--danger-dim); border: 1px solid var(--danger-border);
+      padding: 5px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+      color: var(--danger); cursor: pointer; transition: background 0.1s;
+    }
+    .retry-btn:hover { background: rgba(239,68,68,0.14); }
+
+    /* ── LOADING SKELETON ROWS ── */
+    .skel-row {
+      display: grid; grid-template-columns: 180px 110px 120px 100px 80px 36px;
+      align-items: center; padding: 0 20px; min-height: 44px;
+      border-bottom: 1px solid var(--border);
+    }
+    .skel-cell { height: 11px; border-radius: 2px; }
+
+    /* ── DASHBOARD LAYOUT MOCKUP ── */
+    .dashboard-mockup { display: flex; flex-direction: column; gap: 16px; }
+    .dash-row { display: grid; gap: 16px; }
+    .dash-row.r-1col { grid-template-columns: 1fr; }
+    .dash-row.r-1-2 { grid-template-columns: 1fr 360px; }
+    .panel-shell { background: var(--bg-card); border: 1px solid var(--border); overflow: hidden; }
+    .panel-shell.elevated { border-color: rgba(239,68,68,0.3); }
+    .panel-head {
+      padding: 11px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-head.elevated { background: rgba(239,68,68,0.06); }
+    .panel-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); }
+    .panel-lbl.elevated { color: var(--danger); }
+    .dispute-count-badge {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 800;
+      background: var(--danger); color: #fff;
+      padding: 1px 6px; min-width: 18px; text-align: center;
+    }
+    .panel-body { padding: 12px 16px; }
+
+    /* ── TOKENS TABLE ── */
+    .tokens-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .token-group-title { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 10px; }
+    .token-row { display: flex; align-items: center; gap: 10px; font-size: 11px; margin-bottom: 5px; }
+    .color-swatch { width: 16px; height: 16px; flex-shrink: 0; }
+    .token-name { font-family: var(--font-mono); color: var(--text-secondary); }
+    .token-desc { color: var(--text-tertiary); font-size: 10px; margin-left: 4px; }
+
+    /* ── PROP TABLE ── */
+    .prop-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .prop-table th {
+      text-align: left; font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-tertiary);
+      padding: 6px 12px; border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.12);
+    }
+    .prop-table td { padding: 7px 12px; border-bottom: 1px solid rgba(30,45,66,0.5); vertical-align: top; }
+    .prop-table tr:last-child td { border-bottom: none; }
+    .prop-table td:first-child { font-family: var(--font-mono); font-size: 10px; color: var(--accent); }
+    .prop-table td:nth-child(2) { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
+    .prop-table td:nth-child(3) { color: var(--text-secondary); }
+    .prop-table td em { font-style: normal; font-family: var(--font-mono); font-size: 10px; color: var(--warning); }
+    .prop-section-bg { background: var(--bg-card); border: 1px solid var(--border); overflow: hidden; }
+    .prop-section-title {
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
+      font-size: 12px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .prop-section-title .prop-component { font-family: var(--font-mono); font-size: 10px; color: var(--accent); }
+
+    /* ── TOOLTIP ── */
+    .tt { position: relative; cursor: default; text-decoration: underline; text-decoration-style: dotted; text-decoration-color: var(--text-tertiary); }
+    .tt .tt-body {
+      position: absolute; bottom: calc(100% + 4px); left: 0;
+      background: #18263A; border: 1px solid var(--border-hover);
+      padding: 5px 8px; font-size: 10px; color: var(--text-secondary);
+      white-space: nowrap; font-family: var(--font-mono);
+      opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 30;
+    }
+    .tt:hover .tt-body { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ───────────────────────── HEADER ───────────────────────── -->
+<header class="wf-header">
+  <div class="wf-header-left">
+    <span class="wf-ticket">CAS-73</span>
+    <span class="wf-title">Escrow Activity Feed — Wireframe &amp; Component Spec</span>
+  </div>
+  <div class="wf-meta">
+    <span>Holdfast Protocol</span><span class="wf-dot"></span>
+    <span>P0 Dashboard</span><span class="wf-dot"></span>
+    <span>2026-04-19 · v1.0</span>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       01 · STATUS PILLS
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">01 — PactStatusPill</div>
+    <div class="section-title">Status Pills</div>
+    <div class="section-desc">Four discrete pact lifecycle states. <em>Disputed</em> uses an animated dot — the only pulsing element in the system — to signal that operator attention is required. Color selection avoids clash with tier badge palette. All pills use tabular-caps for optical alignment in table columns.</div>
+
+    <div style="display:flex; align-items:flex-start; gap:48px; flex-wrap:wrap;">
+
+      <div>
+        <div class="variant-lbl">Deposited</div>
+        <span class="pill deposited">
+          <span class="pill-icon"></span>
+          Deposited
+        </span>
+        <div class="dims">
+          <span class="dim">bg: accent-dim</span>
+          <span class="dim">text: #2D8CFF</span>
+          <span class="dim">border: accent 0.28</span>
+          <span class="dim">dot: static</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="variant-lbl">Released</div>
+        <span class="pill released">
+          <span class="pill-icon"></span>
+          Released
+        </span>
+        <div class="dims">
+          <span class="dim">bg: success-dim</span>
+          <span class="dim">text: #22C55E</span>
+          <span class="dim">border: success 0.22</span>
+          <span class="dim">dot: static</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="variant-lbl">Disputed — animated dot</div>
+        <span class="pill disputed">
+          <span class="pill-icon"></span>
+          Disputed
+        </span>
+        <div class="dims">
+          <span class="dim">bg: danger-dim</span>
+          <span class="dim">text: #EF4444</span>
+          <span class="dim">border: danger 0.22</span>
+          <span class="dim">dot: pulse 1.4s</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="variant-lbl">Cancelled</div>
+        <span class="pill cancelled">
+          <span class="pill-icon"></span>
+          Cancelled
+        </span>
+        <div class="dims">
+          <span class="dim">bg: tertiary 0.1</span>
+          <span class="dim">text: text-tertiary</span>
+          <span class="dim">dot: static</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="annot-block">
+      <strong>Design note</strong>
+      Disputed is the only state that pulses. This signals live financial urgency without being disruptive on non-dispute views. Pills are uppercase, 9–10px, to avoid competing with amounts/addresses in the same table row. Cancelled uses a desaturated style — it is a resolved terminal state, not an alert.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       02 · RELEASE CONDITION ICONS
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">02 — ConditionTypeChip</div>
+    <div class="section-title">Release Condition Types</div>
+    <div class="section-desc">Three release condition types, each with a distinct icon and label. Used in the Active Pacts table and row expansion. Icon only in dense table view; full chip in details pane. Tooltips provide context without polluting the table layout.</div>
+
+    <div style="display:flex; align-items:flex-start; gap:24px; flex-wrap:wrap;">
+
+      <!-- Task -->
+      <div>
+        <div class="variant-lbl">Task</div>
+        <span class="condition-chip">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+          </svg>
+          Task
+        </span>
+        <div class="dims"><span class="dim">icon: check-square</span><span class="dim">tooltip: "Released on task completion"</span></div>
+      </div>
+
+      <!-- Milestone -->
+      <div>
+        <div class="variant-lbl">Milestone</div>
+        <span class="condition-chip">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>
+          </svg>
+          Milestone
+        </span>
+        <div class="dims"><span class="dim">icon: flag</span><span class="dim">tooltip: "Released on milestone confirmation"</span></div>
+      </div>
+
+      <!-- Timed -->
+      <div>
+        <div class="variant-lbl">Timed</div>
+        <span class="condition-chip">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Timed
+        </span>
+        <div class="dims"><span class="dim">icon: clock</span><span class="dim">tooltip: "Released at time-lock expiry"</span></div>
+      </div>
+
+    </div>
+
+    <div class="annot-block">
+      <strong>Table column behaviour</strong>
+      In the Active Pacts table, show icon only (16×16 touch target minimum) with title tooltip on hover. The full chip is used in the expanded row detail and the dispute card. Icon-only saves ~60px column width in the constrained table layout.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       03 · OPEN DISPUTES PANEL
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">03 — DisputePanel + DisputeCard</div>
+    <div class="section-title">Open Disputes Panel</div>
+    <div class="section-desc">Disputes are financially critical — an open dispute with an approaching time-lock means funds may be unrecoverable after deadline. The panel sits above the pact table in the dashboard layout and is hidden when dispute count is zero. Three urgency tiers shift color and add a pulse indicator as the deadline approaches. The countdown timer uses tabular monospace for stability.</div>
+
+    <div class="disputes-panel">
+
+      <!-- Tier 1: >48h -->
+      <div>
+        <div class="variant-lbl">Tier 1 — &gt;48h remaining (Amber)</div>
+        <div class="dispute-card tier-1">
+          <div class="countdown-block">
+            <div class="countdown-label">Time Lock</div>
+            <div class="countdown-time tier-1">72:14:09</div>
+            <div class="countdown-sub">HH:MM:SS</div>
+          </div>
+          <div class="dispute-meta">
+            <div class="dispute-header">
+              <span class="urgency-badge tier-1">Dispute Open</span>
+              <span class="dispute-counterparty">
+                <span class="addr-mono">8xKf...3rPQ</span>
+                <button class="copy-btn" title="Copy full address">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                </button>
+              </span>
+              <span class="dispute-amount">14.50 SOL</span>
+            </div>
+            <div class="dispute-reason">Counterparty claims <em>milestone 3 was not delivered</em> within the agreed window. Pact created 2026-04-12. Release condition: Milestone.</div>
+            <div class="dispute-actions">
+              <button class="btn-dispute primary">View Dispute →</button>
+              <button class="btn-dispute secondary">View Pact</button>
+            </div>
+          </div>
+        </div>
+        <div class="dims">
+          <span class="dim">border-left: --warning</span>
+          <span class="dim">bg: danger 0.03</span>
+          <span class="dim">countdown: --warning</span>
+          <span class="dim">badge: tier-1</span>
+          <span class="dim">no pulse</span>
+        </div>
+      </div>
+
+      <!-- Tier 2: <24h -->
+      <div>
+        <div class="variant-lbl">Tier 2 — &lt;24h remaining (Orange) + pulse</div>
+        <div class="dispute-card tier-2">
+          <div class="countdown-block">
+            <div class="countdown-label">Time Lock</div>
+            <div class="countdown-time tier-2">18:42:31</div>
+            <div class="countdown-sub">HH:MM:SS</div>
+          </div>
+          <div class="dispute-meta">
+            <div class="dispute-header">
+              <span class="urgency-badge tier-2">
+                <span class="pulse warn"></span>
+                Urgent
+              </span>
+              <span class="dispute-counterparty">
+                <span class="addr-mono">3mYz...9aLK</span>
+                <button class="copy-btn" title="Copy full address">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                </button>
+              </span>
+              <span class="dispute-amount">2.25 SOL</span>
+            </div>
+            <div class="dispute-reason">Counterparty disputes task completion status — oracle has not yet confirmed. <em>Time-lock expires in under 24 hours.</em> Action required before deadline or funds lock in disputed state.</div>
+            <div class="dispute-actions">
+              <button class="btn-dispute primary">View Dispute →</button>
+              <button class="btn-dispute secondary">View Pact</button>
+            </div>
+          </div>
+        </div>
+        <div class="dims">
+          <span class="dim">border-left: --urgent</span>
+          <span class="dim">bg: urgent 0.04</span>
+          <span class="dim">countdown: --urgent</span>
+          <span class="dim">badge: tier-2 + pulse</span>
+        </div>
+      </div>
+
+      <!-- Tier 3: <6h -->
+      <div>
+        <div class="variant-lbl">Tier 3 — &lt;6h remaining (Red) + pulse + CRITICAL badge</div>
+        <div class="dispute-card tier-3">
+          <div class="countdown-block">
+            <div class="countdown-label">Time Lock</div>
+            <div class="countdown-time tier-3">03:07:55</div>
+            <div class="countdown-sub">HH:MM:SS</div>
+          </div>
+          <div class="dispute-meta">
+            <div class="dispute-header">
+              <span class="urgency-badge tier-3">
+                <span class="pulse"></span>
+                Critical
+              </span>
+              <span class="dispute-counterparty">
+                <span class="addr-mono">Fv4A...2cRP</span>
+                <button class="copy-btn" title="Copy full address">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                </button>
+              </span>
+              <span class="dispute-amount">88.00 SOL</span>
+            </div>
+            <div class="dispute-reason"><em>CRITICAL: 3h 7m until time-lock expires.</em> Funds will be locked in disputed state until oracle resolution. Counterparty asserts non-delivery; oracle vote is in progress. Immediate review recommended.</div>
+            <div class="dispute-actions">
+              <button class="btn-dispute primary">View Dispute →</button>
+              <button class="btn-dispute secondary">View Pact</button>
+            </div>
+          </div>
+        </div>
+        <div class="dims">
+          <span class="dim">border-left: --danger</span>
+          <span class="dim">bg: danger 0.05</span>
+          <span class="dim">countdown: --danger</span>
+          <span class="dim">badge: tier-3 + pulse</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="annot-block">
+      <strong>Urgency thresholds</strong>
+      Tier 1 (&gt;48h): amber — dispute is open but not time-critical. Tier 2 (&lt;24h): orange + pulse — operator should act. Tier 3 (&lt;6h): red + pulse + CRITICAL — highest urgency, review immediately.
+      The countdown updates every second via a client-side interval. Font variant <code>tabular-nums</code> prevents layout shift as digits change.
+      Panel is fully hidden (height: 0, no DOM space) when dispute count is zero — it must not leave a ghost gap in the non-dispute view.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       04 · ACTIVE PACTS TABLE
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">04 — PactTable + PactRow</div>
+    <div class="section-title">Active Pacts Table</div>
+    <div class="section-desc">Primary content area. Designed for 5–50 pacts. Disputed rows get a subtle red-tinted background to keep urgency visible at a glance even when the Disputes Panel is above the fold. Column sort is chevron-on-hover only. Truncated pubkeys use monospace with copy-to-clipboard affordance. Row expand reveals PDA address and Solana Explorer link.</div>
+
+    <!-- Filter/sort bar + table -->
+    <div class="pact-table-wrap">
+
+      <!-- Head bar -->
+      <div class="pact-table-head">
+        <div class="table-head-lbl">Active Pacts</div>
+        <div class="filter-tabs">
+          <button class="on">All</button>
+          <button>Active</button>
+          <button>Disputed</button>
+          <button>Completed</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="filter-tabs">
+            <button class="on">Amount ↕</button>
+            <button>Age ↕</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column headers -->
+      <div class="table-cols">
+        <div class="col-hdr">
+          Counterparty
+        </div>
+        <div class="col-hdr">
+          Amount
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+        <div class="col-hdr">Status</div>
+        <div class="col-hdr">Condition</div>
+        <div class="col-hdr">
+          Age
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+        <div></div>
+      </div>
+
+      <!-- Row: Deposited -->
+      <div class="pact-row">
+        <div class="address-cell">
+          <span class="addr-mono">8xKf...3rPQ</span>
+          <button class="copy-btn" title="Copy full address">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+        <div class="amount-cell">
+          14.50
+          <span class="amount-token">SOL</span>
+        </div>
+        <div><span class="pill deposited"><span class="pill-icon"></span>Deposited</span></div>
+        <div>
+          <span class="condition-chip" style="padding:2px 6px;font-size:9px;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            Milestone
+          </span>
+        </div>
+        <div class="age-cell">3d ago</div>
+        <div>
+          <button class="expand-btn" title="Expand row">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row: Disputed (tinted bg) -->
+      <div class="pact-row disputed-row">
+        <div class="address-cell">
+          <span class="addr-mono">Fv4A...2cRP</span>
+          <button class="copy-btn" title="Copy full address">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+        <div class="amount-cell">
+          88.00
+          <span class="amount-token">SOL</span>
+        </div>
+        <div><span class="pill disputed"><span class="pill-icon"></span>Disputed</span></div>
+        <div>
+          <span class="condition-chip" style="padding:2px 6px;font-size:9px;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            Task
+          </span>
+        </div>
+        <div class="age-cell">8d ago</div>
+        <div>
+          <button class="expand-btn open" title="Expand row">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Expanded row detail -->
+      <div class="pact-row-detail">
+        <div>
+          <div class="row-detail-lbl">PDA Address</div>
+          <div class="row-detail-val">
+            <span style="word-break:break-all;">Fv4A2cRP8mNxQ7sTjKpL3vZwYbDo1eHu9RyWcXnI5fGaM6E</span>
+            <button class="copy-btn" title="Copy PDA address">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div>
+            <div class="row-detail-lbl">Solana Explorer</div>
+            <a class="explorer-link" href="#" target="_blank">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              View on Explorer
+            </a>
+          </div>
+          <div>
+            <div class="row-detail-lbl">Dispute Status</div>
+            <div style="font-size:11px;color:var(--danger);">Oracle vote in progress · 3h 7m remaining</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row: Timed / Deposited -->
+      <div class="pact-row">
+        <div class="address-cell">
+          <span class="addr-mono">3mYz...9aLK</span>
+          <button class="copy-btn" title="Copy full address">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+        <div class="amount-cell">
+          2.25
+          <span class="amount-token">SOL</span>
+        </div>
+        <div><span class="pill deposited"><span class="pill-icon"></span>Deposited</span></div>
+        <div>
+          <span class="condition-chip" style="padding:2px 6px;font-size:9px;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Timed
+          </span>
+        </div>
+        <div class="age-cell">1d ago</div>
+        <div>
+          <button class="expand-btn" title="Expand row">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row: SPL Token -->
+      <div class="pact-row">
+        <div class="address-cell">
+          <span class="addr-mono">H9pW...7kZT</span>
+          <button class="copy-btn" title="Copy full address">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+        <div class="amount-cell">
+          500.00
+          <span class="amount-token">USDC</span>
+        </div>
+        <div><span class="pill deposited"><span class="pill-icon"></span>Deposited</span></div>
+        <div>
+          <span class="condition-chip" style="padding:2px 6px;font-size:9px;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            Task
+          </span>
+        </div>
+        <div class="age-cell">6h ago</div>
+        <div>
+          <button class="expand-btn" title="Expand row">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="annot-block">
+      <strong>Column widths (desktop, 1180px max)</strong>
+      Counterparty: 180px (truncated pubkey + copy icon). Amount: 110px (tabular nums, right-aligned in final). Status: 120px (pill). Condition: 100px (chip or icon-only below 900px breakpoint). Age: 80px. Actions: 36px (expand chevron). Total: 626px — leaves room for outer padding.
+    </div>
+    <div class="annot-block" style="margin-top:8px;">
+      <strong>Address truncation rule</strong>
+      Show first 4 chars + "…" + last 4 chars. Full address available on expand. Copy button copies full base58 address to clipboard and shows a transient "Copied" tooltip (1.5s). Monospace only — no proportional fallback for addresses.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       05 · COMPLETED PACTS FEED
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">05 — CompletedFeed</div>
+    <div class="section-title">Completed Pacts Feed</div>
+    <div class="section-desc">Last 20 entries by default, paginated. Three outcome states: Released (success), Disputed+Resolved (warning), Cancelled (neutral). Timestamps are relative. Empty state shown when no pacts exist yet.</div>
+
+    <div class="grid-2" style="align-items:start;">
+
+      <!-- Populated state -->
+      <div>
+        <div class="variant-lbl">Populated (20-per-page)</div>
+        <div class="completed-list">
+          <div class="completed-head">
+            <span class="completed-head-lbl">Completed Pacts</span>
+            <span class="page-info">1–20 of 47</span>
+          </div>
+
+          <!-- Column headers -->
+          <div style="display:grid;grid-template-columns:100px 150px 100px 1fr 90px;padding:6px 20px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.12);">
+            <div class="col-hdr" style="font-size:9px;">Outcome</div>
+            <div class="col-hdr" style="font-size:9px;">Counterparty</div>
+            <div class="col-hdr" style="font-size:9px;">Amount</div>
+            <div class="col-hdr" style="font-size:9px;">Condition</div>
+            <div class="col-hdr" style="font-size:9px;justify-content:flex-end;">When</div>
+          </div>
+
+          <div class="completed-item">
+            <div><span class="outcome-pill released">Released</span></div>
+            <div class="address-cell"><span class="addr-mono">8xKf...3rPQ</span></div>
+            <div class="amount-cell" style="font-size:11px;">14.50 <span class="amount-token">SOL</span></div>
+            <div>
+              <span class="condition-chip" style="padding:2px 6px;font-size:9px;border:none;background:none;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                Milestone
+              </span>
+            </div>
+            <div class="completed-ts">2d ago</div>
+          </div>
+
+          <div class="completed-item">
+            <div><span class="outcome-pill disputed-res">Dispute Resolved</span></div>
+            <div class="address-cell"><span class="addr-mono">7tRq...5nXC</span></div>
+            <div class="amount-cell" style="font-size:11px;">230.00 <span class="amount-token">SOL</span></div>
+            <div>
+              <span class="condition-chip" style="padding:2px 6px;font-size:9px;border:none;background:none;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                Task
+              </span>
+            </div>
+            <div class="completed-ts">5d ago</div>
+          </div>
+
+          <div class="completed-item">
+            <div><span class="outcome-pill released">Released</span></div>
+            <div class="address-cell"><span class="addr-mono">B3Lw...1oPM</span></div>
+            <div class="amount-cell" style="font-size:11px;">1,000.00 <span class="amount-token">USDC</span></div>
+            <div>
+              <span class="condition-chip" style="padding:2px 6px;font-size:9px;border:none;background:none;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Timed
+              </span>
+            </div>
+            <div class="completed-ts">1wk ago</div>
+          </div>
+
+          <div class="completed-item">
+            <div><span class="outcome-pill cancelled">Cancelled</span></div>
+            <div class="address-cell"><span class="addr-mono">ZqN8...6hUT</span></div>
+            <div class="amount-cell" style="font-size:11px;">0.50 <span class="amount-token">SOL</span></div>
+            <div>
+              <span class="condition-chip" style="padding:2px 6px;font-size:9px;border:none;background:none;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                Milestone
+              </span>
+            </div>
+            <div class="completed-ts">2wk ago</div>
+          </div>
+
+          <div class="load-more-row">
+            <button class="load-more-btn">Load More ↓</button>
+          </div>
+        </div>
+        <div class="dims">
+          <span class="dim">20 per page</span>
+          <span class="dim">page count in header</span>
+          <span class="dim">relative timestamps</span>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div>
+        <div class="variant-lbl">Empty state</div>
+        <div class="completed-list">
+          <div class="completed-head">
+            <span class="completed-head-lbl">Completed Pacts</span>
+          </div>
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" opacity="0.4">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                <rect x="9" y="3" width="6" height="4" rx="2"/>
+                <line x1="9" y1="12" x2="15" y2="12"/>
+                <line x1="9" y1="16" x2="12" y2="16"/>
+              </svg>
+            </div>
+            <div class="empty-title">No completed pacts yet</div>
+            <div class="empty-desc">Released pacts will appear here. Active escrows show in the table above.</div>
+          </div>
+        </div>
+        <div class="dims">
+          <span class="dim">icon: clipboard-list</span>
+          <span class="dim">no cta button</span>
+          <span class="dim">panel always visible</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       06 · PANEL STATES (Loading / Error / Empty)
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">06 — Panel States</div>
+    <div class="section-title">Loading, Error, and Empty States</div>
+    <div class="section-desc">Each of the three panels (Active Pacts, Open Disputes, Completed Feed) has three non-data states. Skeletons mirror the final content shape. Error states include retry. Empty states are contextually differentiated — Active Pacts has a CTA, Completed Feed does not, Disputes panel is fully removed from DOM.</div>
+
+    <div class="grid-3" style="align-items:start;">
+
+      <!-- LOADING: Active Pacts -->
+      <div>
+        <div class="variant-lbl">Loading — Active Pacts</div>
+        <div class="pact-table-wrap">
+          <div class="pact-table-head">
+            <div style="height:14px;width:90px;" class="skel"></div>
+            <div style="height:26px;width:200px;" class="skel"></div>
+          </div>
+          <div class="table-cols">
+            <div class="col-hdr">Counterparty</div>
+            <div class="col-hdr">Amount</div>
+            <div class="col-hdr">Status</div>
+            <div class="col-hdr">Condition</div>
+            <div class="col-hdr">Age</div>
+            <div></div>
+          </div>
+          <div class="skel-row"><div class="skel-cell skel" style="width:120px;"></div><div class="skel-cell skel" style="width:60px;"></div><div class="skel-cell skel" style="width:70px;"></div><div class="skel-cell skel" style="width:60px;"></div><div class="skel-cell skel" style="width:40px;"></div><div></div></div>
+          <div class="skel-row"><div class="skel-cell skel" style="width:108px;"></div><div class="skel-cell skel" style="width:50px;"></div><div class="skel-cell skel" style="width:80px;"></div><div class="skel-cell skel" style="width:65px;"></div><div class="skel-cell skel" style="width:35px;"></div><div></div></div>
+          <div class="skel-row"><div class="skel-cell skel" style="width:130px;"></div><div class="skel-cell skel" style="width:70px;"></div><div class="skel-cell skel" style="width:75px;"></div><div class="skel-cell skel" style="width:55px;"></div><div class="skel-cell skel" style="width:45px;"></div><div></div></div>
+        </div>
+        <div class="dims"><span class="dim">3 skeleton rows</span><span class="dim">shimmer 1.5s</span><span class="dim">header also skeletonised</span></div>
+      </div>
+
+      <!-- ERROR: Active Pacts -->
+      <div>
+        <div class="variant-lbl">Error — Active Pacts</div>
+        <div class="pact-table-wrap">
+          <div class="pact-table-head">
+            <div class="table-head-lbl">Active Pacts</div>
+          </div>
+          <div class="error-state">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="1.5" opacity="0.5">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <div class="error-title">Failed to load pacts</div>
+            <div class="error-desc">Could not fetch escrow state from chain.</div>
+            <button class="retry-btn">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+              Retry
+            </button>
+          </div>
+        </div>
+        <div class="dims"><span class="dim">error icon: circle-alert</span><span class="dim">retry resets to loading</span></div>
+      </div>
+
+      <!-- EMPTY: Active Pacts -->
+      <div>
+        <div class="variant-lbl">Empty — Active Pacts (with CTA)</div>
+        <div class="pact-table-wrap">
+          <div class="pact-table-head">
+            <div class="table-head-lbl">Active Pacts</div>
+          </div>
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" opacity="0.4">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div class="empty-title">No active pacts</div>
+            <div class="empty-desc">Create your first escrow pact to get started.</div>
+            <button class="empty-cta">New Pact →</button>
+          </div>
+        </div>
+        <div class="dims"><span class="dim">icon: shield</span><span class="dim">CTA: "New Pact →"</span><span class="dim">links to pact creation flow</span></div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:24px;" class="grid-2" style="align-items:start;">
+
+      <!-- LOADING: Disputes -->
+      <div>
+        <div class="variant-lbl">Loading — Disputes Panel</div>
+        <div class="panel-shell">
+          <div class="panel-head">
+            <span class="panel-lbl">Open Disputes</span>
+          </div>
+          <div class="panel-body">
+            <div style="background:var(--bg-card-raised);border:1px solid var(--border);border-left:3px solid var(--border);padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:14px 16px;">
+              <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+                <div class="skel" style="width:24px;height:10px;border-radius:2px;"></div>
+                <div class="skel" style="width:56px;height:22px;border-radius:2px;"></div>
+                <div class="skel" style="width:32px;height:8px;border-radius:2px;"></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div class="skel" style="width:180px;height:12px;border-radius:2px;"></div>
+                <div class="skel" style="width:280px;height:10px;border-radius:2px;"></div>
+                <div class="skel" style="width:240px;height:10px;border-radius:2px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dims"><span class="dim">1 skeleton card</span><span class="dim">border-left uses --border (neutral)</span></div>
+      </div>
+
+      <!-- HIDDEN: No disputes -->
+      <div>
+        <div class="variant-lbl">Zero disputes — panel removed from DOM</div>
+        <div style="background:var(--bg-card-raised);border:1px dashed var(--annot);padding:20px;text-align:center;">
+          <div style="font-size:11px;color:var(--annot-text);font-family:var(--font-mono);">
+            [DisputePanel hidden — display:none]<br>
+            <span style="font-size:10px;margin-top:4px;display:block;">No gap in layout. Panel does not reserve space when empty.</span>
+          </div>
+        </div>
+        <div class="dims"><span class="dim">display:none (not height:0)</span><span class="dim">panel re-mounts when disputes arrive via polling</span></div>
+      </div>
+
+    </div>
+
+    <div class="annot-block" style="margin-top:16px;">
+      <strong>State machine per panel</strong>
+      Each panel independently tracks: <code>idle → loading → { data | empty | error }</code>.
+      Transitions: idle→loading on mount; loading→data on success; loading→error on failure; data→loading on retry.
+      Polling interval: 30s for disputes (time-sensitive), 60s for active pacts, on-demand for completed feed.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       07 · DASHBOARD LAYOUT OVERVIEW
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">07 — Layout Overview</div>
+    <div class="section-title">Dashboard Panel Composition</div>
+    <div class="section-desc">The three panels are arranged vertically: Disputes (conditionally) → Active Pacts → Completed Feed. Disputes panel occupies the top position when active, ensuring financial urgency is immediately visible. On narrow viewports (&lt;900px), table condition column collapses to icon-only.</div>
+
+    <div class="dashboard-mockup">
+
+      <!-- Row 1: Disputes (conditional) -->
+      <div class="dash-row r-1col">
+        <div class="panel-shell elevated">
+          <div class="panel-head elevated">
+            <span class="panel-lbl elevated">Open Disputes</span>
+            <span class="dispute-count-badge">2</span>
+          </div>
+          <div class="panel-body">
+            <div style="font-size:11px;color:var(--text-tertiary);font-style:italic;">↑ DisputePanel — visible only when disputes.length &gt; 0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Active Pacts (primary) -->
+      <div class="dash-row r-1col">
+        <div class="panel-shell">
+          <div class="panel-head">
+            <span class="panel-lbl">Active Pacts</span>
+          </div>
+          <div class="panel-body">
+            <div style="font-size:11px;color:var(--text-tertiary);font-style:italic;">↑ PactTable — primary content area, full width</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Completed Feed -->
+      <div class="dash-row r-1col">
+        <div class="panel-shell">
+          <div class="panel-head">
+            <span class="panel-lbl">Completed Pacts</span>
+          </div>
+          <div class="panel-body">
+            <div style="font-size:11px;color:var(--text-tertiary);font-style:italic;">↑ CompletedFeed — 20-per-page, below fold</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="annot-block">
+      <strong>Stacking order rationale</strong>
+      Disputes above pact table — an open dispute requires immediate action and should never be obscured by a full table of active pacts. Completed feed below fold is intentional: it is historical context, not an action surface.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       08 · COMPONENT PROP SPECS
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">08 — Component Specs</div>
+    <div class="section-title">Component Props &amp; Interfaces</div>
+    <div class="section-desc">Frontend-ready component signatures. All data types reference the CAS-68 SDK stubs. All components are uncontrolled by default — state managed at the dashboard page level via React context or prop drilling.</div>
+
+    <div class="stack">
+
+      <!-- PactStatusPill -->
+      <div class="prop-section-bg">
+        <div class="prop-section-title">
+          <span class="prop-component">PactStatusPill</span>
+          Status badge for pact lifecycle state
+        </div>
+        <table class="prop-table">
+          <thead><tr><th>Prop</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>status</td><td>'deposited' | 'released' | 'disputed' | 'cancelled'</td><td>Required. Maps to color scheme and pulse animation.</td></tr>
+            <tr><td>size</td><td>'sm' | 'md'</td><td>Default: 'md'. sm removes letter-spacing and reduces padding for table use.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ConditionTypeChip -->
+      <div class="prop-section-bg">
+        <div class="prop-section-title">
+          <span class="prop-component">ConditionTypeChip</span>
+          Release condition type indicator
+        </div>
+        <table class="prop-table">
+          <thead><tr><th>Prop</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>type</td><td>'task' | 'milestone' | 'timed'</td><td>Required. Determines icon and label.</td></tr>
+            <tr><td>iconOnly</td><td>boolean</td><td>Default: false. When true, hides text label (table column use). Tooltip always shows on hover regardless.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TruncatedAddress -->
+      <div class="prop-section-bg">
+        <div class="prop-section-title">
+          <span class="prop-component">TruncatedAddress</span>
+          Pubkey display with copy affordance
+        </div>
+        <table class="prop-table">
+          <thead><tr><th>Prop</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>address</td><td>string</td><td>Required. Full base58 public key.</td></tr>
+            <tr><td>chars</td><td>number</td><td>Default: 4. Chars shown on each side of truncation.</td></tr>
+            <tr><td>onCopy</td><td>(address: string) =&gt; void</td><td>Optional. Called after clipboard write. Parent should show transient toast.</td></tr>
+            <tr><td>showCopyIcon</td><td>boolean</td><td>Default: true.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- CountdownTimer -->
+      <div class="prop-section-bg">
+        <div class="prop-section-title">
+          <span class="prop-component">CountdownTimer</span>
+          Time-lock countdown with urgency tier
+        </div>
+        <table class="prop-table">
+          <thead><tr><th>Prop</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>deadline</td><td>Date | number</td><td>Required. Unix ms timestamp or Date object.</td></tr>
+            <tr><td>onExpire</td><td>() =&gt; void</td><td>Optional. Called when countdown reaches zero.</td></tr>
+            <tr><td>urgencyTiers</td><td><em>{ amber: number; orange: number; red: number }</em></td><td>Defaults: <em>{ amber: 172800000, orange: 86400000, red: 21600000 }</em> (48h / 24h / 6h in ms). Overridable.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DisputeCard -->
+      <div class="prop-section-bg">
+        <div class="prop-section-title">
+          <span class="prop-component">DisputeCard</span>
+          Single dispute card with urgency treatment
+        </div>
+        <table class="prop-table">
+          <thead><tr><th>Prop</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>dispute</td><td>DisputeData</td><td>Required. SDK type from CAS-68.</td></tr>
+            <tr><td>onViewDispute</td><td>(disputeId: string) =&gt; void</td><td>Required. Navigate to dispute detail page.</td></tr>
+            <tr><td>onViewPact</td><td>(pactId: string) =&gt; void</td><td>Optional. Navigate to pact detail.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DisputePanel -->
+      <div class="prop-section-bg">
+        <div class="prop-section-title">
+          <span class="prop-component">DisputePanel</span>
+          Container for all open disputes. Hidden when empty.
+        </div>
+        <table class="prop-table">
+          <thead><tr><th>Prop</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>disputes</td><td>DisputeData[]</td><td>Required. Sorted by deadline ASC (most urgent first) before render.</td></tr>
+            <tr><td>isLoading</td><td>boolean</td><td>Shows skeleton card when true.</td></tr>
+            <tr><td>error</td><td>Error | null</td><td>Shows error state with retry when set.</td></tr>
+            <tr><td>onRetry</td><td>() =&gt; void</td><td>Required when error != null.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PactRow -->
+      <div class="prop-section-bg">
+        <div class="prop-section-title">
+          <span class="prop-component">PactRow</span>
+          Single row in the Active Pacts table
+        </div>
+        <table class="prop-table">
+          <thead><tr><th>Prop</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>pact</td><td>PactData</td><td>Required. SDK type from CAS-68.</td></tr>
+            <tr><td>isExpanded</td><td>boolean</td><td>Controls detail expansion. Managed by PactTable.</td></tr>
+            <tr><td>onToggleExpand</td><td>(pactId: string) =&gt; void</td><td>Required. Callback to PactTable to manage single-open state.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PactTable -->
+      <div class="prop-section-bg">
+        <div class="prop-section-title">
+          <span class="prop-component">PactTable</span>
+          Full active pacts table with filters and sort
+        </div>
+        <table class="prop-table">
+          <thead><tr><th>Prop</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>pacts</td><td>PactData[]</td><td>Required.</td></tr>
+            <tr><td>isLoading</td><td>boolean</td><td>Renders 3 skeleton rows.</td></tr>
+            <tr><td>error</td><td>Error | null</td><td>Renders error state with retry.</td></tr>
+            <tr><td>onRetry</td><td>() =&gt; void</td><td>Required when error != null.</td></tr>
+            <tr><td>defaultFilter</td><td>'all' | 'active' | 'disputed' | 'completed'</td><td>Default: 'all'.</td></tr>
+            <tr><td>defaultSort</td><td><em>{ field: 'amount' | 'age'; direction: 'asc' | 'desc' }</em></td><td>Default: <em>{ field: 'amount', direction: 'desc' }</em>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- CompletedFeed -->
+      <div class="prop-section-bg">
+        <div class="prop-section-title">
+          <span class="prop-component">CompletedFeed</span>
+          Paginated list of resolved pacts
+        </div>
+        <table class="prop-table">
+          <thead><tr><th>Prop</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>items</td><td>CompletedPactData[]</td><td>Required. Current page of results.</td></tr>
+            <tr><td>totalCount</td><td>number</td><td>Required. Used to render "1–20 of N" and show/hide Load More.</td></tr>
+            <tr><td>page</td><td>number</td><td>Required. 1-indexed.</td></tr>
+            <tr><td>pageSize</td><td>number</td><td>Default: 20.</td></tr>
+            <tr><td>onLoadMore</td><td>() =&gt; void</td><td>Appends next page. Hidden when all items loaded.</td></tr>
+            <tr><td>isLoading</td><td>boolean</td><td>Shows skeleton rows during initial load or pagination.</td></tr>
+            <tr><td>error</td><td>Error | null</td><td>Shows error with retry.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       09 · DESIGN TOKENS
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-eyebrow">09 — Design Tokens</div>
+    <div class="section-title">Color &amp; Status Tokens</div>
+    <div class="section-desc">All status colors are drawn from the shared Holdfast Protocol token set established in CAS-72. The urgency-orange token (<code>--urgent</code>) is new and unique to the dispute system.</div>
+
+    <div class="tokens-grid">
+
+      <div>
+        <div class="token-group-title">Pact Status</div>
+        <div class="token-row">
+          <div class="color-swatch" style="background:#2D8CFF;"></div>
+          <span class="token-name">--accent</span>
+          <span class="token-desc">Deposited state</span>
+        </div>
+        <div class="token-row">
+          <div class="color-swatch" style="background:#22C55E;"></div>
+          <span class="token-name">--success</span>
+          <span class="token-desc">Released state</span>
+        </div>
+        <div class="token-row">
+          <div class="color-swatch" style="background:#EF4444;"></div>
+          <span class="token-name">--danger</span>
+          <span class="token-desc">Disputed state, Tier 3 countdown</span>
+        </div>
+        <div class="token-row">
+          <div class="color-swatch" style="background:#4D5E72;"></div>
+          <span class="token-name">--text-tertiary</span>
+          <span class="token-desc">Cancelled state</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="token-group-title">Dispute Urgency Tiers</div>
+        <div class="token-row">
+          <div class="color-swatch" style="background:#F59E0B;"></div>
+          <span class="token-name">--warning</span>
+          <span class="token-desc">Tier 1 (&gt;48h) · Amber</span>
+        </div>
+        <div class="token-row">
+          <div class="color-swatch" style="background:#F97316;"></div>
+          <span class="token-name">--urgent <span style="color:var(--warning);font-size:9px;">NEW</span></span>
+          <span class="token-desc">Tier 2 (&lt;24h) · Orange</span>
+        </div>
+        <div class="token-row">
+          <div class="color-swatch" style="background:#EF4444;"></div>
+          <span class="token-name">--danger</span>
+          <span class="token-desc">Tier 3 (&lt;6h) · Red</span>
+        </div>
+        <div class="token-row">
+          <div class="color-swatch" style="background:#0D1117;border:1px dashed var(--border);"></div>
+          <span class="token-name">--bg-page</span>
+          <span class="token-desc">Page background</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="token-group-title">Typography</div>
+        <div class="token-row">
+          <span class="token-name">--font-mono</span>
+          <span class="token-desc">Addresses, amounts, countdown timer, PDA</span>
+        </div>
+        <div class="token-row">
+          <span class="token-name">--font-ui</span>
+          <span class="token-desc">Labels, reasons, filter tabs</span>
+        </div>
+        <div class="token-row">
+          <span class="token-name">tabular-nums</span>
+          <span class="token-desc">Required on all amounts and countdown digits</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="token-group-title">Animations</div>
+        <div class="token-row">
+          <span class="token-name">pulse (1.4s)</span>
+          <span class="token-desc">Disputed pill dot, Tier 2+3 urgency badge</span>
+        </div>
+        <div class="token-row">
+          <span class="token-name">shimmer (1.5s)</span>
+          <span class="token-desc">All skeleton loading states</span>
+        </div>
+        <div class="token-row">
+          <span class="token-name">countdown (1s interval)</span>
+          <span class="token-desc">setInterval, cleared on unmount</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="annot-block" style="margin-top:24px;">
+      <strong>New token: --urgent (#F97316)</strong>
+      Orange sits between amber (--warning) and red (--danger) to provide a perceptible 3-step urgency ramp. Without this middle step the visual jump from yellow to red is abrupt and may feel alarming even for 23h-remaining disputes that require attention but not panic. Added to the Holdfast Protocol token file as a first-class token.
+    </div>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "@holdfastprotocol/oracle",
+  "version": "0.1.0",
+  "description": "Single-node reputation oracle for Holdfast Protocol devnet — monitors escrow dispute events and submits update_reputation instructions",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "test": "tsc && node --test dist/config.test.js dist/evaluator.test.js dist/idl-offset.test.js dist/subscriber.test.js dist/pending.test.js dist/voter.test.js dist/oracle-flow.test.js dist/multisig-quorum.test.js dist/agent-registry/subscriber.test.js dist/agent-registry/responder.test.js dist/agent-registry/atom-engine-submitter.test.js",
+    "coverage": "tsc && c8 node --test dist/config.test.js dist/evaluator.test.js dist/idl-offset.test.js dist/subscriber.test.js dist/pending.test.js dist/voter.test.js dist/oracle-flow.test.js dist/multisig-quorum.test.js dist/agent-registry/subscriber.test.js dist/agent-registry/responder.test.js dist/agent-registry/atom-engine-submitter.test.js",
+    "test-vote": "node --loader ts-node/esm scripts/test-vote.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "c8": "^10.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
