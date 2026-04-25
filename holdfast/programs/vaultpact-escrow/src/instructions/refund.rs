@@ -112,7 +112,17 @@ pub fn handler(ctx: Context<Refund>) -> Result<()> {
         .map_err(|_| error!(EscrowError::ArithmeticOverflow))?;
     let escrow_authority_bump = ctx.bumps.escrow_authority;
 
-    let (i_delta, b_delta) = refund_reputation_deltas(&escrow.status);
+    let (i_delta, b_delta, outcome) = match escrow.status {
+        EscrowStatus::Disputed => {
+            let dispute = ctx.accounts.dispute_record.as_ref().unwrap();
+            if dispute.raised_by == escrow.initiator {
+                (REFUND_ESCALATED_DELTA, 0i16, vaultpact::PactOutcome::Disputed)
+            } else {
+                (0i16, REFUND_ESCALATED_DELTA, vaultpact::PactOutcome::Disputed)
+            }
+        }
+        _ => (REFUND_UNRESOLVED_DELTA, REFUND_UNRESOLVED_DELTA, vaultpact::PactOutcome::Cancelled),
+    };
 
     let (initiator_amount, beneficiary_amount) = compute_refund_amounts(
         escrow.escrow_amount,
@@ -164,7 +174,7 @@ pub fn handler(ctx: Context<Refund>) -> Result<()> {
         &ctx.accounts.escrow_authority.to_account_info(),
         escrow_authority_bump,
         i_nonce.checked_add(1).ok_or(EscrowError::ArithmeticOverflow)?,
-        vaultpact::PactOutcome::Cancelled,
+        outcome,
         i_delta,
         pact_id,
     )?;
@@ -175,7 +185,7 @@ pub fn handler(ctx: Context<Refund>) -> Result<()> {
         &ctx.accounts.escrow_authority.to_account_info(),
         escrow_authority_bump,
         b_nonce.checked_add(1).ok_or(EscrowError::ArithmeticOverflow)?,
-        vaultpact::PactOutcome::Cancelled,
+        outcome,
         b_delta,
         pact_id,
     )?;
