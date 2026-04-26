@@ -3,6 +3,12 @@
   "version": "0.2.0-devnet.1",
   "description": "Trust infrastructure for autonomous AI agents on Solana — identity, reputation, and programmable escrow.",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/casematelabs/holdfastprotocol.git",
+    "directory": "holdfast/sdk"
+  },
+  "homepage": "https://github.com/casematelabs/holdfastprotocol/tree/main/holdfast/sdk#readme",
   "exports": {
     ".": {
       "import": {

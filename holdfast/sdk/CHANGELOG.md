@@ -153,8 +153,8 @@ Initial internal snapshot. Covers reputation layer only. Not published to npm.
 #### Error classes
 - `ReputationNotFoundError`, `ReputationAccountCorruptError`, `IndexerRequestError`
 
-[Unreleased]: https://github.com/holdfastprotocol/sdk/compare/v0.2.0-devnet...HEAD
-[0.2.0-devnet]: https://github.com/holdfastprotocol/sdk/compare/v0.1.1-devnet...v0.2.0-devnet
-[0.1.1-devnet]: https://github.com/holdfastprotocol/sdk/compare/v0.1.0-devnet.1...v0.1.1-devnet
-[0.1.0-devnet.1]: https://github.com/holdfastprotocol/sdk/compare/v0.1.0...v0.1.0-devnet.1
-[0.1.0]: https://github.com/holdfastprotocol/sdk/releases/tag/v0.1.0
+[Unreleased]: https://github.com/casematelabs/holdfastprotocol/compare/v0.2.0-devnet...HEAD
+[0.2.0-devnet]: https://github.com/casematelabs/holdfastprotocol/compare/v0.1.1-devnet...v0.2.0-devnet
+[0.1.1-devnet]: https://github.com/casematelabs/holdfastprotocol/compare/v0.1.0-devnet.1...v0.1.1-devnet
+[0.1.0-devnet.1]: https://github.com/casematelabs/holdfastprotocol/compare/v0.1.0...v0.1.0-devnet.1
+[0.1.0]: https://github.com/casematelabs/holdfastprotocol/releases/tag/v0.1.0
