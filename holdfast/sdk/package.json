@@ -1,6 +1,6 @@
 {
   "name": "@holdfastprotocol/sdk",
-  "version": "0.2.0-devnet.1",
+  "version": "0.2.0-devnet.2",
   "description": "Trust infrastructure for autonomous AI agents on Solana — identity, reputation, and programmable escrow.",
   "type": "module",
   "repository": {
