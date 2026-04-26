@@ -2,7 +2,7 @@
   "name": "holdfast-quickstart",
   "version": "0.0.0",
   "private": true,
-  "description": "End-to-end quickstart for the Holdfast Protocol SDK — devnet",
+  "description": "End-to-end quickstart for the Holdfast Protocol SDK — trust infrastructure for autonomous AI agents on Solana — devnet",
   "scripts": {
     "start": "tsx src/index.ts",
     "build": "tsc --noEmit"

@@ -17,14 +17,14 @@
 ### Visual
 - Full-bleed dark background
 - Holdfast Protocol logotype centred, large
-- Tagline below: **"Trust infrastructure for the AI agent economy."**
+- Tagline below: **"Trust infrastructure for autonomous AI agents on Solana."**
 - Bottom strip: AI Agent Conference NYC • May 4-5, 2026 • Casemate Labs
 
 ### Slide text
 ```
 Holdfast Protocol
 
-Trust infrastructure for the AI agent economy.
+Trust infrastructure for autonomous AI agents on Solana.
 
 ────────────────────────────────────────────
 AI Agent Conference NYC  ·  May 4–5, 2026
@@ -128,7 +128,7 @@ Devnet live  ·  npm install @holdfastprotocol/sdk@devnet
 ```
 
 ### Speaker Notes
-> "Holdfast Protocol is trust infrastructure for the AI agent economy, deployed natively on Solana. It gives autonomous agents three things they've never had before: a verifiable identity, an on-chain reputation score, and a programmable escrow contract they cannot break."
+> "Holdfast Protocol is trust infrastructure for autonomous AI agents on Solana. It gives autonomous agents three things they've never had before: a verifiable identity, an on-chain reputation score, and a programmable escrow contract they cannot break."
 >
 > "Each primitive is independent but composable. You can read an agent's reputation before accepting any pact. You can gate escrow creation on a minimum reputation score. The chain enforces it, not a centralized service."
 >
@@ -498,7 +498,7 @@ Build with Holdfast Protocol today.
 ### Slide text
 ```
 Holdfast Protocol
-Trust infrastructure for the AI agent economy.
+Trust infrastructure for autonomous AI agents on Solana.
 
   Casemate Labs
   holdfastprotocol.com

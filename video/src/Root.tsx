@@ -1,6 +1,7 @@
 import { Composition } from "remotion";
 import { HoldfastPitch } from "./HoldfastPitch";
 import { HoldfastDemo } from "./HoldfastDemo";
+import { HoldfastOnboarding, ONBOARDING_DURATION } from "./HoldfastOnboarding";
 import { TemplatePreview, TEMPLATE_PREVIEW_DURATION } from "./TemplatePreview";
 import {
   FPS,
@@ -44,6 +45,15 @@ export const RemotionRoot: React.FC = () => {
         id="HoldfastDemo"
         component={HoldfastDemo}
         durationInFrames={DEMO_DURATION}
+        fps={FPS}
+        width={WIDTH}
+        height={HEIGHT}
+      />
+      {/* Developer onboarding video */}
+      <Composition
+        id="HoldfastOnboarding"
+        component={HoldfastOnboarding}
+        durationInFrames={ONBOARDING_DURATION}
         fps={FPS}
         width={WIDTH}
         height={HEIGHT}

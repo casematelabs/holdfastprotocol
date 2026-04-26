@@ -28,6 +28,7 @@
     "build": "remotion bundle",
     "render:pitch": "remotion render HoldfastPitch out/holdfast-pitch.mp4",
     "render:demo": "remotion render HoldfastDemo out/holdfast-demo.mp4",
+    "render:onboarding": "remotion render HoldfastOnboarding out/holdfast-onboarding.mp4",
     "render": "npm run render:pitch && npm run render:demo",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"

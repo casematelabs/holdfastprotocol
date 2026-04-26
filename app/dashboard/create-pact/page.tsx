@@ -10,7 +10,7 @@ import type { ReputationResponse } from '../../../lib/indexer';
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type PactMode = 'task' | 'milestone' | 'timed';
-type WizardStep = 1 | 2 | 3;
+type WizardStep = 1 | 2 | 3 | 4;
 
 interface StepOneState {
   counterparty: string;
@@ -27,6 +27,15 @@ interface StepTwoState {
   arbiter: string;
   deliverablesUri: string;
   deliverablesHash: string;
+}
+
+interface PactResult {
+  pactId: string;
+  escrowAddress: string;
+  txSig: string;
+  amount: string;
+  mode: PactMode;
+  counterparty: string;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -112,12 +121,14 @@ function StepIndicator({ current }: { current: WizardStep }) {
     { n: 1, label: 'Counterparty & Amount' },
     { n: 2, label: 'Mode & Configuration' },
     { n: 3, label: 'Review & Sign' },
+    { n: 4, label: 'Pact Live' },
   ];
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0', marginBottom: '28px' }}>
       {steps.map((s, i) => {
-        const done = current > s.n;
-        const active = current === s.n;
+        const allDone = current === 4;
+        const done = allDone || current > s.n;
+        const active = !allDone && current === s.n;
         return (
           <div key={s.n} style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -251,6 +262,51 @@ function ErrorInline({ children }: { children: React.ReactNode }) {
   );
 }
 
+function CopyRow({ value, display, explorerHref }: { value: string; display: string; explorerHref?: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }).catch(() => {});
+  }, [value]);
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      {explorerHref ? (
+        <a href={explorerHref} target="_blank" rel="noopener noreferrer" style={{
+          flex: 1, fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+          fontSize: '11px', color: '#8A99AC', textDecoration: 'underline',
+          textDecorationColor: 'rgba(138,153,172,0.3)', wordBreak: 'break-all',
+        }}>
+          {display}
+        </a>
+      ) : (
+        <span style={{
+          flex: 1, fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+          fontSize: '11px', color: '#8A99AC', wordBreak: 'break-all',
+        }}>
+          {display}
+        </span>
+      )}
+      <button
+        onClick={handleCopy}
+        title="Copy to clipboard"
+        style={{
+          all: 'unset', cursor: 'pointer', flexShrink: 0, padding: '3px 8px',
+          fontSize: '9px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase',
+          color: copied ? '#22C55E' : '#4D5E72',
+          border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : '#1E2D42'}`,
+          transition: 'color 0.15s, border-color 0.15s',
+        }}
+      >
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+    </div>
+  );
+}
+
 // ── Form field styles ────────────────────────────────────────────────────────
 
 const INPUT_STYLE: React.CSSProperties = {
@@ -283,6 +339,18 @@ export default function CreatePactPage() {
   const { push: pushNotif } = useNotifications();
   const [step, setStep] = useState<WizardStep>(1);
   const [submitting, setSubmitting] = useState(false);
+  const [pactResult, setPactResult] = useState<PactResult | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('holdfast-pact-result');
+      if (saved) {
+        const result = JSON.parse(saved) as PactResult;
+        setPactResult(result);
+        setStep(4);
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   const [s1, setS1] = useState<StepOneState>({
     counterparty: '',
@@ -380,7 +448,10 @@ export default function CreatePactPage() {
       // For now, simulate the transaction since SDK is not yet wired
       console.log('[CreatePact] SDK call params:', params);
       await new Promise(resolve => setTimeout(resolve, 1500));
-      const mockTxSig = 'simulated_' + Date.now().toString(36);
+      const ts = Date.now();
+      const mockTxSig = 'sim' + ts.toString(36) + Math.random().toString(36).slice(2, 10);
+      const mockEscrow = '5NjK' + ts.toString(36).toUpperCase().slice(-6) + 'wP' + Math.random().toString(36).slice(2, 12).toUpperCase();
+      const mockPactId = '3Pact' + ts.toString(36) + Math.random().toString(36).slice(2, 8);
 
       pushNotif({
         category: 'pact',
@@ -388,10 +459,20 @@ export default function CreatePactPage() {
         title: 'Pact created',
         body: `${s2.mode.charAt(0).toUpperCase() + s2.mode.slice(1)} pact with ${truncAddr(s1.counterparty)} for ${s1.amount} SOL`,
         href: `${DEVNET_EXPLORER}/${mockTxSig}?cluster=devnet`,
-        pactId: mockTxSig,
+        pactId: mockPactId,
       });
 
-      router.push('/dashboard/escrow');
+      const result: PactResult = {
+        pactId: mockPactId,
+        escrowAddress: mockEscrow,
+        txSig: mockTxSig,
+        amount: s1.amount,
+        mode: s2.mode,
+        counterparty: s1.counterparty,
+      };
+      try { sessionStorage.setItem('holdfast-pact-result', JSON.stringify(result)); } catch { /* ignore */ }
+      setPactResult(result);
+      setStep(4);
     } catch (err) {
       pushNotif({
         category: 'pact',
@@ -411,19 +492,21 @@ export default function CreatePactPage() {
 
       {/* Page header */}
       <div style={{ marginBottom: '4px' }}>
-        <button
-          onClick={() => router.push('/dashboard/escrow')}
-          style={{
-            all: 'unset', cursor: 'pointer', display: 'inline-flex',
-            alignItems: 'center', gap: '4px', fontSize: '11px',
-            color: '#4D5E72', marginBottom: '12px',
-          }}
-        >
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path d="M6.5 1.5L3.5 5L6.5 8.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Back to Escrow
-        </button>
+        {step !== 4 && (
+          <button
+            onClick={() => router.push('/dashboard/escrow')}
+            style={{
+              all: 'unset', cursor: 'pointer', display: 'inline-flex',
+              alignItems: 'center', gap: '4px', fontSize: '11px',
+              color: '#4D5E72', marginBottom: '12px',
+            }}
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M6.5 1.5L3.5 5L6.5 8.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back to Escrow
+          </button>
+        )}
         <h1 style={{ fontSize: '18px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '4px' }}>
           Create Pact
         </h1>
@@ -916,9 +999,129 @@ export default function CreatePactPage() {
         </div>
       )}
 
+      {/* ──────────── Step 4: Pact Live ──────────── */}
+      {step === 4 && pactResult && (
+        <div style={{ background: '#141B27', border: '1px solid #1E2D42', padding: '24px' }}>
+
+          {/* Success ring */}
+          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+            <div style={{
+              width: '60px', height: '60px', borderRadius: '50%', margin: '0 auto 16px',
+              background: 'rgba(34,197,94,0.1)', border: '2px solid rgba(34,197,94,0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#22C55E', fontSize: '24px',
+              animation: 'vp-ring-pulse 2.5s ease-in-out infinite',
+            }}>
+              ⚡
+            </div>
+            <h2 style={{
+              fontSize: '20px', fontWeight: 800, color: '#E8EDF2',
+              letterSpacing: '-0.02em', marginBottom: '8px',
+            }}>
+              Pact is live
+            </h2>
+            <p style={{
+              fontSize: '12px', color: '#8A99AC', lineHeight: 1.65,
+              maxWidth: '380px', margin: '0 auto',
+            }}>
+              {pactResult.amount} SOL is locked in escrow.
+              The pact will release when both parties fulfil the{' '}
+              <span style={{ textTransform: 'capitalize' }}>{pactResult.mode}</span> conditions.
+            </p>
+          </div>
+
+          {/* Pact details card */}
+          <div style={{ background: '#0D1117', border: '1px solid #1E2D42', padding: '16px', marginBottom: '12px' }}>
+            <div style={{ marginBottom: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={LABEL_STYLE}>Pact ID</span>
+                <span style={{
+                  fontSize: '9px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+                  color: '#22C55E', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+                  padding: '2px 8px',
+                }}>
+                  Active
+                </span>
+              </div>
+              <CopyRow value={pactResult.pactId} display={truncAddr(pactResult.pactId)} />
+            </div>
+
+            <div style={{ borderTop: '1px solid #1E2D42', paddingTop: '14px', marginBottom: '14px' }}>
+              <div style={{ ...LABEL_STYLE, marginBottom: '8px' }}>Counterparty</div>
+              <CopyRow value={pactResult.counterparty} display={pactResult.counterparty} />
+            </div>
+
+            <div style={{ borderTop: '1px solid #1E2D42', paddingTop: '14px' }}>
+              <div style={{ ...LABEL_STYLE, marginBottom: '8px' }}>Escrow address</div>
+              <CopyRow
+                value={pactResult.escrowAddress}
+                display={pactResult.escrowAddress}
+                explorerHref={`https://explorer.solana.com/address/${pactResult.escrowAddress}?cluster=devnet`}
+              />
+            </div>
+          </div>
+
+          {/* TX link */}
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <a
+              href={`${DEVNET_EXPLORER}/${pactResult.txSig}?cluster=devnet`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontSize: '10px', color: '#4D5E72', textDecoration: 'none',
+                fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+                letterSpacing: '0.02em',
+              }}
+            >
+              View transaction on Solana Explorer ↗
+            </a>
+          </div>
+
+          {/* CTAs */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <button
+              onClick={() => router.push('/dashboard/escrow')}
+              style={{
+                width: '100%', padding: '12px 16px', fontSize: '12px', fontWeight: 600,
+                color: '#fff', background: '#2D8CFF', border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                textAlign: 'left', boxSizing: 'border-box',
+              }}
+            >
+              <div>
+                <div>View in Dashboard →</div>
+                <div style={{ fontSize: '10px', fontWeight: 400, color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>
+                  Monitor escrow status and reputation
+                </div>
+              </div>
+            </button>
+            <button
+              onClick={() => router.push('/docs/concepts/pact')}
+              style={{
+                width: '100%', padding: '12px 16px', fontSize: '12px', fontWeight: 600,
+                color: '#E8EDF2', background: 'none', border: '1px solid #1E2D42',
+                cursor: 'pointer', display: 'flex', alignItems: 'center',
+                justifyContent: 'space-between', textAlign: 'left', boxSizing: 'border-box',
+              }}
+            >
+              <div>
+                <div>Integrate via SDK</div>
+                <div style={{ fontSize: '10px', fontWeight: 400, color: '#4D5E72', marginTop: '2px' }}>
+                  Auto-sign on task completion
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes vp-spin {
           to { transform: rotate(360deg); }
+        }
+        @keyframes vp-ring-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+          50%       { box-shadow: 0 0 0 8px rgba(34,197,94,0.1); }
         }
       `}</style>
     </div>

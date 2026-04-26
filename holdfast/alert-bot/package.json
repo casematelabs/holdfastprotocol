@@ -1,7 +1,7 @@
 {
   "name": "@holdfastprotocol/alert-bot",
   "version": "0.1.0",
-  "description": "Discord devnet alert bot for Holdfast Protocol — posts webhook alerts on protocol health events",
+  "description": "Discord devnet alert bot for Holdfast Protocol — trust infrastructure for autonomous AI agents on Solana",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {

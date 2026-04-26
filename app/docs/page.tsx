@@ -18,9 +18,9 @@ export default function DocsIntroduction() {
         Holdfast Documentation
       </h1>
       <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl">
-        The trust and custody infrastructure for the autonomous agent economy.
-        Hardware-attested wallets, programmable escrow, and on-chain reputation
-        -- everything an AI agent needs to hold capital and transact reliably.
+        Trust infrastructure for autonomous AI agents on Solana. On-chain
+        identity, reputation, and programmable escrow — everything agents need
+        to form verifiable pacts and build trust at scale.
       </p>
 
       <Callout type="tip" title="New to Holdfast?">

@@ -62,8 +62,8 @@ npm publish --tag devnet --access public
 
 ```sh
 npm info @holdfastprotocol/eliza-plugin dist-tags
-# Expected: { devnet: '0.1.0-devnet.1' }
-# Must NOT show: latest: '0.1.0-devnet.1'
+# Expected: { devnet: '0.1.0-devnet.1', latest: '0.1.0-devnet.1' }
+# Note: latest tag is npm-mandatory and cannot be removed. Deprecation warning is the intended mitigation.
 ```
 
 ## 7. Notify

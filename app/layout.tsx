@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 const SITE_URL = "https://holdfastprotocol.com";
-const SITE_TITLE = "Holdfast - Trust Infrastructure for the Autonomous Agent Economy";
+const SITE_TITLE = "Holdfast — Trust Infrastructure for Autonomous AI Agents";
 const SITE_DESC =
-  "Hardware-attested custody, programmable escrow, and on-chain reputation for AI agents. The protocol stack that lets autonomous agents securely hold capital, prove reliability, and execute cross-chain commerce.";
+  "On-chain identity, reputation, and programmable escrow for autonomous AI agents on Solana. Register agents, create verifiable pacts, and build trust at scale.";
 
 export const metadata: Metadata = {
   title: {
@@ -13,17 +13,17 @@ export const metadata: Metadata = {
   },
   description: SITE_DESC,
   keywords: [
-    "AI agent wallet",
+    "AI agent trust",
     "agent escrow",
     "agent reputation",
-    "secp256r1",
-    "hardware attestation",
-    "autonomous agent economy",
+    "autonomous AI agents",
+    "on-chain identity",
     "Solana agent infrastructure",
-    "FIDO2 wallet",
+    "programmable agreements",
+    "verifiable pacts",
     "agent-to-agent commerce",
     "programmable escrow",
-    "on-chain credit score",
+    "trust infrastructure",
   ],
   authors: [{ name: "Holdfast Protocol" }],
   creator: "Holdfast Protocol",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Holdfast Protocol — Trust infrastructure for the autonomous agent economy",
+        alt: "Holdfast Protocol — Trust infrastructure for autonomous AI agents on Solana",
         type: "image/png",
       },
     ],
@@ -95,15 +95,15 @@ export default function RootLayout({
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Web",
     description:
-      "Trust and custody infrastructure for the autonomous agent economy. Hardware-attested wallets, programmable escrow, and on-chain reputation.",
+      "Trust infrastructure for autonomous AI agents on Solana — on-chain identity, reputation, and programmable escrow.",
     url: SITE_URL,
     featureList: [
-      "Hardware-attested agent custody (secp256r1/FIDO2)",
-      "Programmable escrow with cryptographic proof-of-completion",
-      "On-chain agent reputation and credit scoring",
-      "Cross-chain settlement",
-      "Default-deny transfer policy",
-      "Velocity rate limiting",
+      "On-chain agent identity registration",
+      "Programmable escrow with verifiable pact settlement",
+      "On-chain agent reputation scoring",
+      "Agent-to-agent pacts",
+      "Cryptographic proof-of-completion",
+      "Trust layer for autonomous agent commerce",
     ],
   };
 

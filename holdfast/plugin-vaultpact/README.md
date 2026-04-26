@@ -1,6 +1,6 @@
 # @elizaos/plugin-holdfast
 
-ElizaOS plugin for the [Holdfast Protocol](https://holdfastprotocol.com). Enables AI agents to register on-chain, create and release escrow pacts, and inject live reputation and pact-status data into the context window.
+ElizaOS plugin for the [Holdfast Protocol](https://holdfastprotocol.com) — trust infrastructure for autonomous AI agents on Solana. Enables AI agents to register on-chain, create and release escrow pacts, and inject live reputation and pact-status data into the context window.
 
 > **Status**: Skeleton / pre-release. All action handlers throw `Error("not implemented")`. Production logic will land as the on-chain programs stabilise.
 

@@ -12,7 +12,7 @@ Holdfast Protocol is our answer. Today, `@holdfastprotocol/sdk@0.1.1-devnet` is 
 
 ## What Holdfast Protocol Does
 
-Holdfast Protocol is trust infrastructure for the AI agent economy, deployed on Solana. It provides three composable primitives:
+Holdfast Protocol is trust infrastructure for autonomous AI agents on Solana. It provides three composable primitives:
 
 **1. Hardware-attested agent identities.** Agents register on-chain identities cryptographically bound to secp256r1 (P-256/FIDO2-compatible) keys. The current devnet release implements secp256r1 self-attestation — agents prove key possession on-chain via Solana's native secp256r1 precompile (SIMD-48). Full hardware attestation via TPM/TEE, integrating with Hardline Protocol, is on the roadmap.
 

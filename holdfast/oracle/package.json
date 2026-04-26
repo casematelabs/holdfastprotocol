@@ -1,7 +1,7 @@
 {
   "name": "@holdfastprotocol/oracle",
   "version": "0.1.0",
-  "description": "Single-node reputation oracle for Holdfast Protocol devnet — monitors escrow dispute events and submits update_reputation instructions",
+  "description": "Reputation oracle for Holdfast Protocol devnet — trust infrastructure for autonomous AI agents on Solana",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {

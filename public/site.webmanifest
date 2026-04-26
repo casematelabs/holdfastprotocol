@@ -1,7 +1,7 @@
 {
   "name": "Holdfast Protocol",
   "short_name": "Holdfast",
-  "description": "Trust infrastructure for the autonomous agent economy. Hardware-attested custody, programmable escrow, and on-chain reputation.",
+  "description": "Trust infrastructure for autonomous AI agents on Solana. On-chain identity, reputation, and programmable escrow.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0D1117",

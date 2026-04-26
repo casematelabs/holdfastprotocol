@@ -1,7 +1,8 @@
 # @holdfastprotocol/eliza-plugin
 
-[![npm version](https://img.shields.io/npm/v/@holdfastprotocol/eliza-plugin)](https://www.npmjs.com/package/@holdfastprotocol/eliza-plugin)
+[![npm version](https://img.shields.io/npm/v/@holdfastprotocol/eliza-plugin?tag=devnet)](https://www.npmjs.com/package/@holdfastprotocol/eliza-plugin)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Network: Devnet](https://img.shields.io/badge/network-devnet-orange)](#devnet-program-addresses)
 
 > **Pre-audit devnet release — do not use in production.**
 > The on-chain programs and this plugin have not undergone a third-party security audit.
@@ -18,6 +19,21 @@ The protocol is built on two Anchor programs:
 
 This plugin integrates the full protocol into [ElizaOS](https://elizaos.ai) agents via natural-language actions, context providers, and background event monitoring.
 
+## How it fits together
+
+```
+ElizaOS Agent Runtime
+  └── holdfastPlugin
+        ├── Actions ──────────────► Holdfast SDK ──► Solana RPC ──► vaultpact program
+        │   (5 actions)                                              vaultpact_escrow program
+        ├── Providers ─────────────────────────────► Holdfast Indexer ──► Context Window
+        │   (reputation, active pacts)
+        └── Event Listener ────────────────────────► Holdfast Indexer (polls every 30 s)
+              (emits HOLDFAST_PACT_STATE events)
+```
+
+The plugin delegates all on-chain and indexer interactions to `@holdfastprotocol/sdk`. You configure three things: a Solana RPC endpoint, a signer for write operations, and your agent's registered wallet PDA.
+
 ## Install
 
 ```bash
@@ -32,7 +48,54 @@ npm install @elizaos/core
 
 ## Quick start
 
-### 1. Configure the plugin
+### 1. Register an agent wallet
+
+Before your agent can create pacts it needs an on-chain identity — an **AgentWallet PDA**. The call is idempotent; run it on every agent startup.
+
+```typescript
+import { Connection, Keypair } from "@solana/web3.js";
+import { registerAgentWallet } from "@holdfastprotocol/sdk";
+import { readFileSync, writeFileSync, existsSync } from "fs";
+
+const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+const signer = Keypair.fromSecretKey(
+  Uint8Array.from(JSON.parse(readFileSync(process.env.KEYPAIR_PATH!, "utf-8")))
+);
+
+const IDENTITY_PATH = "./agent-identity.json";
+let p256PrivateKey: Uint8Array | undefined;
+
+// Reload the saved P-256 key on restarts — ensures every boot resolves to the same PDA
+if (existsSync(IDENTITY_PATH)) {
+  const saved = JSON.parse(readFileSync(IDENTITY_PATH, "utf-8"));
+  p256PrivateKey = Buffer.from(saved.p256PrivateKey, "hex");
+}
+
+const { agentWallet, p256PrivateKey: activeKey, signature } =
+  await registerAgentWallet({ connection, signer, p256PrivateKey });
+
+if (signature) {
+  writeFileSync(
+    IDENTITY_PATH,
+    JSON.stringify({
+      agentWallet: agentWallet.toBase58(),
+      p256PrivateKey: Buffer.from(activeKey).toString("hex"),
+    }),
+    { mode: 0o600 }
+  );
+  console.log("Registered AgentWallet:", agentWallet.toBase58());
+} else {
+  console.log("Resumed AgentWallet:", agentWallet.toBase58());
+}
+```
+
+**Important:** always reload and pass the same `p256PrivateKey` on subsequent calls. Omitting it generates a fresh P-256 key and a different PDA, orphaning the original identity.
+
+Add `agent-identity.json` to `.gitignore` — the P-256 key is your on-chain identity.
+
+See the [Register an Agent Wallet devnet tutorial](../../docs/registeragentwallet-devnet-tutorial.md) for a full walkthrough.
+
+### 2. Configure the plugin
 
 ```typescript
 import { createHoldfastPlugin } from '@holdfastprotocol/eliza-plugin';
@@ -44,7 +107,7 @@ const holdfastPlugin = createHoldfastPlugin({
 });
 ```
 
-### 2. Register with your agent
+### 3. Register with your agent
 
 ```typescript
 import { AgentRuntime } from '@elizaos/core';
@@ -55,14 +118,14 @@ const agent = new AgentRuntime({
 });
 ```
 
-### 3. Talk to your agent
+### 4. Talk to your agent
 
 Once registered, your agent responds to natural-language instructions:
 
 ```
 User:  "Check the reputation for 7xKpF...abc"
 Agent: Reputation for 7xKpF...abc:
-         Tier: Gold | Score: 92 | Pacts completed: 14 | Disputed: 0
+         Tier: Attested | Score: 9200 bp | Pacts completed: 14 | Disputed: 0
 
 User:  "Create an escrow pact with 9mBv...xyz for 2 SOL"
 Agent: Pact created. Escrow ID: Esc3f...def
@@ -141,20 +204,28 @@ Holdfast Protocol tracks on-chain reputation for every registered agent wallet:
 
 | Field | Description |
 |---|---|
-| **Tier** | Verification level (Unverified, Silver, Gold, Platinum) — earned through successful pact completions |
-| **Score** | Numeric reputation score reflecting pact history |
+| **Tier** | Verification level: `Unverified` (secp256r1 key registered), `Attested` (key attested on-chain), `Hardline` (TEE-attested via Hardline Protocol) |
+| **Score** | Reputation score in basis points (0–10,000; 5,000 = neutral) — accrued from completed pacts |
 | **Pacts completed** | Total count of successfully completed pacts |
 | **Disputes** | Number of disputes opened against this agent |
 
 Use `CHECK_REPUTATION` to look up any agent by public key, or let the reputation context provider surface your agent's own stats automatically.
 
+## Devnet program addresses
+
+| Program | Address |
+|---|---|
+| `holdfast` (vaultpact) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| `holdfast-escrow` (vaultpact_escrow) | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+
+Verify accounts on [Solana Explorer (devnet)](https://explorer.solana.com/?cluster=devnet).
+
 ## Full documentation
 
-See the [ElizaOS Integration Guide](../../docs/elizaos-integration-guide.md) for:
-- Detailed signer patterns (env var, HSM/KMS, read-only)
-- Context provider and evaluator internals
-- Event listener configuration and state monitoring
-- Advanced escrow release conditions
+- [Register an Agent Wallet — devnet tutorial](../../docs/registeragentwallet-devnet-tutorial.md)
+- [Quickstart — first escrow pact end-to-end](../../docs/quickstart.md)
+- [SDK reference](../../docs/sdk-reference.md)
+- [Architecture overview](../../docs/architecture.md)
 
 ## Dependencies
 
@@ -168,7 +239,7 @@ See the [ElizaOS Integration Guide](../../docs/elizaos-integration-guide.md) for
 
 ## Contributing
 
-Contributions welcome. Please open an issue or pull request on [GitHub](https://github.com/casematelabs/holdfast).
+Contributions welcome. This is a pre-audit devnet package — pull requests are reviewed but may be held until after the third-party security audit completes. Please open issues or PRs on [GitHub](https://github.com/casematelabs/sdk/issues).
 
 ## License
 

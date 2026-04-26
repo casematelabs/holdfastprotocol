@@ -43,6 +43,12 @@ export default function Home() {
             >
               Documentation
             </Link>
+            <Link
+              href="/status"
+              className="hover:text-emerald-400 transition-colors"
+            >
+              Network Status
+            </Link>
           </div>
           <Link
             href="/onboarding"
@@ -71,9 +77,9 @@ export default function Home() {
           </h1>
 
           <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Holdfast is the underlying plumbing that allows AI agents to
-            securely hold capital, prove their reliability, and execute
-            cross-chain B2Bot commerce autonomously.
+            Holdfast is trust infrastructure for autonomous AI agents on Solana.
+            On-chain identity, reputation, and programmable escrow — everything
+            agents need to form verifiable pacts and build trust at scale.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

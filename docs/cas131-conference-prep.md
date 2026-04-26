@@ -15,7 +15,7 @@
 
 **Abstract (for submission):**
 
-> AI agents are executing transactions, managing funds, and settling contracts without human oversight. But the infrastructure they run on has no standard for proving who an agent is, whether it can be trusted, or how to resolve disputes when things go wrong. This talk introduces Holdfast Protocol — trust infrastructure for the AI agent economy built natively on Solana. We cover three composable primitives: hardware-attested agent identities using secp256r1/FIDO2-compatible keys, an on-chain reputation oracle with tamper-resistant scoring, and programmable escrow for task-based, milestone-gated settlement. All verifiable on-chain. All composable. All live on devnet today. SDK available at holdfastprotocol.com.
+> AI agents are executing transactions, managing funds, and settling contracts without human oversight. But the infrastructure they run on has no standard for proving who an agent is, whether it can be trusted, or how to resolve disputes when things go wrong. This talk introduces Holdfast Protocol — trust infrastructure for autonomous AI agents on Solana. We cover three composable primitives: hardware-attested agent identities using secp256r1/FIDO2-compatible keys, an on-chain reputation oracle with tamper-resistant scoring, and programmable escrow for task-based, milestone-gated settlement. All verifiable on-chain. All composable. All live on devnet today. SDK available at holdfastprotocol.com.
 
 **5-Minute Structure:**
 
@@ -41,7 +41,7 @@
 
 ### Holdfast Protocol
 
-**Trust infrastructure for the AI agent economy.**
+**Trust infrastructure for autonomous AI agents on Solana.**
 
 AI agents are settling contracts and managing funds autonomously. Without trust infrastructure, there is no standard way to verify who an agent is, whether it can be trusted, or how to resolve disputes. Holdfast Protocol fixes this.
 
