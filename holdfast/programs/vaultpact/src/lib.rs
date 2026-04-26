@@ -103,16 +103,13 @@ pub const INITIAL_AUTHORITY: Pubkey = Pubkey::new_from_array([
 /// The founding team will derive the vault PDA from the 3-of-5 multisig
 /// created pre-mainnet and substitute the bytes below before the mainnet
 /// build. The compile-time assertion prevents shipping the zero placeholder.
+/// Mainnet Squads v4 vault PDA: 9DTb7PZA5zfpKQYjcwXyvctSsHoKzP2FKZzDNX8hW6Tg
+/// Currently 1-of-1; upgrade to 2-of-3 tracked in HOL-192 before mainnet launch.
 #[cfg(feature = "mainnet")]
-pub const INITIAL_AUTHORITY: Pubkey = {
-    // TODO(pre-mainnet): replace with Squads v4 vault PDA bytes from founding team.
-    const BYTES: [u8; 32] = [0u8; 32];
-    const _: () = assert!(
-        BYTES[0] != 0 || BYTES[1] != 0 || BYTES[2] != 0 || BYTES[3] != 0,
-        "INITIAL_AUTHORITY is still the zero address — set your Squads v4 multisig pubkey before mainnet build."
-    );
-    Pubkey::new_from_array(BYTES)
-};
+pub const INITIAL_AUTHORITY: Pubkey = Pubkey::new_from_array([
+    0x7a,0x0e,0x87,0x44,0x60,0xb9,0x7f,0x49,0xa8,0x8d,0x32,0xd0,0x0f,0x6e,0xd7,0xfe,
+    0xe0,0xa8,0xd8,0x53,0xea,0xc9,0xd5,0x01,0x54,0x08,0x5b,0xcc,0xdc,0x09,0x1e,0x27,
+]);
 
 /// WebAuthn origins allowed to sign agent assertions.
 #[cfg(not(feature = "mainnet"))]
