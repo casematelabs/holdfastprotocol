@@ -1,7 +1,9 @@
-# @holdfastprotocol/sdk v0.1.0-devnet.1 Release Checklist
+# @holdfastprotocol/sdk v0.2.0-devnet.1 Release Checklist
 
 Publish tag: `devnet`  
-Target: `npm publish --tag devnet` (NOT `latest`)
+Target: `npm publish --tag devnet` (NOT `--tag latest` or no tag)
+
+> **dist-tag policy:** The `latest` dist-tag is npm-mandatory and cannot be removed once set. If set unintentionally, the deprecation warning (`PREAUDIT_WARNING`) is the intended mitigation for pre-audit packages. Future releases MUST use `npm publish --tag devnet` — never `--tag latest` or no tag.
 
 ---
 
@@ -9,7 +11,7 @@ Target: `npm publish --tag devnet` (NOT `latest`)
 
 - [ ] All source compiles clean: `npm run typecheck` exits 0
 - [ ] No uncommitted changes to `sdk/src/` or `sdk/package.json`
-- [ ] Confirm version in `package.json` is exactly `0.1.0-devnet.1`
+- [ ] Confirm version in `package.json` is exactly `0.2.0-devnet.1`
 - [ ] Confirm `PREAUDIT_WARNING` is exported from `src/index.ts`
 
 ## 2. Build
@@ -82,17 +84,17 @@ cd holdfast/sdk
 npm publish --tag devnet --access public
 ```
 
-- [ ] Confirm exit 0 with `+ @holdfastprotocol/sdk@0.1.0-devnet.1`
+- [ ] Confirm exit 0 with `+ @holdfastprotocol/sdk@0.2.0-devnet.1`
 
 ## 6. Post-publish verification
 
 ```sh
 npm info @holdfastprotocol/sdk dist-tags
-# Expected: { devnet: '0.1.0-devnet.1' }
-# Must NOT show: latest: '0.1.0-devnet.1'
+# Expected: { devnet: '0.2.0-devnet.1', latest: '0.2.0-devnet.1' }
+# Note: latest tag is npm-mandatory and cannot be removed. Deprecation warning is the intended mitigation.
 ```
 
-- [ ] `npm install @holdfastprotocol/sdk@devnet` resolves `0.1.0-devnet.1` in a blank project
+- [ ] `npm install @holdfastprotocol/sdk@devnet` resolves `0.2.0-devnet.1` in a blank project
 - [ ] ESM import resolves types (TypeScript `tsc --noEmit` passes in a consumer project)
 - [ ] CJS require works in a bare `node` script with `"type": "commonjs"` or `.cjs` extension
 
@@ -107,8 +109,8 @@ npm info @holdfastprotocol/sdk dist-tags
 ## 8. Git tag
 
 ```sh
-git tag v0.1.0-devnet.1 -m "Holdfast SDK v0.1.0-devnet.1 — devnet pre-audit release"
-git push origin v0.1.0-devnet.1
+git tag v0.2.0-devnet.1 -m "Holdfast SDK v0.2.0-devnet.1 — devnet pre-audit release"
+git push origin v0.2.0-devnet.1
 ```
 
 ## 9. Notify
@@ -120,7 +122,8 @@ git push origin v0.1.0-devnet.1
 
 ## Security reminders
 
-- **Do not** bump the dist-tag to `latest` until external audit is complete.
 - **Do not** remove the devnet-only guard or `PREAUDIT_WARNING` before audit sign-off.
+- **`latest` dist-tag is npm-mandatory** and cannot be removed once set. Deprecation warning is the intended mitigation for pre-audit packages.
+- **Future releases MUST use** `npm publish --tag devnet` — never `--tag latest` or no tag.
 - Audit readiness tracked on [CAS-59](/CAS/issues/CAS-59).
 - Any mainnet SDK release requires CTO + CEO sign-off and audit firm approval.

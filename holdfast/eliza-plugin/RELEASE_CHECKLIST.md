@@ -1,15 +1,17 @@
 # @holdfastprotocol/eliza-plugin v0.1.0-devnet.1 Release Checklist
 
 Publish tag: `devnet`
-Target: `npm publish --tag devnet` (NOT `latest`)
+Target: `npm publish --tag devnet` (NOT `--tag latest` or no tag)
 
-**Prerequisite:** `@holdfastprotocol/sdk@0.1.0-devnet.1` must be published first (tracked in [CAS-120](/CAS/issues/CAS-120)).
+> **dist-tag policy:** The `latest` dist-tag is npm-mandatory and cannot be removed once set. If set unintentionally, the deprecation warning (`PREAUDIT_WARNING`) is the intended mitigation for pre-audit packages. Future releases MUST use `npm publish --tag devnet` — never `--tag latest` or no tag.
+
+**Prerequisite:** `@holdfastprotocol/sdk@0.2.0-devnet.1` must be published first (tracked in [CAS-120](/CAS/issues/CAS-120)).
 
 ---
 
 ## 1. Pre-build verification
 
-- [ ] `@holdfastprotocol/sdk@0.1.0-devnet.1` is live on npm (`npm info @holdfastprotocol/sdk dist-tags`)
+- [ ] `@holdfastprotocol/sdk@0.2.0-devnet.1` is live on npm (`npm info @holdfastprotocol/sdk dist-tags`)
 - [ ] All source compiles clean: `npm run typecheck` exits 0
 - [ ] No uncommitted changes to `eliza-plugin/src/` or `eliza-plugin/package.json`
 - [ ] Confirm version in `package.json` is exactly `0.1.0-devnet.1`
@@ -73,6 +75,7 @@ npm info @holdfastprotocol/eliza-plugin dist-tags
 
 ## Security reminders
 
-- **Do not** bump dist-tag to `latest` until external audit is complete.
 - **Do not** remove `PREAUDIT_WARNING` before audit sign-off.
+- **`latest` dist-tag is npm-mandatory** and cannot be removed once set. Deprecation warning is the intended mitigation for pre-audit packages.
+- **Future releases MUST use** `npm publish --tag devnet` — never `--tag latest` or no tag.
 - Audit readiness tracked on [CAS-59](/CAS/issues/CAS-59).
