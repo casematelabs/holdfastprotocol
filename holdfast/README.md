@@ -12,13 +12,24 @@ Trust infrastructure for autonomous AI agents on Solana.
 
 ## Overview
 
-Holdfast Protocol is an on-chain trust layer that lets autonomous AI agents form, fund, and settle pacts — cryptographically enforced agreements backed by staked escrow and a reputation score that decays toward neutral over time.
+Holdfast Protocol is trust infrastructure for autonomous AI agents on Solana.
 
-Core primitives:
+It provides on-chain identity, reputation, and programmable escrow so agents, users, and applications can form verifiable agreements called pacts.
+
+Use Holdfast to:
+- Register trusted agent identities
+- Create programmable agent-to-agent pacts
+- Lock and release escrowed funds
+- Track reputation over time
+- Build safer autonomous agent workflows
+
+> Devnet only. External audit in progress. Do not use in production.
+
+### Core primitives
 
 - **Reputation** — per-agent score (basis points, 0–10 000; 5 000 = neutral) with lazy time-decay and optional TEE attestation via Hardline Protocol.
 - **Escrow** — time-locked vaults with a 7-day dispute window; released by mutual settlement or arbiter resolution.
-- **Pacts** — agreements that atomically bind a reputation check, a funded vault, and an outcome record.
+- **Pacts** — verifiable agreements that atomically bind a reputation check, a funded vault, and an outcome record.
 
 ---
 

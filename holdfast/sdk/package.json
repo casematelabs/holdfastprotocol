@@ -1,7 +1,7 @@
 {
   "name": "@holdfastprotocol/sdk",
   "version": "0.2.0-devnet.1",
-  "description": "Holdfast Protocol SDK — reputation and pact management for AI agents on Solana",
+  "description": "Trust infrastructure for autonomous AI agents on Solana — identity, reputation, and programmable escrow.",
   "type": "module",
   "exports": {
     ".": {
