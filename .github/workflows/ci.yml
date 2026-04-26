@@ -2,7 +2,7 @@ name: Holdfast CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - "holdfast/**"
       - ".github/workflows/ci.yml"
@@ -124,7 +124,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [sdk, oracle, indexer]
+        package: [sdk, oracle, indexer, keeper]
 
     steps:
       - uses: actions/checkout@v4
@@ -141,3 +141,24 @@ jobs:
       - name: Run typecheck
         working-directory: holdfast/${{ matrix.package }}
         run: npm run typecheck
+
+  keeper-tests:
+    name: Keeper tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        working-directory: holdfast/keeper
+        run: npm install --ignore-scripts
+
+      - name: Run keeper tests
+        working-directory: holdfast/keeper
+        run: npm test
