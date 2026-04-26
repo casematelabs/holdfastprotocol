@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token::TokenAccount;
 
 use crate::errors::EscrowError;
 use crate::state::*;
@@ -12,6 +13,7 @@ pub struct EscalateDispute<'info> {
     #[account(
         seeds = [b"escrow", escrow_account.escrow_id.as_ref()],
         bump = escrow_account.bump,
+        has_one = vault,
     )]
     pub escrow_account: Account<'info, EscrowAccount>,
 
@@ -21,6 +23,9 @@ pub struct EscalateDispute<'info> {
         bump = dispute_record.bump,
     )]
     pub dispute_record: Account<'info, DisputeRecord>,
+
+    /// Vault PDA — validated via has_one = vault on escrow_account (LOW-F-004).
+    pub vault: Account<'info, TokenAccount>,
 }
 
 #[event]

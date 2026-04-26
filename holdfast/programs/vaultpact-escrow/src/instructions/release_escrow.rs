@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token::TokenAccount;
 
 use crate::errors::EscrowError;
 use crate::state::*;
@@ -13,6 +14,7 @@ pub struct ReleaseEscrow<'info> {
         bump = escrow_account.bump,
         has_one = initiator @ EscrowError::UnauthorizedSigner,
         has_one = pact_record @ EscrowError::PactEscrowMismatch,
+        has_one = vault,
     )]
     pub escrow_account: Account<'info, EscrowAccount>,
 
@@ -25,6 +27,9 @@ pub struct ReleaseEscrow<'info> {
     #[account(constraint = initiator_wallet.authority == initiator.key()
         @ EscrowError::AgentWalletAuthorityMismatch)]
     pub initiator_wallet: Account<'info, vaultpact::AgentWallet>,
+
+    /// Vault PDA — validated via has_one = vault on escrow_account (LOW-F-004).
+    pub vault: Account<'info, TokenAccount>,
 }
 
 pub fn handler(ctx: Context<ReleaseEscrow>) -> Result<()> {

@@ -31,16 +31,20 @@ pub struct DisputeRecord {
     pub created_at: i64,
     pub escalated_at: i64,
     pub escalation_deadline: i64,
+    // MED-F-001: payout destinations committed at raise_dispute time; enforced
+    // via has_one at resolve_dispute to prevent arbiter account redirection.
+    pub beneficiary_token_account: Pubkey,
+    pub initiator_token_account: Pubkey,
 }
 
 impl DisputeRecord {
     pub const SCHEMA_VERSION: u8 = 1;
 
-    // 8 (discriminator) + 400 (data with headroom)
-    pub const LEN: usize = 8 + 400;
+    // 8 (discriminator) + 500 (data with headroom)
+    pub const LEN: usize = 8 + 500;
 
-    // Minimum serialized size: 1+1+32+32+32+32+32+128+3+32+8+8+8+8+8 = 365
-    const _DATA_FITS: () = assert!(400 >= 365);
+    // Minimum serialized size: 1+1+32+32+32+32+32+128+3+32+8+8+8+8+8+32+32 = 429
+    const _DATA_FITS: () = assert!(500 >= 429);
 }
 
 const _: () = DisputeRecord::_DATA_FITS;

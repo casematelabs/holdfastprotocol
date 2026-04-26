@@ -169,9 +169,6 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
-        },
-        {
-          "name": "escrow_program"
         }
       ],
       "args": []
@@ -233,6 +230,9 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "escrow_program"
         }
       ],
       "args": []

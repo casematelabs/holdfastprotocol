@@ -1,8 +1,14 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
+use crate::cpi_helpers::cpi_update_reputation;
 use crate::errors::EscrowError;
 use crate::state::*;
+
+/// Reputation penalty applied to both parties when a funded-but-unlocked escrow
+/// is cancelled by the initiator after time-lock expiry.  Matches the auto-refund
+/// path (MED-F-002) so the initiator cannot game reputation by choosing this path.
+pub(crate) const CANCEL_PENDING_DELTA: i16 = -10;
 
 #[derive(Accounts)]
 pub struct CancelPendingEscrow<'info> {
@@ -39,6 +45,29 @@ pub struct CancelPendingEscrow<'info> {
     pub beneficiary_token_account: Account<'info, TokenAccount>,
 
     pub token_program: Program<'info, Token>,
+
+    // ── Reputation CPI accounts (MED-F-002) ──────────────────────────────────
+    #[account(
+        mut,
+        seeds = [b"reputation", escrow_account.initiator.as_ref()],
+        bump,
+        seeds::program = vaultpact_program.key(),
+    )]
+    pub initiator_reputation: Box<Account<'info, vaultpact::ReputationAccount>>,
+
+    #[account(
+        mut,
+        seeds = [b"reputation", escrow_account.beneficiary.as_ref()],
+        bump,
+        seeds::program = vaultpact_program.key(),
+    )]
+    pub beneficiary_reputation: Box<Account<'info, vaultpact::ReputationAccount>>,
+
+    /// CHECK: Virtual PDA signer for update_reputation CPIs.
+    #[account(seeds = [b"vp_escrow_authority"], bump)]
+    pub escrow_authority: UncheckedAccount<'info>,
+
+    pub vaultpact_program: Program<'info, vaultpact::program::Vaultpact>,
 }
 
 pub fn handler(ctx: Context<CancelPendingEscrow>) -> Result<()> {
@@ -58,6 +87,14 @@ pub fn handler(ctx: Context<CancelPendingEscrow>) -> Result<()> {
 
     let escrow_id = escrow.escrow_id;
     let bump = escrow.bump;
+
+    // CEI: read reputation nonces and pact_id before any state mutation.
+    let i_nonce = ctx.accounts.initiator_reputation.nonce;
+    let b_nonce = ctx.accounts.beneficiary_reputation.nonce;
+    let pact_id: [u8; 7] = escrow_id[..7]
+        .try_into()
+        .map_err(|_| error!(EscrowError::ArithmeticOverflow))?;
+    let escrow_authority_bump = ctx.bumps.escrow_authority;
 
     // M-3: Guard against vault underfunding before any state mutation.
     let total_refund = initiator_amount
@@ -99,6 +136,29 @@ pub fn handler(ctx: Context<CancelPendingEscrow>) -> Result<()> {
         );
         token::transfer(cpi_ctx, beneficiary_amount)?;
     }
+
+    // Reputation: penalise both parties to match the auto-refund path (MED-F-002).
+    cpi_update_reputation(
+        &ctx.accounts.vaultpact_program.to_account_info(),
+        &ctx.accounts.initiator_reputation.to_account_info(),
+        &ctx.accounts.escrow_authority.to_account_info(),
+        escrow_authority_bump,
+        i_nonce.checked_add(1).ok_or(EscrowError::ArithmeticOverflow)?,
+        vaultpact::PactOutcome::Cancelled,
+        CANCEL_PENDING_DELTA,
+        pact_id,
+    )?;
+
+    cpi_update_reputation(
+        &ctx.accounts.vaultpact_program.to_account_info(),
+        &ctx.accounts.beneficiary_reputation.to_account_info(),
+        &ctx.accounts.escrow_authority.to_account_info(),
+        escrow_authority_bump,
+        b_nonce.checked_add(1).ok_or(EscrowError::ArithmeticOverflow)?,
+        vaultpact::PactOutcome::Cancelled,
+        CANCEL_PENDING_DELTA,
+        pact_id,
+    )?;
 
     msg!(
         "CancelPendingEscrow: initiator_returned={}, beneficiary_stake_returned={}",

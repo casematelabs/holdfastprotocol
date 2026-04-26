@@ -830,6 +830,10 @@ describe("Edge Cases (CAS-425)", function () {
           initiatorTokenAccount: initiatorTokenAccount.publicKey,
           beneficiaryTokenAccount: beneficiaryTokenAccount.publicKey,
           tokenProgram: TOKEN_PROGRAM_ID,
+          initiatorReputation: initiatorRepPda,
+          beneficiaryReputation: beneficiaryRepPda,
+          escrowAuthority,
+          vaultpactProgram: vaultpactProgram.programId,
         }).signers([initiator]).rpc();
         assert.fail("expected InvalidStatus for cancel_pending_escrow on Locked escrow");
       } catch (err: any) {
@@ -886,6 +890,10 @@ describe("Edge Cases (CAS-425)", function () {
           initiatorTokenAccount: initiatorTokenAccount.publicKey,
           beneficiaryTokenAccount: beneficiaryTokenAccount.publicKey,
           tokenProgram: TOKEN_PROGRAM_ID,
+          initiatorReputation: initiatorRepPda,
+          beneficiaryReputation: beneficiaryRepPda,
+          escrowAuthority,
+          vaultpactProgram: vaultpactProgram.programId,
         }).signers([initiator]).rpc();
         assert.fail("expected InvalidStatus for cancel_pending_escrow on Pending escrow");
       } catch (err: any) {

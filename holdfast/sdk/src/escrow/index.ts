@@ -775,6 +775,14 @@ export class EscrowModule {
     const escrowPda = deriveEscrowPda(escrowIdBytes, this.programId);
     const pactPda = derivePactPda(escrowIdBytes, this.programId);
     const disputePda = deriveDisputePda(escrowIdBytes, this.programId);
+    const info = await this.connection.getAccountInfo(escrowPda);
+    if (info === null) throw new EscrowNotFoundError(escrowPda.toBase58());
+    const escrow = deserializeEscrowAccount(escrowPda, Buffer.from(info.data));
+
+    const mint = new PublicKey(escrow.mint);
+    const vault = new PublicKey(escrow.vault);
+    const beneficiaryAta = deriveAta(new PublicKey(escrow.beneficiary), mint);
+    const initiatorAta = deriveAta(new PublicKey(escrow.initiator), mint);
 
     // RaiseDisputeParams Borsh layout: evidence_hash [u8;32], evidence_uri [u8;128]
     const data = new BorshWriter()
@@ -791,6 +799,9 @@ export class EscrowModule {
         { pubkey: escrowPda, isSigner: false, isWritable: true },
         { pubkey: pactPda, isSigner: false, isWritable: false },
         { pubkey: disputePda, isSigner: false, isWritable: true },
+        { pubkey: vault, isSigner: false, isWritable: false },
+        { pubkey: beneficiaryAta, isSigner: false, isWritable: false },
+        { pubkey: initiatorAta, isSigner: false, isWritable: false },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
     });
@@ -961,8 +972,20 @@ export class EscrowModule {
 
     const mint = new PublicKey(escrow.mint);
     const vault = new PublicKey(escrow.vault);
-    const initiatorAta = deriveAta(signer.publicKey, mint);
+    const initiatorAta = deriveAta(new PublicKey(escrow.initiator), mint);
     const beneficiaryAta = deriveAta(new PublicKey(escrow.beneficiary), mint);
+    const initiatorReputationPda = deriveReputationPda(
+      new PublicKey(escrow.initiator),
+      this.holdfastProgramId,
+    );
+    const beneficiaryReputationPda = deriveReputationPda(
+      new PublicKey(escrow.beneficiary),
+      this.holdfastProgramId,
+    );
+    const [escrowAuthorityPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("vp_escrow_authority")],
+      this.programId,
+    );
 
     const ix = new TransactionInstruction({
       programId: this.programId,
@@ -974,6 +997,10 @@ export class EscrowModule {
         { pubkey: initiatorAta, isSigner: false, isWritable: true },
         { pubkey: beneficiaryAta, isSigner: false, isWritable: true },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+        { pubkey: initiatorReputationPda, isSigner: false, isWritable: true },
+        { pubkey: beneficiaryReputationPda, isSigner: false, isWritable: true },
+        { pubkey: escrowAuthorityPda, isSigner: false, isWritable: false },
+        { pubkey: this.holdfastProgramId, isSigner: false, isWritable: false },
       ],
     });
 

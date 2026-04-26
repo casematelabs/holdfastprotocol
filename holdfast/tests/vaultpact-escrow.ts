@@ -345,6 +345,10 @@ describe("holdfast-escrow", () => {
     );
   }
 
+  async function sleep(ms: number) {
+    await new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   async function setAgentStatus(
     walletPda: anchor.web3.PublicKey,
     newStatus: number,
@@ -1988,19 +1992,90 @@ describe("holdfast-escrow", () => {
     return { escrowId, escrowPda, pactPda, disputePda, vaultAta };
   }
 
+  async function buildFundedEscrow(opts: {
+    escrowAmount?: number;
+    initiatorStake?: number;
+    beneficiaryStake?: number;
+    timeLockExpiresAt?: number;
+  } = {}): Promise<{
+    escrowId: number[];
+    escrowPda: anchor.web3.PublicKey;
+    pactPda: anchor.web3.PublicKey;
+    disputePda: anchor.web3.PublicKey;
+    vaultAta: anchor.web3.PublicKey;
+    timeLockExpiresAt: number;
+  }> {
+    const escrowId = generateEscrowId();
+    const { escrowPda, pactPda, disputePda } = deriveEscrowPdas(escrowId);
+    const vaultAta = getAssociatedTokenAddress(mintPubkey, escrowPda);
+
+    const escrowAmount = opts.escrowAmount ?? 100_000;
+    const iStake = opts.initiatorStake ?? 0;
+    const bStake = opts.beneficiaryStake ?? 0;
+    const timeLockExpiresAt =
+      opts.timeLockExpiresAt ?? Math.floor(Date.now() / 1000) + 3;
+
+    await escrowProgram.methods.initializeEscrow({
+      escrowId,
+      beneficiary: beneficiary.publicKey,
+      arbiter: arbiter.publicKey,
+      escrowAmount: new anchor.BN(escrowAmount),
+      initiatorStake: new anchor.BN(iStake),
+      beneficiaryStake: new anchor.BN(bStake),
+      timeLockExpiresAt: new anchor.BN(timeLockExpiresAt),
+      deliverablesHash: Array(32).fill(0),
+      deliverablesUri: Array(128).fill(0),
+      autoReleaseOnExpiry: false,
+      slashLoserStake: false,
+      disputeDeadlineSecs: new anchor.BN(86400),
+      initiatorReputationMin: new anchor.BN(0),
+      beneficiaryReputationMin: new anchor.BN(0),
+    }).accounts({
+      initiator: initiator.publicKey, escrowAccount: escrowPda, pactRecord: pactPda,
+      mint: mintPubkey, vault: vaultAta, initiatorReputation: initiatorRepPda,
+      initiatorWallet: initiatorWalletPda, beneficiaryWallet: beneficiaryWalletPda,
+      arbiterWallet: arbiterWalletPda,
+      vaultpactProgram: holdfastProgram.programId, tokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    }).signers([initiator]).rpc();
+
+    await escrowProgram.methods.depositFunds().accounts({
+      initiator: initiator.publicKey, escrowAccount: escrowPda,
+      initiatorTokenAccount: initiatorTokenAccount.publicKey,
+      vault: vaultAta, tokenProgram: TOKEN_PROGRAM_ID,
+    }).signers([initiator]).rpc();
+
+    return {
+      escrowId,
+      escrowPda,
+      pactPda,
+      disputePda,
+      vaultAta,
+      timeLockExpiresAt,
+    };
+  }
+
   async function raiseDisputeOn(
     escrowPda: anchor.web3.PublicKey,
     pactPda: anchor.web3.PublicKey,
     disputePda: anchor.web3.PublicKey,
     raiser: anchor.web3.Keypair,
     evidenceByte = 99,
+    beneficiaryToken = beneficiaryTokenAccount.publicKey,
+    initiatorToken = initiatorTokenAccount.publicKey,
+    vault = getAssociatedTokenAddress(mintPubkey, escrowPda),
   ) {
     await escrowProgram.methods.raiseDispute({
       evidenceHash: Array(32).fill(evidenceByte),
       evidenceUri: Array(128).fill(0),
     }).accounts({
       raiser: raiser.publicKey, escrowAccount: escrowPda, pactRecord: pactPda,
-      disputeRecord: disputePda, systemProgram: anchor.web3.SystemProgram.programId,
+      disputeRecord: disputePda,
+      vault,
+      beneficiaryTokenAccount: beneficiaryToken,
+      initiatorTokenAccount: initiatorToken,
+      systemProgram: anchor.web3.SystemProgram.programId,
     }).signers([raiser]).rpc();
   }
 
@@ -2220,6 +2295,49 @@ describe("holdfast-escrow", () => {
           diag.includes("AgentWalletAuthorityMismatch") ||
           diag.includes("0x7d3"),
         `expected arbiter constraint error, got: ${diag}`,
+      );
+    }
+  });
+
+  it("MED-F-001 coverage: resolve_dispute rejects payout redirection away from dispute-committed token account", async () => {
+    // Invariant validated: payout token destinations are committed at raise_dispute
+    // and resolve_dispute enforces them via has_one constraints on dispute_record.
+    const escrowAmount = 123_456;
+    const { escrowPda, pactPda, disputePda, vaultAta } = await buildLockedEscrow({
+      escrowAmount,
+      initiatorStake: 0,
+      beneficiaryStake: 0,
+    });
+    await raiseDisputeOn(escrowPda, pactPda, disputePda, initiator, 91);
+
+    const alternateBeneficiaryToken = await createTokenAccount(
+      mintPubkey,
+      beneficiary.publicKey,
+    );
+
+    try {
+      await escrowProgram.methods.resolveDispute({
+        decision: { releaseToBeneficiary: {} },
+        reasoningHash: Array(32).fill(92),
+      }).accounts({
+        arbiter: arbiter.publicKey, escrowAccount: escrowPda, pactRecord: pactPda,
+        disputeRecord: disputePda, vault: vaultAta,
+        beneficiaryTokenAccount: alternateBeneficiaryToken.publicKey,
+        initiatorTokenAccount: initiatorTokenAccount.publicKey,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        arbiterWallet: arbiterWalletPda,
+        initiatorReputation: initiatorRepPda,
+        beneficiaryReputation: beneficiaryRepPda,
+        escrowAuthority,
+        vaultpactProgram: holdfastProgram.programId,
+      }).signers([arbiter]).rpc();
+      assert.fail("expected UnauthorizedTokenAccount or has_one violation");
+    } catch (err: any) {
+      if (err.message?.includes("expected UnauthorizedTokenAccount or has_one violation")) throw err;
+      const diag = getDiag(err);
+      assert.ok(
+        diag.includes("UnauthorizedTokenAccount") || diag.includes("ConstraintHasOne"),
+        `expected token-account commitment enforcement, got: ${diag}`,
       );
     }
   });
@@ -2764,12 +2882,57 @@ describe("holdfast-escrow", () => {
         initiator: initiator.publicKey, escrowAccount: escrowPda,
         vault: vaultAta, initiatorTokenAccount: initiatorTokenAccount.publicKey,
         beneficiaryTokenAccount: beneficiaryTokenAccount.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
+        initiatorReputation: initiatorRepPda,
+        beneficiaryReputation: beneficiaryRepPda,
+        escrowAuthority,
+        vaultpactProgram: holdfastProgram.programId,
       }).signers([initiator]).rpc();
       assert.fail("expected InvalidStatus");
     } catch (err: any) {
       if (err.message?.includes("expected InvalidStatus")) throw err;
       assert.include(getDiag(err), "InvalidStatus");
     }
+  });
+
+  it("MED-F-002 coverage: cancel_pending_escrow updates both reputation nonces", async () => {
+    // Invariant validated: pending cancel path applies reputation CPI updates
+    // for initiator and beneficiary.
+    const { escrowPda, vaultAta, timeLockExpiresAt } = await buildFundedEscrow({
+      escrowAmount: 111_000,
+      initiatorStake: 7_000,
+      beneficiaryStake: 0,
+    });
+
+    const initiatorRepBefore = await holdfastProgram.account.reputationAccount.fetch(initiatorRepPda);
+    const beneficiaryRepBefore = await holdfastProgram.account.reputationAccount.fetch(beneficiaryRepPda);
+    const iNonceBefore = (initiatorRepBefore.nonce as anchor.BN).toNumber();
+    const bNonceBefore = (beneficiaryRepBefore.nonce as anchor.BN).toNumber();
+
+    const waitMs = Math.max(0, (timeLockExpiresAt - Math.floor(Date.now() / 1000) + 1) * 1000);
+    if (waitMs > 0) {
+      await sleep(waitMs);
+    }
+
+    await escrowProgram.methods.cancelPendingEscrow().accounts({
+      initiator: initiator.publicKey,
+      escrowAccount: escrowPda,
+      vault: vaultAta,
+      initiatorTokenAccount: initiatorTokenAccount.publicKey,
+      beneficiaryTokenAccount: beneficiaryTokenAccount.publicKey,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      initiatorReputation: initiatorRepPda,
+      beneficiaryReputation: beneficiaryRepPda,
+      escrowAuthority,
+      vaultpactProgram: holdfastProgram.programId,
+    }).signers([initiator]).rpc();
+
+    const initiatorRepAfter = await holdfastProgram.account.reputationAccount.fetch(initiatorRepPda);
+    const beneficiaryRepAfter = await holdfastProgram.account.reputationAccount.fetch(beneficiaryRepPda);
+    const iNonceAfter = (initiatorRepAfter.nonce as anchor.BN).toNumber();
+    const bNonceAfter = (beneficiaryRepAfter.nonce as anchor.BN).toNumber();
+
+    assert.equal(iNonceAfter, iNonceBefore + 1, "initiator nonce increments by 1");
+    assert.equal(bNonceAfter, bNonceBefore + 1, "beneficiary nonce increments by 1");
   });
 });
 
@@ -3538,6 +3701,10 @@ describe("holdfast-escrow", () => {
       initiator: brInitiator.publicKey, escrowAccount: escrowPda,
       vault: vaultAta, initiatorTokenAccount: brInitiatorToken.publicKey,
       beneficiaryTokenAccount: brBeneficiaryToken.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
+      initiatorReputation: brInitiatorRepPda,
+      beneficiaryReputation: brBeneficiaryRepPda,
+      escrowAuthority: brEscrowAuthority,
+      vaultpactProgram: brHoldfast.programId,
     }).signers([brInitiator]).rpc();
 
     const escrow = await brEscrow.account.escrowAccount.fetch(escrowPda);
@@ -3576,6 +3743,10 @@ describe("holdfast-escrow", () => {
       initiator: brInitiator.publicKey, escrowAccount: escrowPda,
       vault: vaultAta, initiatorTokenAccount: brInitiatorToken.publicKey,
       beneficiaryTokenAccount: brBeneficiaryToken.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
+      initiatorReputation: brInitiatorRepPda,
+      beneficiaryReputation: brBeneficiaryRepPda,
+      escrowAuthority: brEscrowAuthority,
+      vaultpactProgram: brHoldfast.programId,
     }).signers([brInitiator]).rpc();
 
     const escrow = await brEscrow.account.escrowAccount.fetch(escrowPda);
@@ -3603,6 +3774,10 @@ describe("holdfast-escrow", () => {
         initiator: brInitiator.publicKey, escrowAccount: escrowPda,
         vault: vaultAta, initiatorTokenAccount: brInitiatorToken.publicKey,
         beneficiaryTokenAccount: brBeneficiaryToken.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
+        initiatorReputation: brInitiatorRepPda,
+        beneficiaryReputation: brBeneficiaryRepPda,
+        escrowAuthority: brEscrowAuthority,
+        vaultpactProgram: brHoldfast.programId,
       }).signers([brInitiator]).rpc();
       assert.fail("expected TimeLockNotExpired");
     } catch (err: any) {
@@ -3623,6 +3798,10 @@ describe("holdfast-escrow", () => {
         initiator: brInitiator.publicKey, escrowAccount: escrowPda,
         vault: vaultAta, initiatorTokenAccount: brInitiatorToken.publicKey,
         beneficiaryTokenAccount: brBeneficiaryToken.publicKey, tokenProgram: TOKEN_PROGRAM_ID,
+        initiatorReputation: brInitiatorRepPda,
+        beneficiaryReputation: brBeneficiaryRepPda,
+        escrowAuthority: brEscrowAuthority,
+        vaultpactProgram: brHoldfast.programId,
       }).signers([brInitiator]).rpc();
       assert.fail("expected InvalidStatus");
     } catch (err: any) {

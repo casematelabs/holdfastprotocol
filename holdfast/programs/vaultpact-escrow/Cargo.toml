@@ -1,7 +1,7 @@
 [package]
 name = "holdfast-escrow"
 version = "0.1.0"
-description = "Holdfast Escrow Engine — trustless pact escrow for AI agents"
+description = "Holdfast Escrow Engine — programmable escrow for autonomous AI agents"
 edition = "2021"
 
 [lib]

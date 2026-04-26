@@ -104,6 +104,9 @@ pub struct ResolveDispute<'info> {
         mut,
         seeds = [b"dispute", escrow_account.escrow_id.as_ref()],
         bump = dispute_record.bump,
+        // MED-F-001: enforce the payout destinations committed at raise_dispute time.
+        has_one = beneficiary_token_account @ EscrowError::UnauthorizedTokenAccount,
+        has_one = initiator_token_account @ EscrowError::UnauthorizedTokenAccount,
     )]
     pub dispute_record: Box<Account<'info, DisputeRecord>>,
 
@@ -112,8 +115,6 @@ pub struct ResolveDispute<'info> {
 
     #[account(
         mut,
-        constraint = beneficiary_token_account.owner == escrow_account.beneficiary
-            @ EscrowError::UnauthorizedTokenAccount,
         constraint = beneficiary_token_account.mint == escrow_account.mint
             @ EscrowError::UnauthorizedTokenAccount,
     )]
@@ -121,8 +122,6 @@ pub struct ResolveDispute<'info> {
 
     #[account(
         mut,
-        constraint = initiator_token_account.owner == escrow_account.initiator
-            @ EscrowError::UnauthorizedTokenAccount,
         constraint = initiator_token_account.mint == escrow_account.mint
             @ EscrowError::UnauthorizedTokenAccount,
     )]

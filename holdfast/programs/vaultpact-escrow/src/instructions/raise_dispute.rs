@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token::TokenAccount;
 
 use crate::errors::EscrowError;
 use crate::state::*;
@@ -19,6 +20,7 @@ pub struct RaiseDispute<'info> {
         seeds = [b"escrow", escrow_account.escrow_id.as_ref()],
         bump = escrow_account.bump,
         has_one = pact_record @ EscrowError::PactEscrowMismatch,
+        has_one = vault,
     )]
     pub escrow_account: Box<Account<'info, EscrowAccount>>,
 
@@ -36,6 +38,29 @@ pub struct RaiseDispute<'info> {
         bump,
     )]
     pub dispute_record: Box<Account<'info, DisputeRecord>>,
+
+    /// Vault PDA — validated via has_one = vault on escrow_account (LOW-F-004).
+    pub vault: Account<'info, TokenAccount>,
+
+    /// Intended payout destination for the beneficiary, committed here and
+    /// enforced at resolve_dispute via has_one (MED-F-001).
+    #[account(
+        constraint = beneficiary_token_account.owner == escrow_account.beneficiary
+            @ EscrowError::UnauthorizedTokenAccount,
+        constraint = beneficiary_token_account.mint == escrow_account.mint
+            @ EscrowError::UnauthorizedTokenAccount,
+    )]
+    pub beneficiary_token_account: Account<'info, TokenAccount>,
+
+    /// Intended payout destination for the initiator, committed here and
+    /// enforced at resolve_dispute via has_one (MED-F-001).
+    #[account(
+        constraint = initiator_token_account.owner == escrow_account.initiator
+            @ EscrowError::UnauthorizedTokenAccount,
+        constraint = initiator_token_account.mint == escrow_account.mint
+            @ EscrowError::UnauthorizedTokenAccount,
+    )]
+    pub initiator_token_account: Account<'info, TokenAccount>,
 
     pub system_program: Program<'info, System>,
 }
@@ -83,6 +108,8 @@ pub fn handler(ctx: Context<RaiseDispute>, params: RaiseDisputeParams) -> Result
         .ok_or(EscrowError::ArithmeticOverflow)?;
     dispute.resolved_at = 0;
     dispute.created_at = now;
+    dispute.beneficiary_token_account = ctx.accounts.beneficiary_token_account.key();
+    dispute.initiator_token_account = ctx.accounts.initiator_token_account.key();
 
     msg!("Dispute raised by {}", raiser_key);
     Ok(())
