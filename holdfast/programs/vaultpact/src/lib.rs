@@ -149,15 +149,13 @@ pub const VAULTPACT_ESCROW_AUTHORITY: Pubkey = Pubkey::new_from_array([
     0x90,0x00,0xc0,0x94,0x9f,0x59,0x77,0x40,0xcf,0x22,0xe7,0xe4,0x8a,0x11,0xc5,0x37,
 ]);
 
+/// Mainnet escrow program: 7TuzcGkRQ4KfF4sE4YDMHgkCCu7XKzgetuVaZV3Q2Jux
+/// PDA: find_program_address(&[b"vp_escrow_authority"], &escrow_program_id), bump = 255
 #[cfg(feature = "mainnet")]
-pub const VAULTPACT_ESCROW_AUTHORITY: Pubkey = {
-    const BYTES: [u8; 32] = [0u8; 32];
-    const _: () = assert!(
-        BYTES[0] != 0 || BYTES[1] != 0 || BYTES[2] != 0 || BYTES[3] != 0,
-        "VAULTPACT_ESCROW_AUTHORITY is still the zero address — derive from mainnet escrow program ID before mainnet build."
-    );
-    Pubkey::new_from_array(BYTES)
-};
+pub const VAULTPACT_ESCROW_AUTHORITY: Pubkey = Pubkey::new_from_array([
+    0x9f,0x6e,0x91,0xf1,0x55,0xe3,0x22,0x23,0x54,0x04,0xe6,0xe7,0x23,0x42,0x16,0x6b,
+    0xf0,0xee,0x08,0x5a,0x15,0x73,0x66,0x9a,0x96,0x99,0xc2,0x99,0xe5,0x76,0x56,0xf9,
+]);
 
 /// Devnet oracle authority: 3Kj7GpYVoARqCT1bfBmCC5NZhw37ahEiyxsJW9zcTSiy
 #[cfg(not(feature = "mainnet"))]
@@ -166,15 +164,12 @@ pub const REPUTATION_ORACLE_AUTHORITY: Pubkey = Pubkey::new_from_array([
     0x0a,0xa0,0xa3,0xcf,0xc2,0xa5,0xc0,0x4e,0xb4,0x3c,0xb8,0x56,0x11,0x04,0x87,0x66,
 ]);
 
+/// Mainnet oracle pubkey: 5GeSYa2BYViRjqXGZvPGwWGkRLi7YyukmJTTGSQQw8FL
 #[cfg(feature = "mainnet")]
-pub const REPUTATION_ORACLE_AUTHORITY: Pubkey = {
-    const BYTES: [u8; 32] = [0u8; 32];
-    const _: () = assert!(
-        BYTES[0] != 0 || BYTES[1] != 0 || BYTES[2] != 0 || BYTES[3] != 0,
-        "REPUTATION_ORACLE_AUTHORITY is still the zero address — set mainnet oracle pubkey before mainnet build."
-    );
-    Pubkey::new_from_array(BYTES)
-};
+pub const REPUTATION_ORACLE_AUTHORITY: Pubkey = Pubkey::new_from_array([
+    0x3f,0x70,0xcb,0x3a,0x4a,0x67,0x23,0xdd,0x5c,0x89,0x13,0x29,0xb2,0xf7,0xe0,0x85,
+    0x91,0x87,0x0c,0x5d,0x59,0xcf,0x2f,0x89,0x82,0x21,0xfa,0xcf,0x06,0x23,0x6d,0x3b,
+]);
 
 // Fixed-point precision for decay multiplier (0.99^N stored as integer/PRECISION).
 const DECAY_PRECISION: i64 = 1_000_000;
