@@ -41,10 +41,14 @@ pub fn cpi_validate_reputation<'info>(
 ///
 /// The escrow program owns the PDA at seeds = [b"vp_escrow_authority"]; Solana allows it
 /// to sign for that PDA in CPIs via the signer_seeds mechanism.
+///
+/// attestation_registry must be the singleton PDA at seeds = [b"attestation_registry"]
+/// (vaultpact program). It is read-only; the CPI validates it on-chain.
 pub fn cpi_update_reputation<'info>(
     vaultpact_program: &AccountInfo<'info>,
     reputation_account: &AccountInfo<'info>,
     escrow_authority: &AccountInfo<'info>,
+    attestation_registry: &AccountInfo<'info>,
     escrow_authority_bump: u8,
     incoming_nonce: u64,
     outcome: vaultpact::PactOutcome,
@@ -54,6 +58,7 @@ pub fn cpi_update_reputation<'info>(
     let cpi_accounts = vaultpact::cpi::accounts::UpdateReputation {
         reputation_account: reputation_account.clone(),
         update_authority: escrow_authority.clone(),
+        attestation_registry: attestation_registry.clone(),
     };
     let seeds: &[&[u8]] = &[b"vp_escrow_authority", &[escrow_authority_bump]];
     let signer_seeds = &[seeds];

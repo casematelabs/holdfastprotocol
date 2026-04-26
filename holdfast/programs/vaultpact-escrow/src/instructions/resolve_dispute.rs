@@ -174,6 +174,13 @@ pub struct ResolveDispute<'info> {
     #[account(seeds = [b"vp_escrow_authority"], bump)]
     pub escrow_authority: UncheckedAccount<'info>,
 
+    #[account(
+        seeds = [b"attestation_registry"],
+        bump,
+        seeds::program = vaultpact_program.key(),
+    )]
+    pub attestation_registry: Account<'info, vaultpact::AttestationRegistry>,
+
     pub vaultpact_program: Program<'info, vaultpact::program::Vaultpact>,
 }
 
@@ -263,6 +270,7 @@ pub fn handler(ctx: Context<ResolveDispute>, params: ResolveDisputeParams) -> Re
         &ctx.accounts.vaultpact_program.to_account_info(),
         &ctx.accounts.initiator_reputation.to_account_info(),
         &ctx.accounts.escrow_authority.to_account_info(),
+        &ctx.accounts.attestation_registry.to_account_info(),
         escrow_authority_bump,
         i_nonce.checked_add(1).ok_or(EscrowError::ArithmeticOverflow)?,
         vaultpact::PactOutcome::Disputed,
@@ -274,6 +282,7 @@ pub fn handler(ctx: Context<ResolveDispute>, params: ResolveDisputeParams) -> Re
         &ctx.accounts.vaultpact_program.to_account_info(),
         &ctx.accounts.beneficiary_reputation.to_account_info(),
         &ctx.accounts.escrow_authority.to_account_info(),
+        &ctx.accounts.attestation_registry.to_account_info(),
         escrow_authority_bump,
         b_nonce.checked_add(1).ok_or(EscrowError::ArithmeticOverflow)?,
         vaultpact::PactOutcome::Disputed,

@@ -222,6 +222,7 @@ pub mod vaultpact {
         let registry = &mut ctx.accounts.attestation_registry;
         registry.authority = ctx.accounts.authority.key();
         registry.agent_count = 0;
+        registry.oracle_authority = REPUTATION_ORACLE_AUTHORITY;
         registry.bump = ctx.bumps.attestation_registry;
         msg!("Holdfast attestation registry initialized");
         Ok(())
@@ -336,7 +337,8 @@ pub mod vaultpact {
     ) -> Result<()> {
         let authority = ctx.accounts.update_authority.key();
         require!(
-            authority == VAULTPACT_ESCROW_AUTHORITY || authority == REPUTATION_ORACLE_AUTHORITY,
+            authority == VAULTPACT_ESCROW_AUTHORITY
+                || authority == ctx.accounts.attestation_registry.oracle_authority,
             VaultPactError::UnauthorizedReputationWriter
         );
 
@@ -444,6 +446,21 @@ pub mod vaultpact {
         require!(new_authority != Pubkey::default(), VaultPactError::InvalidAuthority);
         ctx.accounts.attestation_registry.authority = new_authority;
         msg!("Protocol authority updated to {}", new_authority);
+        Ok(())
+    }
+
+    /// Rotate the oracle authority stored in AttestationRegistry.
+    ///
+    /// Gated by the current attestation_registry.authority (the live protocol authority,
+    /// which may differ from INITIAL_AUTHORITY after a set_protocol_authority call).
+    /// Enables oracle keypair rotation without a program upgrade if the oracle is compromised.
+    pub fn set_oracle_authority(
+        ctx: Context<SetOracleAuthority>,
+        new_oracle: Pubkey,
+    ) -> Result<()> {
+        require!(new_oracle != Pubkey::default(), VaultPactError::InvalidAuthority);
+        ctx.accounts.attestation_registry.oracle_authority = new_oracle;
+        msg!("Oracle authority updated to {}", new_oracle);
         Ok(())
     }
 
@@ -608,14 +625,15 @@ const _: () = assert!(AgentWallet::LEN == 132);
 /// Protocol-level singleton tracking all registered agent wallets.
 #[account]
 pub struct AttestationRegistry {
-    pub authority: Pubkey,  // protocol authority (will become Squads multisig)  32
-    pub agent_count: u64,   // total registered agents                            8
-    pub bump: u8,           // PDA bump                                           1
+    pub authority: Pubkey,        // protocol authority (will become Squads multisig)  32
+    pub agent_count: u64,         // total registered agents                            8
+    pub oracle_authority: Pubkey, // oracle daemon's ed25519 signing pubkey             32
+    pub bump: u8,                 // PDA bump                                           1
 }
 
 impl AttestationRegistry {
-    // 8 (discriminator) + 32 + 8 + 1 = 49
-    pub const LEN: usize = 8 + 32 + 8 + 1;
+    // 8 (discriminator) + 32 + 8 + 32 + 1 = 81
+    pub const LEN: usize = 8 + 32 + 8 + 32 + 1;
 }
 
 // ── Reputation Types ─────────────────────────────────────────────────
@@ -767,6 +785,10 @@ pub struct UpdateReputation<'info> {
     )]
     pub reputation_account: Account<'info, ReputationAccount>,
     pub update_authority: Signer<'info>,
+    #[account(
+        seeds = [b"attestation_registry"], bump = attestation_registry.bump,
+    )]
+    pub attestation_registry: Account<'info, AttestationRegistry>,
 }
 
 #[derive(Accounts)]
@@ -797,6 +819,17 @@ pub struct SetProtocolAuthority<'info> {
     #[account(
         mut,
         seeds = [b"attestation_registry"], bump = attestation_registry.bump,
+    )]
+    pub attestation_registry: Account<'info, AttestationRegistry>,
+    pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct SetOracleAuthority<'info> {
+    #[account(
+        mut,
+        seeds = [b"attestation_registry"], bump = attestation_registry.bump,
+        has_one = authority,
     )]
     pub attestation_registry: Account<'info, AttestationRegistry>,
     pub authority: Signer<'info>,
@@ -1530,6 +1563,31 @@ mod tests {
         );
         assert_eq!(derived, VAULTPACT_ESCROW_AUTHORITY,
             "VAULTPACT_ESCROW_AUTHORITY constant does not match PDA derived from devnet escrow program ID");
+    }
+
+    // ── set_oracle_authority guards (HOL-182) ──────────────────────────
+
+    #[test]
+    fn oracle_authority_constant_is_nonzero() {
+        // The constant used to seed AttestationRegistry.oracle_authority at init time
+        // must not be the zero pubkey (same invariant as L-3 and the mainnet assertion).
+        let zero = Pubkey::new_from_array([0u8; 32]);
+        assert_ne!(REPUTATION_ORACLE_AUTHORITY, zero,
+            "REPUTATION_ORACLE_AUTHORITY must not be the zero pubkey");
+    }
+
+    #[test]
+    fn set_oracle_authority_zero_guard_uses_pubkey_default() {
+        // The guard in set_oracle_authority is `new_oracle != Pubkey::default()`.
+        // Confirm Pubkey::default() is the all-zero key so the sentinel is unambiguous.
+        assert_eq!(Pubkey::default(), Pubkey::new_from_array([0u8; 32]));
+    }
+
+    #[test]
+    fn attestation_registry_len_includes_oracle_authority() {
+        // LEN must be 8 (disc) + 32 (authority) + 8 (agent_count) + 32 (oracle_authority) + 1 (bump).
+        assert_eq!(AttestationRegistry::LEN, 81,
+            "AttestationRegistry::LEN must be 81 after adding oracle_authority field");
     }
 }
 
