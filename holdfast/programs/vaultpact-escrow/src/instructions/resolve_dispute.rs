@@ -42,23 +42,42 @@ pub(crate) fn compute_dispute_payouts(
             Ok((b, i))
         }
         ArbiterDecision::SplitFunds { beneficiary_bps } => {
-            // slash_loser_stake intentionally ignored: a split has no loser (see Gap-12).
             require!(*beneficiary_bps <= 10_000, EscrowError::InvalidBasisPoints);
             let bps = *beneficiary_bps as u64;
-            let b_share = escrow_amount
-                .checked_mul(bps)
-                .ok_or(EscrowError::ArithmeticOverflow)?
-                / 10_000;
-            let i_share = escrow_amount
-                .checked_sub(b_share)
-                .ok_or(EscrowError::ArithmeticOverflow)?;
-            let b = b_share
-                .checked_add(beneficiary_stake)
-                .ok_or(EscrowError::ArithmeticOverflow)?;
-            let i = i_share
-                .checked_add(initiator_stake)
-                .ok_or(EscrowError::ArithmeticOverflow)?;
-            Ok((b, i))
+            if slash_loser_stake {
+                // Both stakes are at risk: fold them into the escrow pool and
+                // split the total by bps.  This preserves funds exactly (i is
+                // computed by subtraction, not a second multiply) and is
+                // consistent with the slash intent applied to the other branches.
+                let total = escrow_amount
+                    .checked_add(initiator_stake)
+                    .ok_or(EscrowError::ArithmeticOverflow)?
+                    .checked_add(beneficiary_stake)
+                    .ok_or(EscrowError::ArithmeticOverflow)?;
+                let b = total
+                    .checked_mul(bps)
+                    .ok_or(EscrowError::ArithmeticOverflow)?
+                    / 10_000;
+                let i = total
+                    .checked_sub(b)
+                    .ok_or(EscrowError::ArithmeticOverflow)?;
+                Ok((b, i))
+            } else {
+                let b_share = escrow_amount
+                    .checked_mul(bps)
+                    .ok_or(EscrowError::ArithmeticOverflow)?
+                    / 10_000;
+                let i_share = escrow_amount
+                    .checked_sub(b_share)
+                    .ok_or(EscrowError::ArithmeticOverflow)?;
+                let b = b_share
+                    .checked_add(beneficiary_stake)
+                    .ok_or(EscrowError::ArithmeticOverflow)?;
+                let i = i_share
+                    .checked_add(initiator_stake)
+                    .ok_or(EscrowError::ArithmeticOverflow)?;
+                Ok((b, i))
+            }
         }
         ArbiterDecision::None => Err(error!(EscrowError::DecisionRequired)),
     }
@@ -391,30 +410,32 @@ mod tests {
         assert_eq!(i, 1_000);
     }
 
-    // ── SplitFunds with slash_loser_stake=true (Gap-12 coverage) ────────
+    // ── SplitFunds with slash_loser_stake=true (Gap-12 fix) ─────────────
 
     #[test]
-    fn split_50_50_slash_true_stakes_returned_not_slashed() {
+    fn split_50_50_slash_true_proportional() {
+        // With slash=true and equal bps, the result equals each party getting
+        // their own stake back (symmetric case — same as no-slash for 50/50).
         let (b, i) = compute_dispute_payouts(
             2_000, 500, 500, true,
             &ArbiterDecision::SplitFunds { beneficiary_bps: 5_000 },
         )
         .unwrap();
-        // Slash flag ignored: each party gets their own stake back.
-        assert_eq!(b, 1_000 + 500);
-        assert_eq!(i, 1_000 + 500);
+        // total = 3000; b = 3000*5000/10000 = 1500; i = 3000-1500 = 1500
+        assert_eq!(b, 1_500);
+        assert_eq!(i, 1_500);
     }
 
     #[test]
-    fn split_30_70_slash_true_stakes_returned_not_slashed() {
+    fn split_30_70_slash_true_proportional() {
         let (b, i) = compute_dispute_payouts(
             10_000, 300, 700, true,
             &ArbiterDecision::SplitFunds { beneficiary_bps: 3_000 },
         )
         .unwrap();
-        // b_share = 3000, i_share = 7000; stakes returned intact despite slash=true
-        assert_eq!(b, 3_000 + 700);
-        assert_eq!(i, 7_000 + 300);
+        // total = 11000; b = 11000*3000/10000 = 3300; i = 11000-3300 = 7700
+        assert_eq!(b, 3_300);
+        assert_eq!(i, 7_700);
     }
 
     #[test]
@@ -427,10 +448,47 @@ mod tests {
             &ArbiterDecision::SplitFunds { beneficiary_bps: 8_000 },
         )
         .unwrap();
+        // total = 1_075_000; b = 1_075_000*8000/10000 = 860_000; i = 215_000
+        assert_eq!(b, 860_000);
+        assert_eq!(i, 215_000);
         assert_eq!(b + i, escrow + i_stake + b_stake, "fund conservation");
-        // Stakes returned intact
-        assert_eq!(b, 800_000 + 25_000);
-        assert_eq!(i, 200_000 + 50_000);
+    }
+
+    #[test]
+    fn split_slash_true_zero_bps_all_to_initiator() {
+        // bps=0 with slash=true: everything goes to initiator
+        let (b, i) = compute_dispute_payouts(
+            1_000, 200, 300, true,
+            &ArbiterDecision::SplitFunds { beneficiary_bps: 0 },
+        )
+        .unwrap();
+        // total = 1500; b = 0; i = 1500
+        assert_eq!(b, 0);
+        assert_eq!(i, 1_500);
+    }
+
+    #[test]
+    fn split_slash_true_full_bps_all_to_beneficiary() {
+        // bps=10000 with slash=true: everything goes to beneficiary
+        let (b, i) = compute_dispute_payouts(
+            1_000, 200, 300, true,
+            &ArbiterDecision::SplitFunds { beneficiary_bps: 10_000 },
+        )
+        .unwrap();
+        // total = 1500; b = 1500; i = 0
+        assert_eq!(b, 1_500);
+        assert_eq!(i, 0);
+    }
+
+    #[test]
+    fn split_slash_true_overflow_total() {
+        // escrow_amount + initiator_stake overflows u64
+        let err = compute_dispute_payouts(
+            u64::MAX, 1, 0, true,
+            &ArbiterDecision::SplitFunds { beneficiary_bps: 5_000 },
+        )
+        .unwrap_err();
+        assert_eq!(err_code(err), u32::from(EscrowError::ArithmeticOverflow));
     }
 
     #[test]
