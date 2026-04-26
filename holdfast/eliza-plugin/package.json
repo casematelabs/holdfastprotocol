@@ -1,7 +1,7 @@
 {
   "name": "@holdfastprotocol/eliza-plugin",
   "version": "0.1.0-devnet.1",
-  "description": "Holdfast Protocol reputation and escrow plugin for ElizaOS agents",
+  "description": "Holdfast plugin for ElizaOS — add on-chain identity, reputation, and escrow to autonomous agents.",
   "type": "module",
   "exports": {
     ".": {

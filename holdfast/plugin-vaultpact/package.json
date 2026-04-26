@@ -1,7 +1,7 @@
 {
   "name": "@elizaos/plugin-holdfast",
   "version": "0.1.0",
-  "description": "ElizaOS plugin for Holdfast Protocol — register agents, create/release escrow pacts, and query reputation/pact status on Solana",
+  "description": "Holdfast plugin for ElizaOS — add on-chain identity, reputation, and escrow to autonomous agents.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
