@@ -1,5 +1,6 @@
 name: Deploy to Devnet
 
+# Manual devnet deployment — requires board-approved secrets (HOL-33).
 on:
   workflow_dispatch:
     inputs:
