@@ -170,7 +170,7 @@ If the upgrade produces unexpected behaviour, roll back by redeploying the previ
 
 ### Option A — Redeploy from a known-good artifact
 
-1. Download the `rust-coverage-report` artifact from the last known-good CI run.
+1. Download the `devnet-build-<sha>-<run_id>` artifact from the last known-good deploy run (GitHub → Actions → Deploy to Devnet → the successful run → Artifacts).
 2. Extract the `.so` files from the artifact.
 3. Write a new buffer and upgrade as in steps 2–4 above, using the old `.so` files.
 
@@ -194,7 +194,7 @@ Re-run the health check and smoke test. Update the expected hash secrets to matc
 | Role | Responsibility |
 |---|---|
 | Protocol authority holder | Must be present for `program upgrade` — holds `keys/devnet-protocol-authority.json` |
-| On-call DevOps | Responds to health check alerts on CAS-373 |
+| On-call DevOps | Responds to health check alerts on HOL-20 |
 | CTO | Escalation for unresolved deployment failures |
 
 For mainnet deploys: consult `holdfast/docs/governance-devnet.md` for the Squads v4 multisig ceremony, which is required pre-mainnet.
