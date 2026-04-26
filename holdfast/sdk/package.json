@@ -5,10 +5,9 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/casematelabs/holdfastprotocol.git",
-    "directory": "holdfast/sdk"
+    "url": "git+https://github.com/casematelabs/sdk.git"
   },
-  "homepage": "https://github.com/casematelabs/holdfastprotocol/tree/main/holdfast/sdk#readme",
+  "homepage": "https://github.com/casematelabs/sdk#readme",
   "exports": {
     ".": {
       "import": {
