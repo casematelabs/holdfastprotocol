@@ -454,6 +454,70 @@ pub mod vaultpact {
         Ok(())
     }
 
+    /// One-time migration: realloc AttestationRegistry from 49 to 81 bytes (HOL-233).
+    ///
+    /// Accounts on devnet and mainnet that were initialized before HOL-182 have the
+    /// legacy layout (disc[8] + authority[32] + agent_count[8] + bump[1] = 49 bytes).
+    /// HOL-182 added the `oracle_authority` field, expanding the struct to 81 bytes.
+    /// This instruction reallocates the on-chain account and inserts the field without
+    /// losing any existing state.
+    ///
+    /// Guard: reverts with `AlreadyMigrated` if the account is already 81 bytes.
+    /// Gated by INITIAL_AUTHORITY. Can only be called once.
+    pub fn migrate_attestation_registry(ctx: Context<MigrateAttestationRegistry>) -> Result<()> {
+        require!(
+            ctx.accounts.authority.key() == INITIAL_AUTHORITY,
+            VaultPactError::UnauthorizedAuthority
+        );
+
+        let registry_info = ctx.accounts.attestation_registry.to_account_info();
+        let old_len = registry_info.data_len();
+
+        // Double-migration guard — 81 bytes means oracle_authority already present.
+        require!(old_len == 49, VaultPactError::AlreadyMigrated);
+
+        // Validate discriminator so we never clobber a non-registry account at this PDA.
+        const REGISTRY_DISC: [u8; 8] = [152, 156, 134, 191, 142, 144, 217, 209];
+        {
+            let data = registry_info.data.borrow();
+            require!(data[..8] == REGISTRY_DISC, VaultPactError::UnauthorizedAuthority);
+        }
+
+        // Save bump stored at byte 48 in the legacy layout.
+        let old_bump = {
+            let data = registry_info.data.borrow();
+            data[48]
+        };
+
+        // Top up rent lamports for the 32 extra bytes before realloc.
+        let rent = Rent::get()?;
+        let new_minimum = rent.minimum_balance(AttestationRegistry::LEN);
+        let current_lamports = registry_info.lamports();
+        if current_lamports < new_minimum {
+            let diff = new_minimum - current_lamports;
+            **ctx.accounts.authority.to_account_info().try_borrow_mut_lamports()? -= diff;
+            **registry_info.try_borrow_mut_lamports()? += diff;
+        }
+
+        // Expand account storage from 49 to 81 bytes; new bytes zero-initialized by resize.
+        registry_info.resize(AttestationRegistry::LEN)?;
+
+        // Write oracle_authority at bytes [48..80] and move bump to byte 80.
+        {
+            let mut data = registry_info.data.borrow_mut();
+            data[48..80].copy_from_slice(&REPUTATION_ORACLE_AUTHORITY.to_bytes());
+            data[80] = old_bump;
+        }
+
+        msg!(
+            "AttestationRegistry migrated: {} -> {} bytes, oracle_authority={}",
+            old_len,
+            AttestationRegistry::LEN,
+            REPUTATION_ORACLE_AUTHORITY,
+        );
+        Ok(())
+    }
+
     /// Admin-only: set an agent wallet's status field.
     /// Gated by INITIAL_AUTHORITY. Status: 0=Active, 1=Frozen, 2=Blacklisted, 3=DeregisterPending.
     pub fn set_agent_status(ctx: Context<SetAgentStatus>, new_status: u8) -> Result<()> {
@@ -823,6 +887,17 @@ pub struct SetOracleAuthority<'info> {
     )]
     pub attestation_registry: Account<'info, AttestationRegistry>,
     pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct MigrateAttestationRegistry<'info> {
+    /// CHECK: legacy 49-byte account; typed deserialization skipped intentionally.
+    /// Seeds and discriminator validated in instruction body; size guard prevents double-migration.
+    #[account(mut, seeds = [b"attestation_registry"], bump)]
+    pub attestation_registry: UncheckedAccount<'info>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
@@ -1690,4 +1765,7 @@ pub enum VaultPactError {
     EscrowAuthorityMismatch,
     #[msg("New authority must not be the zero pubkey (permanent DoS prevention)")]
     InvalidAuthority,
+    // ── Migration errors (HOL-233) ────────────────────────────────────
+    #[msg("AttestationRegistry already migrated to 81 bytes")]
+    AlreadyMigrated,
 }
