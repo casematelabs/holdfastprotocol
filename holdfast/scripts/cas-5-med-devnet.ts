@@ -6,11 +6,15 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as os from "os";
 
+// Keep curve implementation aligned with existing holdfast test/scripts runtime.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { p256 } = require("../oracle/node_modules/@noble/curves/nist.js");
 
 const RPC_URL = process.env["ANCHOR_PROVIDER_URL"] ?? "https://api.devnet.solana.com";
 const PAYER_KEYPAIR_PATH = process.env["PAYER_KEYPAIR_PATH"] ?? "~/.config/solana/devnet.json";
+const MIN_PAYER_BALANCE_SOL = Number(process.env["CAS5_MIN_PAYER_SOL"] ?? "0.10");
+const PARTICIPANT_FUNDING_SOL = Number(process.env["CAS5_PARTICIPANT_SOL"] ?? "0.03");
+const FUNDING_FEE_BUFFER_SOL = Number(process.env["CAS5_FEE_BUFFER_SOL"] ?? "0.02");
 const TOKEN_PROGRAM_ID = new anchor.web3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 const ASSOCIATED_TOKEN_PROGRAM_ID = new anchor.web3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
 const SYSVAR_INSTRUCTIONS = new anchor.web3.PublicKey("Sysvar1nstructions1111111111111111111111111");
@@ -118,15 +122,37 @@ async function main(): Promise<void> {
   const [escrowAuthority] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("vp_escrow_authority")], escrowProgram.programId);
 
   const payerBal = await connection.getBalance(payer.publicKey);
-  if (payerBal < 0.25 * anchor.web3.LAMPORTS_PER_SOL) throw new Error(`insufficient payer balance: ${payerBal}`);
+  const minPayerLamports = Math.floor(MIN_PAYER_BALANCE_SOL * anchor.web3.LAMPORTS_PER_SOL);
+  if (payerBal < minPayerLamports) {
+    throw new Error(
+      `insufficient payer balance: ${payerBal} (need >= ${minPayerLamports} lamports; set CAS5_MIN_PAYER_SOL to override)`,
+    );
+  }
 
   const initiator = anchor.web3.Keypair.generate();
   const beneficiary = anchor.web3.Keypair.generate();
   const arbiter = anchor.web3.Keypair.generate();
+  const participants = [initiator, beneficiary, arbiter];
+  const desiredParticipantLamports = Math.floor(PARTICIPANT_FUNDING_SOL * anchor.web3.LAMPORTS_PER_SOL);
+  const fundingFeeBufferLamports = Math.floor(FUNDING_FEE_BUFFER_SOL * anchor.web3.LAMPORTS_PER_SOL);
+  const maxAffordableParticipantLamports = Math.floor(
+    Math.max(0, payerBal - fundingFeeBufferLamports) / participants.length,
+  );
+  if (maxAffordableParticipantLamports <= 0) {
+    throw new Error(
+      `insufficient payer balance for participant funding: ${payerBal} lamports (need > ${fundingFeeBufferLamports})`,
+    );
+  }
+  const participantLamports = Math.min(desiredParticipantLamports, maxAffordableParticipantLamports);
+  if (participantLamports < desiredParticipantLamports) {
+    console.warn(
+      `[warn] reducing participant funding from ${desiredParticipantLamports} to ${participantLamports} lamports based on payer balance`,
+    );
+  }
 
-  for (const kp of [initiator, beneficiary, arbiter]) {
+  for (const kp of participants) {
     await step(`fund participant ${kp.publicKey.toBase58()}`, async () => {
-      const tx = new anchor.web3.Transaction().add(anchor.web3.SystemProgram.transfer({ fromPubkey: payer.publicKey, toPubkey: kp.publicKey, lamports: 0.03 * anchor.web3.LAMPORTS_PER_SOL }));
+      const tx = new anchor.web3.Transaction().add(anchor.web3.SystemProgram.transfer({ fromPubkey: payer.publicKey, toPubkey: kp.publicKey, lamports: participantLamports }));
       await provider.sendAndConfirm(tx, []);
     });
   }
@@ -144,61 +170,41 @@ async function main(): Promise<void> {
   }
 
   async function registerAgentWallet(authority: anchor.web3.Keypair): Promise<anchor.web3.PublicKey> {
-    const privKey = p256.utils.randomPrivateKey();
-    const uncompressed: Uint8Array = p256.getPublicKey(privKey, false);
-    const pubkeyX = Buffer.from(uncompressed.slice(1, 33));
-    const pubkeyY = Buffer.from(uncompressed.slice(33, 65));
-    const [walletPda] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("agent_wallet"), pubkeyX, pubkeyY], holdfastProgram.programId);
-    const preimage = buildRegistrationPreimage(authority.publicKey, pubkeyX, pubkeyY);
-    const preimageHash = crypto.createHash("sha256").update(preimage).digest();
-    const sigBytes = p256.sign(preimageHash, privKey, { lowS: true }).toCompactRawBytes();
-    // Devnet secp256r1 precompile verifies a pre-hashed 32-byte challenge.
-    // For register_agent_wallet, both signing and msg_data use sha256(preimage).
-    const secpIx = buildSecp256r1Instruction(sigBytes, p256.getPublicKey(privKey, true), preimageHash);
-    const regIx = await holdfastProgram.methods.registerAgentWallet(Array.from(pubkeyX), Array.from(pubkeyY)).accounts({
-      agentWallet: walletPda,
-      attestationRegistry: registryPda,
-      payer: authority.publicKey,
-      systemProgram: anchor.web3.SystemProgram.programId,
-      instructions: SYSVAR_INSTRUCTIONS,
-    }).signers([authority]).instruction();
-    const tx = new anchor.web3.Transaction().add(secpIx, regIx);
-    try {
-      await provider.sendAndConfirm(tx, [authority]);
-    } catch (err: any) {
-      const diag = `${err?.message ?? ""} ${(err?.logs ?? []).join(" ")}`;
-      const isKnownSimBoundary =
-        diag.includes("Instruction 0") &&
-        (diag.includes("custom program error: 0x2") ||
-          diag.includes("custom program error: 0x0") ||
-          diag.includes('Custom":2') ||
-          diag.includes('Custom":0'));
-      if (!isKnownSimBoundary) throw err;
-
-      tx.feePayer = provider.wallet.publicKey;
-      tx.recentBlockhash = (
-        await provider.connection.getLatestBlockhash("confirmed")
-      ).blockhash;
-      tx.partialSign(authority);
-      const signedTx = await provider.wallet.signTransaction(tx);
-      const sig = await provider.connection.sendRawTransaction(
-        signedTx.serialize(),
-        { skipPreflight: true, maxRetries: 5 },
-      );
-      await provider.connection.confirmTransaction(sig, "confirmed");
-      const txInfo = await provider.connection.getTransaction(sig, {
-        commitment: "confirmed",
-        maxSupportedTransactionVersion: 0,
-      });
-      if (txInfo?.meta?.err) {
-        const txLogs = txInfo.meta.logMessages ?? [];
-        const secpHex = Buffer.from(secpIx.data).toString("hex");
-        throw new Error(
-          `register_agent_wallet failed after skipPreflight fallback: ${JSON.stringify(txInfo.meta.err)} | logs: ${txLogs.join(" | ")} | secp_ix_hex: ${secpHex}`,
-        );
+    let lastErr: unknown = null;
+    for (let attempt = 1; attempt <= 5; attempt += 1) {
+      const privKey = p256.utils.randomPrivateKey();
+      const uncompressed: Uint8Array = p256.getPublicKey(privKey, false);
+      const compressedPubkey: Uint8Array = p256.getPublicKey(privKey, true);
+      const pubkeyX = Buffer.from(uncompressed.slice(1, 33));
+      const pubkeyY = Buffer.from(uncompressed.slice(33, 65));
+      const [walletPda] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("agent_wallet"), pubkeyX, pubkeyY], holdfastProgram.programId);
+      const preimage = buildRegistrationPreimage(authority.publicKey, pubkeyX, pubkeyY);
+      const preimageHash = crypto.createHash("sha256").update(preimage).digest();
+      const signature = p256.sign(preimageHash, privKey) as Uint8Array | { toCompactRawBytes: () => Uint8Array };
+      const sigBytes = signature instanceof Uint8Array ? signature : signature.toCompactRawBytes();
+      const secpIx = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimageHash);
+      const regIx = await holdfastProgram.methods.registerAgentWallet(Array.from(pubkeyX), Array.from(pubkeyY)).accounts({
+        agentWallet: walletPda,
+        attestationRegistry: registryPda,
+        payer: authority.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        instructions: SYSVAR_INSTRUCTIONS,
+      }).signers([authority]).instruction();
+      const tx = new anchor.web3.Transaction().add(secpIx, regIx);
+      try {
+        await provider.sendAndConfirm(tx, [authority]);
+        return walletPda;
+      } catch (err: any) {
+        lastErr = err;
+        const diag = `${err?.message ?? ""} ${(err?.logs ?? []).join(" ")}`;
+        const retryable =
+          diag.includes("Instruction 0") &&
+          (diag.includes("custom program error: 0x2") || diag.includes('Custom":2'));
+        if (!retryable || attempt === 5) throw err;
+        console.warn(`[register-retry] ${authority.publicKey.toBase58()} attempt ${attempt}/5 hit Custom:2, retrying with fresh key`);
       }
     }
-    return walletPda;
+    throw lastErr ?? new Error("register_agent_wallet failed with unknown error");
   }
 
   async function initRep(agent: anchor.web3.Keypair): Promise<anchor.web3.PublicKey> {
