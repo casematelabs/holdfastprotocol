@@ -180,9 +180,9 @@ async function main(): Promise<void> {
       const [walletPda] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("agent_wallet"), pubkeyX, pubkeyY], holdfastProgram.programId);
       const preimage = buildRegistrationPreimage(authority.publicKey, pubkeyX, pubkeyY);
       const preimageHash = crypto.createHash("sha256").update(preimage).digest();
-      const signature = p256.sign(preimageHash, privKey) as Uint8Array | { toCompactRawBytes: () => Uint8Array };
+      const signature = p256.sign(preimageHash, privKey, { lowS: true, prehash: true }) as Uint8Array | { toCompactRawBytes: () => Uint8Array };
       const sigBytes = signature instanceof Uint8Array ? signature : signature.toCompactRawBytes();
-      const secpIx = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimageHash);
+      const secpIx = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimage);
       const regIx = await holdfastProgram.methods.registerAgentWallet(Array.from(pubkeyX), Array.from(pubkeyY)).accounts({
         agentWallet: walletPda,
         attestationRegistry: registryPda,
@@ -199,9 +199,40 @@ async function main(): Promise<void> {
         const diag = `${err?.message ?? ""} ${(err?.logs ?? []).join(" ")}`;
         const retryable =
           diag.includes("Instruction 0") &&
-          (diag.includes("custom program error: 0x2") || diag.includes('Custom":2'));
-        if (!retryable || attempt === 5) throw err;
-        console.warn(`[register-retry] ${authority.publicKey.toBase58()} attempt ${attempt}/5 hit Custom:2, retrying with fresh key`);
+          (
+            diag.includes("custom program error: 0x2") ||
+            diag.includes('Custom":2') ||
+            diag.includes("custom program error: 0x0") ||
+            diag.includes('Custom":0')
+          );
+        if (!retryable) throw err;
+
+        // Devnet secp256r1 simulation can return opaque Instruction 0 errors.
+        // Retry once via skipPreflight before rotating key material.
+        try {
+          tx.feePayer = provider.wallet.publicKey;
+          tx.recentBlockhash = (await provider.connection.getLatestBlockhash("confirmed")).blockhash;
+          tx.partialSign(authority);
+          const signedTx = await provider.wallet.signTransaction(tx);
+          const sig = await provider.connection.sendRawTransaction(signedTx.serialize(), { skipPreflight: true, maxRetries: 5 });
+          await provider.connection.confirmTransaction(sig, "confirmed");
+          const txInfo = await provider.connection.getTransaction(sig, {
+            commitment: "confirmed",
+            maxSupportedTransactionVersion: 0,
+          });
+          if (!txInfo?.meta?.err) {
+            console.warn(`[register-fallback-ok] ${authority.publicKey.toBase58()} attempt ${attempt}/5 accepted with skipPreflight (${sig})`);
+            return walletPda;
+          }
+          lastErr = new Error(
+            `register_agent_wallet fallback failed: ${JSON.stringify(txInfo.meta.err)} | logs: ${(txInfo.meta.logMessages ?? []).join(" | ")}`,
+          );
+        } catch (fallbackErr) {
+          lastErr = fallbackErr;
+        }
+
+        if (attempt === 5) throw lastErr;
+        console.warn(`[register-retry] ${authority.publicKey.toBase58()} attempt ${attempt}/5 hit secp precompile Custom:0/2, retrying with fresh key`);
       }
     }
     throw lastErr ?? new Error("register_agent_wallet failed with unknown error");
