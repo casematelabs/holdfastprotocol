@@ -10,6 +10,7 @@ import * as os from "os";
 const { p256 } = require("../oracle/node_modules/@noble/curves/nist.js");
 
 const RPC_URL = process.env["ANCHOR_PROVIDER_URL"] ?? "https://api.devnet.solana.com";
+const PAYER_KEYPAIR_PATH = process.env["PAYER_KEYPAIR_PATH"] ?? "~/.config/solana/devnet.json";
 const TOKEN_PROGRAM_ID = new anchor.web3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 const ASSOCIATED_TOKEN_PROGRAM_ID = new anchor.web3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
 const SYSVAR_INSTRUCTIONS = new anchor.web3.PublicKey("Sysvar1nstructions1111111111111111111111111");
@@ -62,10 +63,10 @@ function getAssociatedTokenAddress(mint: anchor.web3.PublicKey, owner: anchor.we
   return ata;
 }
 
-function buildSecp256r1Instruction(sig: Uint8Array, compressedPubkey: Uint8Array, message: Buffer): anchor.web3.TransactionInstruction {
+function buildSecp256r1Instruction(sig: Uint8Array, pubkey: Uint8Array, message: Buffer): anchor.web3.TransactionInstruction {
   const SIG_OFFSET = 16;
   const PUBKEY_OFFSET = SIG_OFFSET + 64;
-  const MSG_OFFSET = PUBKEY_OFFSET + 33;
+  const MSG_OFFSET = PUBKEY_OFFSET + pubkey.length;
   const data = Buffer.alloc(MSG_OFFSET + message.length);
   data[0] = 1;
   data[1] = 0;
@@ -77,7 +78,7 @@ function buildSecp256r1Instruction(sig: Uint8Array, compressedPubkey: Uint8Array
   data.writeUInt16LE(message.length, 12);
   data.writeUInt16LE(0xffff, 14);
   Buffer.from(sig).copy(data, SIG_OFFSET);
-  Buffer.from(compressedPubkey).copy(data, PUBKEY_OFFSET);
+  Buffer.from(pubkey).copy(data, PUBKEY_OFFSET);
   message.copy(data, MSG_OFFSET);
   return new anchor.web3.TransactionInstruction({ programId: SECP256R1_PROGRAM_ID, keys: [], data });
 }
@@ -102,7 +103,7 @@ async function main(): Promise<void> {
     }
   }
 
-  const payer = loadKeypair("~/.config/solana/devnet.json");
+  const payer = loadKeypair(PAYER_KEYPAIR_PATH);
   const connection = new anchor.web3.Connection(RPC_URL, "confirmed");
   const provider = new anchor.AnchorProvider(connection, new anchor.Wallet(payer), { commitment: "confirmed" });
   anchor.setProvider(provider);
@@ -147,14 +148,13 @@ async function main(): Promise<void> {
   async function registerAgentWallet(authority: anchor.web3.Keypair): Promise<anchor.web3.PublicKey> {
     const privKey = p256.utils.randomPrivateKey();
     const uncompressed: Uint8Array = p256.getPublicKey(privKey, false);
-    const compressedPubkey: Uint8Array = p256.getPublicKey(privKey, true);
     const pubkeyX = Buffer.from(uncompressed.slice(1, 33));
     const pubkeyY = Buffer.from(uncompressed.slice(33, 65));
     const [walletPda] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("agent_wallet"), pubkeyX, pubkeyY], holdfastProgram.programId);
     const preimage = buildRegistrationPreimage(authority.publicKey, pubkeyX, pubkeyY);
     const preimageHash = crypto.createHash("sha256").update(preimage).digest();
     const sigBytes = p256.sign(preimageHash, privKey).toCompactRawBytes();
-    const secpIx = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimageHash);
+    const secpIx = buildSecp256r1Instruction(sigBytes, uncompressed, preimage);
     const regIx = await holdfastProgram.methods.registerAgentWallet(Array.from(pubkeyX), Array.from(pubkeyY)).accounts({
       agentWallet: walletPda,
       attestationRegistry: registryPda,
@@ -173,11 +173,16 @@ async function main(): Promise<void> {
           diag.includes('Custom":2'));
       if (!isKnownSimBoundary) throw err;
 
-      const sig = await provider.connection.sendTransaction(tx, [authority], {
-        skipPreflight: true,
-        preflightCommitment: "confirmed",
-        maxRetries: 5,
-      });
+      tx.feePayer = provider.wallet.publicKey;
+      tx.recentBlockhash = (
+        await provider.connection.getLatestBlockhash("confirmed")
+      ).blockhash;
+      tx.partialSign(authority);
+      const signedTx = await provider.wallet.signTransaction(tx);
+      const sig = await provider.connection.sendRawTransaction(
+        signedTx.serialize(),
+        { skipPreflight: true, maxRetries: 5 },
+      );
       await provider.connection.confirmTransaction(sig, "confirmed");
       const txInfo = await provider.connection.getTransaction(sig, {
         commitment: "confirmed",
