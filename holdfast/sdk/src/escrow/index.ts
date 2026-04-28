@@ -21,7 +21,7 @@ import { IndexerRequestError } from "../reputation/index.js";
 
 // ── Program IDs ───────────────────────────────────────────────────────
 const DEVNET_ESCROW_PROGRAM_ID = new PublicKey(
-  "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H",
+  "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
 );
 const DEVNET_HOLDFAST_PROGRAM_ID = new PublicKey(
   "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
@@ -765,7 +765,6 @@ export class EscrowModule {
     arbiterWallet?: PublicKey,
   ): Promise<Transaction> {
     const agentWallet = this.requireAgentWallet();
-    const resolvedArbiterWallet = arbiterWallet ?? agentWallet;
 
     const escrowIdBytes = escrowId.toBuffer();
     const escrowPda = deriveEscrowPda(escrowIdBytes, this.programId);
@@ -777,7 +776,14 @@ export class EscrowModule {
 
     const initiatorPubkey = new PublicKey(escrow.initiator);
     const beneficiaryPubkey = new PublicKey(escrow.beneficiary);
+    const arbiterPubkey = new PublicKey(escrow.arbiter);
     const vault = new PublicKey(escrow.vault);
+    const resolvedArbiterWallet = arbiterPubkey.equals(DEFAULT_PUBKEY)
+      ? (arbiterWallet ?? agentWallet)
+      : (arbiterWallet ?? null);
+    if (resolvedArbiterWallet === null) {
+      throw new EscrowLockArbiterWalletRequiredError(arbiterPubkey.toBase58());
+    }
     const initiatorReputationPda = deriveReputationPda(initiatorPubkey, this.holdfastProgramId);
     const beneficiaryReputationPda = deriveReputationPda(beneficiaryPubkey, this.holdfastProgramId);
 
@@ -1318,6 +1324,16 @@ export class EscrowAgentWalletRequiredError extends Error {
         "on the holdfast program.",
     );
     this.name = "EscrowAgentWalletRequiredError";
+  }
+}
+
+export class EscrowLockArbiterWalletRequiredError extends Error {
+  constructor(readonly arbiterPubkey: string) {
+    super(
+      "lockEscrow requires an explicit arbiterWallet when the escrow was created " +
+        `with arbiter=${arbiterPubkey}. Pass arbiterWallet to lockEscrow/buildLockEscrowTransaction.`,
+    );
+    this.name = "EscrowLockArbiterWalletRequiredError";
   }
 }
 

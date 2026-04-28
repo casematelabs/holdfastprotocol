@@ -16,6 +16,7 @@ import {
   EscrowAccountCorruptError,
   EscrowSignerRequiredError,
   EscrowAgentWalletRequiredError,
+  EscrowLockArbiterWalletRequiredError,
   DisputeWindowStillOpenError,
   ReputationThresholdNotMet,
 } from "../src/escrow/index.js";
@@ -520,6 +521,51 @@ describe("EscrowModule signer/wallet guard errors", async () => {
       mod.buildLockEscrowTransaction(escrowId, TEST_PUBKEY_A),
       EscrowAgentWalletRequiredError,
     );
+  });
+});
+
+describe("EscrowModule.lockEscrow arbiter wallet contract", async () => {
+  const escrowId = new PublicKey(Buffer.alloc(32, 0x33));
+  const fakeSigner = {
+    publicKey: TEST_PUBKEY_A,
+    secretKey: new Uint8Array(64),
+  };
+  const fakeAgentWallet = TEST_PUBKEY_B;
+
+  await test("requires arbiterWallet when escrow has an explicit arbiter", async () => {
+    const explicitArbiter = new PublicKey("11111111111111111111111111111112");
+    const buf = makeEscrowBuf({ arbiter: explicitArbiter });
+    const mod = new EscrowModule(
+      mockConn(buf),
+      INDEXER_URL,
+      makeRepModule(),
+      fakeSigner,
+      fakeAgentWallet,
+    );
+
+    await assert.rejects(
+      mod.buildLockEscrowTransaction(escrowId, TEST_PUBKEY_C),
+      (err: unknown) => {
+        assert.ok(err instanceof EscrowLockArbiterWalletRequiredError);
+        assert.equal(err.arbiterPubkey, explicitArbiter.toBase58());
+        return true;
+      },
+    );
+  });
+
+  await test("falls back to initiator agentWallet when escrow arbiter is zero pubkey", async () => {
+    const buf = makeEscrowBuf({ arbiter: ZERO_PUBKEY });
+    const mod = new EscrowModule(
+      mockConn(buf),
+      INDEXER_URL,
+      makeRepModule(),
+      fakeSigner,
+      fakeAgentWallet,
+    );
+
+    const tx = await mod.buildLockEscrowTransaction(escrowId, TEST_PUBKEY_C);
+    const lockIx = tx.instructions[0];
+    assert.equal(lockIx.keys[5].pubkey.toBase58(), fakeAgentWallet.toBase58());
   });
 });
 
