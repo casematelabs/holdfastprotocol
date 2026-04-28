@@ -24,7 +24,7 @@ import type { EscrowAccount } from "@holdfastprotocol/sdk";
 // Load IDLs from the monorepo — adjust path to your project structure
 import escrowIdl from "../holdfast/target/idl/vaultpact_escrow.json";
 
-const HOLDFAST_ESCROW_PROGRAM_ID = new PublicKey("BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H");
+const HOLDFAST_ESCROW_PROGRAM_ID = new PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
 const HOLDFAST_PROGRAM_ID        = new PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
 ```
 
@@ -330,3 +330,4 @@ All three IDL instructions in this document have SDK wrappers. Use them unless y
 - [Quickstart](./quickstart.md) — end-to-end walkthrough
 - [SDK API Reference](./sdk-reference.md) — all public SDK methods
 - [Integration Guide](../holdfast/docs/integration-guide.md) — PDA derivations, program addresses
+

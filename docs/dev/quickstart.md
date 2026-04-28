@@ -1,4 +1,4 @@
-﻿# Holdfast Protocol Quickstart
+# Holdfast Protocol Quickstart
 
 Get from zero to your first confirmed devnet pact in under 15 minutes.
 
@@ -318,6 +318,7 @@ console.log("Dispute window ends:", new Date(pact.disputeWindowEndsAt * 1000));
 | Program | Address |
 |---|---|
 | `holdfast` | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
-| `holdfast-escrow` | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| `holdfast-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 Last verified deployed: 2026-04-20.
+

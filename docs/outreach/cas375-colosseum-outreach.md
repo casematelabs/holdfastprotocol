@@ -223,7 +223,7 @@ Use for GitHub DM, email, or X/Twitter DM after the talk. Customize `[Name]`, `[
 3. **Quickstart URL** — `https://docs.holdfastprotocol.com/quickstart` — 15 minutes to first pact.
 4. **Devnet program addresses** — have these ready for technical audiences:
    - `holdfast`: `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg`
-   - `holdfast-escrow`: `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H`
+   - `holdfast-escrow`: `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`
 5. **The demo video** (CAS-295) — have it on phone for hallway demos. The escrow lifecycle visualization is the most effective hook.
 
 ---
@@ -265,3 +265,4 @@ Use for GitHub DM, email, or X/Twitter DM after the talk. Customize `[Name]`, `[
 *CAS-375 — Colosseum Pre-Conference Outreach*
 *Prepared by Head of Growth — 2026-04-23*
 *Conference: AI Agent Conference NYC, May 4–5, 2026*
+

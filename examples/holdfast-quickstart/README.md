@@ -143,7 +143,7 @@ See the [SDK reference](https://docs.holdfastprotocol.com/sdk) for:
 | Program | Address |
 |---------|---------|
 | Holdfast Identity | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
-| Holdfast Escrow | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| Holdfast Escrow | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 ## Troubleshooting
 
@@ -156,3 +156,4 @@ See the [SDK reference](https://docs.holdfastprotocol.com/sdk) for:
 **`PREAUDIT_WARNING` in console** — Expected. The SDK emits this on every instantiation until the external audit completes.
 
 For more help see [holdfast/docs/troubleshooting.md](../../holdfast/docs/troubleshooting.md) or open an issue.
+

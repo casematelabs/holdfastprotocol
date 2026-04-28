@@ -64,7 +64,7 @@ The disclaimer must be **legible at all times**. Do not obscure it with terminal
 | 2 | Oracle reputation update | ✅ | 60–90 sec |
 | 3 | Attestation query via SDK | read-only | 60 sec |
 
-**Scope boundary (firm — per CTO):** Stages 1–3 only. No escrow program interactions. Escrow program (`BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H`) must not appear in the recording.
+**Scope boundary (firm — per CTO):** Stages 1–3 only. No escrow program interactions. Escrow program (`CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`) must not appear in the recording.
 
 If `yarn demo` runs additional stages beyond these three, restrict with:
 ```bash
@@ -353,7 +353,7 @@ Demo complete. All stages passed. ✓
 Before screen recording begins, CTO must confirm each item:
 
 - [ ] Stage sequence is correct: `registerAgentWallet` → `updateReputation` → `reputation.get()` — no escrow
-- [ ] Escrow program (`BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H`) does not appear anywhere in demo
+- [ ] Escrow program (`CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`) does not appear anywhere in demo
 - [ ] Program ID `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` is accurate for devnet
 - [ ] `oracle-devnet.json` authority matches deployed program's `REPUTATION_ORACLE_AUTHORITY`
 - [ ] Expected terminal output format matches actual `scripts/hackathon-demo.ts` output
@@ -361,3 +361,4 @@ Before screen recording begins, CTO must confirm each item:
 - [ ] Disclaimer language (Variant 1 from [CAS-59](/CAS/issues/CAS-59)) is approved for on-screen use
 - [ ] No voiceover claims exceed what the devnet code actually does
 - [ ] Recording can proceed once Backend Engineer confirms devnet deployment (target April 23)
+

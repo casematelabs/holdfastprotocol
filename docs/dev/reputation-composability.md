@@ -282,7 +282,7 @@ Use this when the reputation gate must be enforced atomically inside a Solana tr
 | Program | Program ID |
 |---|---|
 | Core (`vaultpact`) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
-| Escrow | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| Escrow | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 ---
 
@@ -672,3 +672,4 @@ For tier requirements:
 ---
 
 *Guide version: 2026-04-26 (HOL-127)*
+

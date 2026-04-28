@@ -11,7 +11,7 @@
 **v1.6 Update:** Marked Gaps 2, 9, 11, 13 as FIXED after deep audit verified source matches (CAS-229, SEC-F3). Updated ES-5 to include initiator re-check at lock. Updated ES-9 to include arbiter re-check at lock.  
 **Programs in scope:**
 - Holdfast Protocol (identity + reputation): `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` (on-chain module: `vaultpact`)
-- Holdfast Protocol Escrow: `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` (on-chain module: `vaultpact_escrow`)
+- Holdfast Protocol Escrow: `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` (on-chain module: `vaultpact_escrow`)
 
 **Anchor version:** 0.31.1  
 **Related documents:** [ADR-001: Cryptographic Fork from Hardline](../holdfast/docs/adr-001-crypto-fork.md)
@@ -223,7 +223,7 @@ require!(
 
 **Derivation of `VAULTPACT_ESCROW_AUTHORITY`:**
 - Seeds: `[b"vp_escrow_authority"]`
-- Program: `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` (escrow program)
+- Program: `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` (escrow program)
 - Bump: 255
 
 The `UpdateReputation` context (lines 718–727) declares `update_authority: Signer<'info>`, so Anchor enforces that the account signed the transaction before the instruction body runs.
@@ -990,3 +990,4 @@ Code comment added at `resolve_dispute.rs:45`. Unit tests added for `SplitFunds 
 | Basis-points denominator | `10_000` | `resolve_dispute.rs` |
 | Protocol freeze split (both blacklisted) | `5_000 bps` (50/50) | `protocol_freeze_pact.rs` |
 | Decay precision | Table-based, 365 entries | `lib.rs` |
+

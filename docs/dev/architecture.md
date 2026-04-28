@@ -6,7 +6,7 @@
 **Status:** Milestone 1 Deliverable
 **Programs in scope:**
 - Holdfast Identity & Reputation (`vaultpact`): `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg`
-- Holdfast Escrow (`vaultpact_escrow`): `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H`
+- Holdfast Escrow (`vaultpact_escrow`): `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`
 
 **Framework:** Anchor 0.31.1 on Solana
 
@@ -390,10 +390,11 @@ vaultpact program (D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg)
 +-- agent_wallet          [b"agent_wallet", pubkey_x, pubkey_y]
 +-- reputation            [b"reputation", agent_pubkey]
 
-vaultpact_escrow program (BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H)
+vaultpact_escrow program (CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi)
 +-- escrow                [b"escrow", escrow_id]
 +-- pact                  [b"pact", escrow_id]
 +-- dispute               [b"dispute", escrow_id]
 +-- vault (token account) [b"vault", escrow_id]
 +-- vp_escrow_authority   [b"vp_escrow_authority"]
 ```
+

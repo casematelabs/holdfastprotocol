@@ -405,6 +405,7 @@ Devnet has had SIMD-48 active since early 2025. Mainnet-beta activation is track
 | Program | Address |
 |---|---|
 | `holdfast` | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
-| `holdfast-escrow` | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| `holdfast-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 *Last verified deployed: 2026-04-20 — SDK package: `@holdfastprotocol/sdk@devnet`*
+

@@ -37,7 +37,7 @@ The on-chain reputation account is a PDA. Any other program can read it directly
 | Program | Address |
 |---|---|
 | `holdfast` (identity + reputation) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
-| `holdfast-escrow` | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| `holdfast-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 Verify these on [Solana Explorer (devnet)](https://explorer.solana.com/?cluster=devnet) before integrating.
 
@@ -230,7 +230,7 @@ Three layers, live on devnet:
 
 Program IDs:
 • `holdfast`: `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg`
-• `holdfast-escrow`: `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H`
+• `holdfast-escrow`: `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`
 
 ---
 
@@ -264,3 +264,4 @@ What's roadmap: TPM/TEE hardware attestation, Hardline cross-CPI, mainnet post-a
 If you're building AI agent infrastructure on Solana — we want to talk.
 
 Follow for audit timeline and mainnet updates ↓
+
