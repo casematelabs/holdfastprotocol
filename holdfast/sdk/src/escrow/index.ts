@@ -1225,9 +1225,14 @@ export class EscrowModule {
 }
 
 function isInitializeEscrowCompatibilityError(err: unknown): boolean {
-  if (!(err instanceof Error)) return false;
-  return /(invalid instruction data|instruction.*fallback not found|not enough account keys|failed to deserialize|AccountNotEnoughKeys|InstructionDidNotDeserialize)/i
-    .test(err.message);
+  const pattern =
+    /(invalid instruction data|instruction.*fallback not found|not enough account keys|failed to deserialize|AccountNotEnoughKeys|InstructionDidNotDeserialize)/i;
+  let current: unknown = err;
+  while (current instanceof Error) {
+    if (pattern.test(current.message)) return true;
+    current = (current as Error & { cause?: unknown }).cause;
+  }
+  return false;
 }
 
 // ── Errors ────────────────────────────────────────────────────────────
