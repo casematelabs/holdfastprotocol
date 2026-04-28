@@ -94,12 +94,12 @@ export function deriveAgentWalletPda(
 
 function buildSecp256r1Instruction(
   sig: Uint8Array,
-  compressedPubkey: Uint8Array,
+  pubkey: Uint8Array,
   message: Buffer,
 ): TransactionInstruction {
   const SIG_OFFSET = 16;
   const PUBKEY_OFFSET = SIG_OFFSET + 64;
-  const MSG_OFFSET = PUBKEY_OFFSET + 33;
+  const MSG_OFFSET = PUBKEY_OFFSET + pubkey.length;
   const data = Buffer.alloc(MSG_OFFSET + message.length);
   data[0] = 1; // num_signatures
   data[1] = 0; // padding
@@ -111,7 +111,7 @@ function buildSecp256r1Instruction(
   data.writeUInt16LE(message.length, 12);
   data.writeUInt16LE(0xffff, 14); // msg_instruction_index = current ix
   Buffer.from(sig).copy(data, SIG_OFFSET);
-  Buffer.from(compressedPubkey).copy(data, PUBKEY_OFFSET);
+  Buffer.from(pubkey).copy(data, PUBKEY_OFFSET);
   message.copy(data, MSG_OFFSET);
   return new TransactionInstruction({
     programId: SECP256R1_PROGRAM_ID,
@@ -146,46 +146,6 @@ function buildRegisterInstruction(
     ],
     data,
   });
-}
-
-function buildRegisterInstructionLegacyVec(
-  agentWallet: PublicKey,
-  attestationRegistry: PublicKey,
-  payer: PublicKey,
-  pubkeyX: Buffer,
-  pubkeyY: Buffer,
-  holdfastProgramId: PublicKey,
-): TransactionInstruction {
-  // Legacy Borsh layout used by older devnet deployments:
-  // discriminator (8) + Vec<u8> pubkeyX (4 + 32) + Vec<u8> pubkeyY (4 + 32)
-  const data = Buffer.alloc(8 + 4 + 32 + 4 + 32);
-  DISC_REGISTER_AGENT_WALLET.copy(data, 0);
-  data.writeUInt32LE(32, 8);
-  pubkeyX.copy(data, 12);
-  data.writeUInt32LE(32, 44);
-  pubkeyY.copy(data, 48);
-
-  return new TransactionInstruction({
-    programId: holdfastProgramId,
-    keys: [
-      { pubkey: agentWallet, isSigner: false, isWritable: true },
-      { pubkey: attestationRegistry, isSigner: false, isWritable: true },
-      { pubkey: payer, isSigner: true, isWritable: true },
-      { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-      { pubkey: SYSVAR_INSTRUCTIONS_PUBKEY, isSigner: false, isWritable: false },
-    ],
-    data,
-  });
-}
-
-function shouldRetryWithLegacyRegisterEncoding(err: unknown): boolean {
-  if (!(err instanceof Error)) return false;
-  const msg = err.message;
-  return (
-    msg.includes("AttestationChallengeMismatch") ||
-    msg.includes("InstructionDidNotDeserialize") ||
-    msg.includes("Program failed to complete")
-  );
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
@@ -241,15 +201,15 @@ export async function registerAgentWallet(
     pubkeyX,
     pubkeyY,
   ]);
-  const preimageHash = createHash("sha256").update(preimage).digest();
-  const sigBytes = p256.sign(preimageHash, privKey) as unknown as Uint8Array;
+  const sigBytes = p256.sign(preimage, privKey) as Uint8Array;
 
-  // Devnet secp256r1 precompile (Agave 2.x) takes the pre-hashed message
-  // directly — it does NOT hash msg_data internally. Pass the 32-byte hash.
+  // Devnet path: precompile receives the raw 131-byte registration preimage.
+  // The on-chain program compares sha256(signed_message) to its independently
+  // reconstructed challenge hash.
   const secp256r1Ix = buildSecp256r1Instruction(
     sigBytes,
     compressedPubkey,
-    preimageHash,
+    preimage,
   );
   const registerIx = buildRegisterInstruction(
     agentWallet,
@@ -261,27 +221,7 @@ export async function registerAgentWallet(
   );
 
   const tx = new Transaction().add(secp256r1Ix, registerIx);
-  let signature: string;
-  try {
-    signature = await sendAndConfirmTransaction(connection, tx, [signer]);
-  } catch (err) {
-    if (!shouldRetryWithLegacyRegisterEncoding(err)) {
-      throw err;
-    }
-
-    // Compatibility path for older devnet program layouts that still decode
-    // register_agent_wallet args as Vec<u8> instead of [u8; 32].
-    const legacyRegisterIx = buildRegisterInstructionLegacyVec(
-      agentWallet,
-      attestationRegistry,
-      signer.publicKey,
-      pubkeyX,
-      pubkeyY,
-      holdfastProgramId,
-    );
-    const legacyTx = new Transaction().add(secp256r1Ix, legacyRegisterIx);
-    signature = await sendAndConfirmTransaction(connection, legacyTx, [signer]);
-  }
+  const signature = await sendAndConfirmTransaction(connection, tx, [signer]);
 
   return { agentWallet, p256PublicKey: compressedPubkey, p256PrivateKey: privKey, signature };
 }
