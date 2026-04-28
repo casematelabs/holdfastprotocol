@@ -360,6 +360,7 @@ describe("Escrow SDK lifecycle integration", async () => {
     const releaseIx = conn.sent[4].tx.instructions[0];
     assert.deepEqual(releaseIx.data, disc("release_escrow"));
     assert.ok(releaseIx.keys.some((k) => k.pubkey.equals(initiatorWallet)));
+    assert.ok(releaseIx.keys.some((k) => k.pubkey.equals(vault)));
 
     await beneficiarySdk.claimReleased(escrowId, initiator.publicKey);
     const claimIx = conn.sent[5].tx.instructions[0];

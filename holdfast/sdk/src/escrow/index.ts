@@ -865,6 +865,10 @@ export class EscrowModule {
     const escrowIdBytes = escrowId.toBuffer();
     const escrowPda = deriveEscrowPda(escrowIdBytes, this.programId);
     const pactPda = derivePactPda(escrowIdBytes, this.programId);
+    const info = await this.connection.getAccountInfo(escrowPda);
+    if (info === null) throw new EscrowNotFoundError(escrowPda.toBase58());
+    const escrow = deserializeEscrowAccount(escrowPda, Buffer.from(info.data));
+    const vault = new PublicKey(escrow.vault);
 
     const ix = new TransactionInstruction({
       programId: this.programId,
@@ -874,6 +878,7 @@ export class EscrowModule {
         { pubkey: escrowPda, isSigner: false, isWritable: true },
         { pubkey: pactPda, isSigner: false, isWritable: false },
         { pubkey: agentWallet, isSigner: false, isWritable: false },
+        { pubkey: vault, isSigner: false, isWritable: false },
       ],
     });
 
