@@ -148,6 +148,46 @@ function buildRegisterInstruction(
   });
 }
 
+function buildRegisterInstructionLegacyVec(
+  agentWallet: PublicKey,
+  attestationRegistry: PublicKey,
+  payer: PublicKey,
+  pubkeyX: Buffer,
+  pubkeyY: Buffer,
+  holdfastProgramId: PublicKey,
+): TransactionInstruction {
+  // Legacy Borsh layout used by older devnet deployments:
+  // discriminator (8) + Vec<u8> pubkeyX (4 + 32) + Vec<u8> pubkeyY (4 + 32)
+  const data = Buffer.alloc(8 + 4 + 32 + 4 + 32);
+  DISC_REGISTER_AGENT_WALLET.copy(data, 0);
+  data.writeUInt32LE(32, 8);
+  pubkeyX.copy(data, 12);
+  data.writeUInt32LE(32, 44);
+  pubkeyY.copy(data, 48);
+
+  return new TransactionInstruction({
+    programId: holdfastProgramId,
+    keys: [
+      { pubkey: agentWallet, isSigner: false, isWritable: true },
+      { pubkey: attestationRegistry, isSigner: false, isWritable: true },
+      { pubkey: payer, isSigner: true, isWritable: true },
+      { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      { pubkey: SYSVAR_INSTRUCTIONS_PUBKEY, isSigner: false, isWritable: false },
+    ],
+    data,
+  });
+}
+
+function shouldRetryWithLegacyRegisterEncoding(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  const msg = err.message;
+  return (
+    msg.includes("AttestationChallengeMismatch") ||
+    msg.includes("InstructionDidNotDeserialize") ||
+    msg.includes("Program failed to complete")
+  );
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
 /**
@@ -221,7 +261,27 @@ export async function registerAgentWallet(
   );
 
   const tx = new Transaction().add(secp256r1Ix, registerIx);
-  const signature = await sendAndConfirmTransaction(connection, tx, [signer]);
+  let signature: string;
+  try {
+    signature = await sendAndConfirmTransaction(connection, tx, [signer]);
+  } catch (err) {
+    if (!shouldRetryWithLegacyRegisterEncoding(err)) {
+      throw err;
+    }
+
+    // Compatibility path for older devnet program layouts that still decode
+    // register_agent_wallet args as Vec<u8> instead of [u8; 32].
+    const legacyRegisterIx = buildRegisterInstructionLegacyVec(
+      agentWallet,
+      attestationRegistry,
+      signer.publicKey,
+      pubkeyX,
+      pubkeyY,
+      holdfastProgramId,
+    );
+    const legacyTx = new Transaction().add(secp256r1Ix, legacyRegisterIx);
+    signature = await sendAndConfirmTransaction(connection, legacyTx, [signer]);
+  }
 
   return { agentWallet, p256PublicKey: compressedPubkey, p256PrivateKey: privKey, signature };
 }
