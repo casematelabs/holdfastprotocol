@@ -201,7 +201,16 @@ export async function registerAgentWallet(
     pubkeyX,
     pubkeyY,
   ]);
-  const sigBytes = p256.sign(preimage, privKey) as Uint8Array;
+  // noble return type differs across package versions/workspaces:
+  // - Uint8Array(64) in newer builds
+  // - Signature object with toCompactRawBytes() in older builds
+  const signature = p256.sign(preimage, privKey) as
+    | Uint8Array
+    | { toCompactRawBytes: () => Uint8Array };
+  const sigBytes =
+    signature instanceof Uint8Array
+      ? signature
+      : signature.toCompactRawBytes();
 
   // Devnet path: precompile receives the raw 131-byte registration preimage.
   // The on-chain program compares sha256(signed_message) to its independently
