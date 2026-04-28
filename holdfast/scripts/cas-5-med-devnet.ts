@@ -131,18 +131,16 @@ async function main(): Promise<void> {
     });
   }
 
-  try {
+  const registryAccount = await connection.getAccountInfo(registryPda, "confirmed");
+  if (registryAccount === null) {
     await step("initialize registry", async () => holdfastProgram.methods.initializeRegistry().accounts({
       attestationRegistry: registryPda,
       authority: payer.publicKey,
       systemProgram: anchor.web3.SystemProgram.programId,
       escrowProgram: escrowProgram.programId,
     }).rpc());
-  } catch (e: any) {
-    const msg = String(e?.message ?? "");
-    const logs = Array.isArray(e?.logs) ? e.logs.join(" | ") : "";
-    const diag = `${msg} ${logs}`;
-    if (!diag.includes("already in use")) throw e;
+  } else {
+    console.log(`[step-skip] initialize registry (already exists: ${registryPda.toBase58()})`);
   }
 
   async function registerAgentWallet(authority: anchor.web3.Keypair): Promise<anchor.web3.PublicKey> {
@@ -153,8 +151,10 @@ async function main(): Promise<void> {
     const [walletPda] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("agent_wallet"), pubkeyX, pubkeyY], holdfastProgram.programId);
     const preimage = buildRegistrationPreimage(authority.publicKey, pubkeyX, pubkeyY);
     const preimageHash = crypto.createHash("sha256").update(preimage).digest();
-    const sigBytes = p256.sign(preimageHash, privKey).toCompactRawBytes();
-    const secpIx = buildSecp256r1Instruction(sigBytes, uncompressed, preimage);
+    const sigBytes = p256.sign(preimageHash, privKey, { lowS: true }).toCompactRawBytes();
+    // Devnet secp256r1 precompile verifies a pre-hashed 32-byte challenge.
+    // For register_agent_wallet, both signing and msg_data use sha256(preimage).
+    const secpIx = buildSecp256r1Instruction(sigBytes, p256.getPublicKey(privKey, true), preimageHash);
     const regIx = await holdfastProgram.methods.registerAgentWallet(Array.from(pubkeyX), Array.from(pubkeyY)).accounts({
       agentWallet: walletPda,
       attestationRegistry: registryPda,
@@ -170,7 +170,9 @@ async function main(): Promise<void> {
       const isKnownSimBoundary =
         diag.includes("Instruction 0") &&
         (diag.includes("custom program error: 0x2") ||
-          diag.includes('Custom":2'));
+          diag.includes("custom program error: 0x0") ||
+          diag.includes('Custom":2') ||
+          diag.includes('Custom":0'));
       if (!isKnownSimBoundary) throw err;
 
       tx.feePayer = provider.wallet.publicKey;
@@ -190,8 +192,9 @@ async function main(): Promise<void> {
       });
       if (txInfo?.meta?.err) {
         const txLogs = txInfo.meta.logMessages ?? [];
+        const secpHex = Buffer.from(secpIx.data).toString("hex");
         throw new Error(
-          `register_agent_wallet failed after skipPreflight fallback: ${JSON.stringify(txInfo.meta.err)} | logs: ${txLogs.join(" | ")}`,
+          `register_agent_wallet failed after skipPreflight fallback: ${JSON.stringify(txInfo.meta.err)} | logs: ${txLogs.join(" | ")} | secp_ix_hex: ${secpHex}`,
         );
       }
     }
