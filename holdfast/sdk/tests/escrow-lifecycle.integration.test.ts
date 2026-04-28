@@ -188,6 +188,19 @@ class CompatFallbackConnection extends FakeConnection {
   }
 }
 
+class CompatFallbackConnectionThirdAttempt extends FakeConnection {
+  private callCount = 0;
+
+  override async sendTransaction(tx: Transaction, signers: Signer[]): Promise<string> {
+    this.callCount += 1;
+    if (this.callCount <= 2) {
+      this.sent.push({ tx, signers });
+      throw new Error("InstructionDidNotDeserialize");
+    }
+    return super.sendTransaction(tx, signers);
+  }
+}
+
 describe("Escrow SDK lifecycle integration", async () => {
   await test("create/deposit/stake/lock/release/claim use expected accounts and reputation CPI wiring", async () => {
     const initiator = Keypair.generate();
@@ -418,5 +431,72 @@ describe("Escrow SDK lifecycle integration", async () => {
     const secondIx = conn.sent[1].tx.instructions[0];
     assert.ok(secondIx.data.length < firstIx.data.length);
     assert.deepEqual(secondIx.data.subarray(0, 8), disc("initialize_escrow"));
+  });
+
+  await test("createPact retries with intermediate legacy layout that still requires pact_record", async () => {
+    const initiator = Keypair.generate();
+    const beneficiary = Keypair.generate();
+    const initiatorWallet = Keypair.generate().publicKey;
+    const beneficiaryWallet = Keypair.generate().publicKey;
+    const mint = Keypair.generate().publicKey;
+
+    const escrowIdBytes = Buffer.alloc(32, 0x62);
+    const escrowPda = deriveEscrowPda(escrowIdBytes);
+    const pactPda = derivePactPda(escrowIdBytes);
+    const vault = deriveAta(escrowPda, mint);
+
+    const conn = new CompatFallbackConnectionThirdAttempt();
+    conn.setAccount(
+      escrowPda,
+      buildEscrowAccountData({
+        escrowId: escrowIdBytes,
+        initiator: initiator.publicKey,
+        beneficiary: beneficiary.publicKey,
+        arbiter: initiator.publicKey,
+        mint,
+        vault,
+        pactRecord: pactPda,
+        status: EscrowStatus.Pending,
+        disputeWindowEndsAt: 0n,
+      }),
+    );
+
+    const rep = {
+      async meetsRequirements() {
+        return true;
+      },
+    } as unknown as ReputationModule;
+
+    const sdk = new EscrowModule(
+      conn as unknown as Connection,
+      "http://indexer.test",
+      rep,
+      initiator,
+      initiatorWallet,
+      ESCROW_PROGRAM_ID,
+      HOLDFAST_PROGRAM_ID,
+    );
+
+    await sdk.createPact({
+      counterparty: beneficiary.publicKey,
+      counterpartyWallet: beneficiaryWallet,
+      mint,
+      amount: 1_000_000n,
+      releaseCondition: {
+        kind: "timed",
+        timeLockExpiresAt: Math.floor(Date.now() / 1000) + 3600,
+      },
+      escrowId: escrowIdBytes,
+    });
+
+    assert.equal(conn.sent.length, 3);
+    const firstIx = conn.sent[0].tx.instructions[0];
+    const secondIx = conn.sent[1].tx.instructions[0];
+    const thirdIx = conn.sent[2].tx.instructions[0];
+    assert.ok(secondIx.data.length < firstIx.data.length);
+    assert.ok(thirdIx.data.length < secondIx.data.length);
+    assert.equal(thirdIx.keys.length, 13);
+    assert.equal(thirdIx.keys[2].pubkey.toBase58(), pactPda.toBase58());
+    assert.deepEqual(thirdIx.data.subarray(0, 8), disc("initialize_escrow"));
   });
 });
