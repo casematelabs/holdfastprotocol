@@ -35,6 +35,7 @@ const REPUTATION_ACCOUNT_SIZE = 512;
 const ESCROW_ACCOUNT_SIZE = 408; // EscrowAccount::LEN = 8 + 400
 const PACT_RECORD_SIZE = 344; // PactRecord::LEN = 8 + 336
 const DISPUTE_RECORD_SIZE = 508; // DisputeRecord::LEN = 8 + 500
+const CANCEL_PENDING_MAX_RETRY = 1;
 
 function withLegacyAccountTypes(rawIdl: any): any {
   const next = JSON.parse(JSON.stringify(rawIdl));
@@ -845,14 +846,14 @@ async function main(): Promise<void> {
   const [escrow2] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("escrow"), Buffer.from(escrowId2)], escrowProgram.programId);
   const [pact2] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("pact"), Buffer.from(escrowId2)], escrowProgram.programId);
   const vault2 = getAssociatedTokenAddress(mint.publicKey, escrow2);
-  const pastLock = nowSecs - 60;
+  const cancelLock = Math.floor(Date.now() / 1000) + 20;
 
   await escrowProgram.methods.initializeEscrow({
     escrowId: escrowId2,
     beneficiary: beneficiary.publicKey,
     arbiter: arbiter.publicKey,
     escrowAmount: new anchor.BN(220_000), initiatorStake: new anchor.BN(11_000), beneficiaryStake: new anchor.BN(0),
-    timeLockExpiresAt: new anchor.BN(pastLock),
+    timeLockExpiresAt: new anchor.BN(cancelLock),
     deliverablesHash: Array(32).fill(3), deliverablesUri: Array(128).fill(0), autoReleaseOnExpiry: false, slashLoserStake: false,
     disputeDeadlineSecs: new anchor.BN(86400), initiatorReputationMin: new anchor.BN(0), beneficiaryReputationMin: new anchor.BN(0),
     initiatorMinTier: 0, initiatorMinPacts: new anchor.BN(0), beneficiaryMinTier: 0, beneficiaryMinPacts: new anchor.BN(0),
@@ -878,21 +879,48 @@ async function main(): Promise<void> {
       ? `BLOCKED_LEGACY_REGISTRY len=${registryDataLen} (need 81; ${registryMigrationNote})`
       : `BLOCKED_LEGACY_REGISTRY len=${registryDataLen} (need 81; run migrate_attestation_registry as INITIAL_AUTHORITY)`;
   } else {
-    const cancelIx = buildCancelPendingEscrowIx({
-      programId: escrowProgram.programId,
-      initiator: initiator.publicKey,
-      escrowAccount: escrow2,
-      vault: vault2,
-      initiatorTokenAccount: iToken.publicKey,
-      beneficiaryTokenAccount: bToken.publicKey,
-      tokenProgram: TOKEN_PROGRAM_ID,
-      initiatorReputation: initiatorRep,
-      beneficiaryReputation: beneficiaryRep,
-      escrowAuthority,
-      attestationRegistry,
-      vaultpactProgram: holdfastProgram.programId,
-    });
-    cancelSig = await provider.sendAndConfirm(new anchor.web3.Transaction().add(cancelIx), [initiator]);
+    const waitUntilExpired = async (): Promise<void> => {
+      for (let i = 0; i < 20; i += 1) {
+        const onchainNow = (await connection.getBlockTime(await connection.getSlot("confirmed"))) ?? Math.floor(Date.now() / 1000);
+        if (onchainNow > cancelLock) return;
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    };
+    await waitUntilExpired();
+    for (let attempt = 0; attempt <= CANCEL_PENDING_MAX_RETRY; attempt += 1) {
+      try {
+        const cancelIx = buildCancelPendingEscrowIx({
+          programId: escrowProgram.programId,
+          initiator: initiator.publicKey,
+          escrowAccount: escrow2,
+          vault: vault2,
+          initiatorTokenAccount: iToken.publicKey,
+          beneficiaryTokenAccount: bToken.publicKey,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          initiatorReputation: initiatorRep,
+          beneficiaryReputation: beneficiaryRep,
+          escrowAuthority,
+          attestationRegistry,
+          vaultpactProgram: holdfastProgram.programId,
+        });
+        cancelSig = await provider.sendAndConfirm(new anchor.web3.Transaction().add(cancelIx), [initiator]);
+        break;
+      } catch (err: any) {
+        const diag = `${(err?.logs ?? []).join(" ")} ${err?.message ?? ""}`;
+        const isTimelockBoundary = diag.includes("TimeLockNotExpired");
+        if (!isTimelockBoundary || attempt >= CANCEL_PENDING_MAX_RETRY) {
+          throw err;
+        }
+        const escrowState: any = await escrowProgram.account.escrowAccount.fetch(escrow2, "confirmed");
+        const onchainNow = (await connection.getBlockTime(await connection.getSlot("confirmed"))) ?? Math.floor(Date.now() / 1000);
+        const expiresAt = Number(escrowState.timeLockExpiresAt.toString());
+        const waitSecs = Math.max(1, Math.min(8, expiresAt - onchainNow + 1));
+        console.warn(
+          `[cancel-pending-retry] boundary hit; now=${onchainNow}, expiresAt=${expiresAt}, waiting ${waitSecs}s before retry`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, waitSecs * 1000));
+      }
+    }
   }
 
   const iNonceAfter = await fetchReputationNonce(connection, initiatorRep);
