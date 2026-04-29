@@ -5,7 +5,26 @@
   "scripts": {
     "test": "ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts",
     "coverage:all": "npm run coverage --prefix sdk && npm run coverage --prefix oracle && npm run coverage --prefix indexer",
-    "demo": "node_modules/.bin/ts-node --transpile-only -P tsconfig.json scripts/hackathon-demo.ts"
+    "demo": "node_modules/.bin/ts-node --transpile-only -P tsconfig.json scripts/hackathon-demo.ts",
+    "cas5:help": "cross-env TS_NODE_TRANSPILE_ONLY=1 CAS5_HELP=1 ts-node scripts/cas-5-med-devnet.ts",
+    "cas5:funding:dry": "cross-env TS_NODE_TRANSPILE_ONLY=1 CAS5_FUNDING_DRY_RUN=1 CAS5_FEE_BUFFER_SOL=0.001 ts-node scripts/cas-5-med-devnet.ts",
+    "cas5:topup:hint": "cross-env TS_NODE_TRANSPILE_ONLY=1 CAS5_FUNDING_DRY_RUN=1 CAS5_TOPUP_HINT=1 CAS5_FEE_BUFFER_SOL=0.001 ts-node scripts/cas-5-med-devnet.ts",
+    "cas5:status": "yarn -s cas5:topup:hint && solana balance C5XepxkBuYenXRVgRzbzFyLFn7iBzQPdebuR5FrWs6x1 --url https://api.devnet.solana.com",
+    "cas5:status:file": "powershell -NoProfile -Command \"$ts=(Get-Date).ToString('yyyy-MM-ddTHH:mm:ssK'); $bal=(solana balance C5XepxkBuYenXRVgRzbzFyLFn7iBzQPdebuR5FrWs6x1 --url https://api.devnet.solana.com).Trim(); $hint=(yarn -s cas5:topup:hint); $out=@(); $out += ('timestamp=' + $ts); $out += 'payer=C5XepxkBuYenXRVgRzbzFyLFn7iBzQPdebuR5FrWs6x1'; $out += ('payer_balance=' + $bal); $out += $hint; $fullShort=((($hint -split '\\\\r?\\\\n') | Where-Object { $_ -like 'full_shortfall_lamports=*' } | ForEach-Object { [int64]($_ -replace 'full_shortfall_lamports=','') } | Select-Object -First 1)); if($fullShort -gt 0){ $out += 'blocked_owner=devnet funding operator / protocol ops'; $out += 'blocked_action=external top-up to payer C5XepxkBuYenXRVgRzbzFyLFn7iBzQPdebuR5FrWs6x1 by >=0.018560 SOL for default gate; or >=0.009079 SOL with CAS5_MIN_PAYER_SOL override; or >=0.000060 SOL for registration-only diagnostic (CAS5_REGISTRATION_ONLY=1 CAS5_IGNORE_PARTICIPANT_MIN=1 CAS5_MIN_PAYER_SOL=0.001), then rerun TS_NODE_TRANSPILE_ONLY=1 yarn ts-node scripts/cas-5-med-devnet.ts'; } else { $out += 'blocked_owner=protocol deploy authority / release engineering'; $out += 'blocked_action=deploy upgraded holdfast program with migrate_attestation_registry and run scripts/execute-attestation-registry-migration.ts using protocol-authority key'; } $out | Out-File -FilePath tmp-cas5-status.txt -Encoding utf8; Get-Content -Path tmp-cas5-status.txt\"",
+    "cas5:boundary:probe": "powershell -NoProfile -Command \"$ErrorActionPreference='Continue'; $out=@(); $out += ('timestamp=' + (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssK')); $out += 'command_default=TS_NODE_TRANSPILE_ONLY=1 yarn ts-node scripts/cas-5-med-devnet.ts'; $env:TS_NODE_TRANSPILE_ONLY='1'; Remove-Item Env:CAS5_MIN_PAYER_SOL -ErrorAction SilentlyContinue; $d=(& yarn ts-node scripts/cas-5-med-devnet.ts 2>&1 | Out-String); $out += ('default_result=' + (($d -split '\\\\r?\\\\n' | Where-Object { $_ -match 'Error:' } | Select-Object -First 1).Trim())); $out += 'command_override=CAS5_MIN_PAYER_SOL=0.001 TS_NODE_TRANSPILE_ONLY=1 yarn ts-node scripts/cas-5-med-devnet.ts'; $env:CAS5_MIN_PAYER_SOL='0.001'; $o=(& yarn ts-node scripts/cas-5-med-devnet.ts 2>&1 | Out-String); $out += ('override_result=' + (($o -split '\\\\r?\\\\n' | Where-Object { $_ -match 'Error:' } | Select-Object -First 1).Trim())); $out | Out-File -FilePath tmp-cas5-boundary.txt -Encoding utf8; Get-Content -Path tmp-cas5-boundary.txt\"",
+    "cas5:boundary:probe:clean": "powershell -NoProfile -Command \"$out=@(); $out += ('timestamp=' + (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssK')); $env:TS_NODE_TRANSPILE_ONLY='1'; Remove-Item Env:CAS5_MIN_PAYER_SOL -ErrorAction SilentlyContinue; try { $d=(& yarn ts-node scripts/cas-5-med-devnet.ts 2>&1 | Out-String) } catch { $d=($_ | Out-String) }; $env:CAS5_MIN_PAYER_SOL='0.001'; try { $o=(& yarn ts-node scripts/cas-5-med-devnet.ts 2>&1 | Out-String) } catch { $o=($_ | Out-String) }; $dm=[regex]::Match($d,'Error: insufficient payer balance:.*'); $om=[regex]::Match($o,'Error: insufficient payer balance for participant funding:.*'); $out += ('default_error=' + $dm.Value); $out += ('override_error=' + $om.Value); if(([string]::IsNullOrWhiteSpace($dm.Value)) -and ([string]::IsNullOrWhiteSpace($om.Value))){ $out += 'unblock_owner=protocol deploy authority / release engineering'; $out += 'unblock_action=deploy upgraded holdfast program with migrate_attestation_registry and run scripts/execute-attestation-registry-migration.ts using protocol-authority key'; } else { $out += 'unblock_owner=devnet funding operator / protocol ops'; $out += 'unblock_action=top up payer C5XepxkBuYenXRVgRzbzFyLFn7iBzQPdebuR5FrWs6x1 by >=0.018560 SOL (default gate) or >=0.009079 SOL (override path) from non-faucet source'; } $out | Out-File -FilePath tmp-cas5-boundary-clean.txt -Encoding utf8; Get-Content -Path tmp-cas5-boundary-clean.txt\"",
+    "cas5:registration:diag-min": "cross-env TS_NODE_TRANSPILE_ONLY=1 CAS5_REGISTRATION_ONLY=1 CAS5_IGNORE_PARTICIPANT_MIN=1 CAS5_MIN_PAYER_SOL=0.001 ts-node scripts/cas-5-med-devnet.ts",
+    "cas5:run-if-funded": "powershell -NoProfile -Command \"$payer='C5XepxkBuYenXRVgRzbzFyLFn7iBzQPdebuR5FrWs6x1'; $balOut=(solana balance $payer --url https://api.devnet.solana.com).Trim(); Write-Output ('payer_balance=' + $balOut); $bal=[double](($balOut -split ' ')[0]); if($bal -ge 0.02){ Write-Output 'balance gate met; running baseline'; $env:TS_NODE_TRANSPILE_ONLY='1'; yarn ts-node scripts/cas-5-med-devnet.ts } else { Write-Output 'balance gate not met; skipping baseline run' }\"",
+    "cas5:ops:heartbeat": "yarn -s cas5:run-if-funded && yarn -s cas5:status:file",
+    "cas5:ops:snapshot": "yarn -s cas5:status:file && yarn -s cas5:funding:json:file && yarn -s cas5:boundary:probe:clean",
+    "cas5:funding:json": "cross-env TS_NODE_TRANSPILE_ONLY=1 CAS5_FUNDING_DRY_RUN=1 CAS5_FUNDING_JSON=1 CAS5_FEE_BUFFER_SOL=0.001 ts-node scripts/cas-5-med-devnet.ts",
+    "cas5:funding:json:file": "cross-env TS_NODE_TRANSPILE_ONLY=1 CAS5_FUNDING_DRY_RUN=1 CAS5_FUNDING_JSON=1 CAS5_FUNDING_JSON_PATH=tmp-cas5-funding.json CAS5_FEE_BUFFER_SOL=0.001 ts-node scripts/cas-5-med-devnet.ts",
+    "cas5:migrate:devnet": "cross-env TS_NODE_TRANSPILE_ONLY=1 ts-node scripts/execute-attestation-registry-migration.ts",
+    "cas5:migrate:devnet:split-local": "powershell -NoProfile -Command \"$env:HOLDFAST_AUTHORITY_KEYPAIR='keys/devnet-escrow-fallback.json'; $env:HOLDFAST_FEE_PAYER_KEYPAIR=\\\"$env:USERPROFILE\\\\.config\\\\solana\\\\id.json\\\"; yarn -s cas5:migrate:devnet\"",
+    "cas5:qa:canonical": "cross-env HOLDFAST_PROGRAM_ID=2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq TS_NODE_TRANSPILE_ONLY=1 ts-node scripts/cas-5-med-devnet.ts",
+    "cas5:airdrop": "cross-env TS_NODE_TRANSPILE_ONLY=1 CAS5_TRY_AIRDROP=1 ts-node scripts/cas-5-med-devnet.ts",
+    "cas5:recover": "cross-env TS_NODE_TRANSPILE_ONLY=1 CAS5_RECOVER_FROM_DIR=tmp-cas5-participants ts-node scripts/cas-5-med-devnet.ts",
+    "cas5:clean-temp": "powershell -NoProfile -Command \"Remove-Item -Path tmp-cas5-funding.json -Force -ErrorAction SilentlyContinue; Remove-Item -Path tmp-cas5-participants -Recurse -Force -ErrorAction SilentlyContinue; exit 0\""
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1"
@@ -19,6 +38,13 @@
     "mocha": "^10.0.0",
     "solana-bankrun": "^0.4.0",
     "ts-mocha": "^10.0.0",
-    "typescript": "^5.8.0"
+    "typescript": "^5.8.0",
+    "cross-env": "^7.0.3"
   }
 }
+
+
+
+
+
+
