@@ -26,7 +26,8 @@ import * as path from "path";
 
 import idl from "../target/idl/vaultpact.json";
 
-const PROGRAM_ID = new PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
+const DEFAULT_PROGRAM_ID = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg";
+const PROGRAM_ID = new PublicKey(process.env.HOLDFAST_PROGRAM_ID ?? DEFAULT_PROGRAM_ID);
 const DEVNET_RPC = process.env.HOLDFAST_RPC_URL ?? "https://api.devnet.solana.com";
 const EXPECTED_ORACLE = "3Kj7GpYVoARqCT1bfBmCC5NZhw37ahEiyxsJW9zcTSiy";
 
@@ -62,21 +63,52 @@ async function getRegistryState(connection: Connection) {
 }
 
 async function main() {
-  const keyPath = path.join(__dirname, "..", "keys", "devnet-protocol-authority.json");
+  const defaultKeyPath = path.join(__dirname, "..", "keys", "devnet-protocol-authority.json");
+  const configuredAuthority = process.env.HOLDFAST_AUTHORITY_KEYPAIR?.trim() ?? "";
+  const authorityPath = configuredAuthority.length > 0
+    ? (path.isAbsolute(configuredAuthority) ? configuredAuthority : path.resolve(process.cwd(), configuredAuthority))
+    : defaultKeyPath;
+  if (!fs.existsSync(authorityPath)) {
+    throw new Error(
+      `authority keypair not found at ${authorityPath}. ` +
+      `Set HOLDFAST_AUTHORITY_KEYPAIR to a valid keypair file path.`,
+    );
+  }
   const authority = Keypair.fromSecretKey(
-    Uint8Array.from(JSON.parse(fs.readFileSync(keyPath, "utf8"))),
+    Uint8Array.from(JSON.parse(fs.readFileSync(authorityPath, "utf8"))),
   );
+  const configuredFeePayer = process.env.HOLDFAST_FEE_PAYER_KEYPAIR?.trim() ?? "";
+  const feePayerPath = configuredFeePayer.length > 0
+    ? (path.isAbsolute(configuredFeePayer) ? configuredFeePayer : path.resolve(process.cwd(), configuredFeePayer))
+    : authorityPath;
+  if (!fs.existsSync(feePayerPath)) {
+    throw new Error(
+      `fee-payer keypair not found at ${feePayerPath}. ` +
+      `Set HOLDFAST_FEE_PAYER_KEYPAIR to a valid keypair file path.`,
+    );
+  }
+  const feePayer = Keypair.fromSecretKey(
+    Uint8Array.from(JSON.parse(fs.readFileSync(feePayerPath, "utf8"))),
+  );
+
+  console.log("Authority key file:", authorityPath);
   console.log("Authority pubkey:", authority.publicKey.toBase58());
+  console.log("Fee payer key file:", feePayerPath);
+  console.log("Fee payer pubkey:", feePayer.publicKey.toBase58());
 
   const connection = new Connection(DEVNET_RPC, "confirmed");
-  const wallet = new anchor.Wallet(authority);
+  const wallet = new anchor.Wallet(feePayer);
   const provider = new anchor.AnchorProvider(connection, wallet, {
     commitment: "confirmed",
     preflightCommitment: "confirmed",
   });
 
+  // Ensure Program runtime ID matches the target deployment under test.
+  // The generated IDL may carry a different `address` field.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const program = new Program(idl as any, provider);
+  const runtimeIdl = { ...(idl as any), address: PROGRAM_ID.toBase58() };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const program = new Program(runtimeIdl as any, provider);
 
   // ── Step 1: Pre-migration snapshot ────────────────────────────────────────────
   console.log("\n=== Pre-migration state ===");
@@ -90,7 +122,7 @@ async function main() {
 
   if (pre.size === 81) {
     console.log("\n⚠️  Account already at 81 bytes — migration already applied.");
-    process.exit(0);
+    return;
   }
 
   if (pre.size !== 49) {
@@ -106,6 +138,7 @@ async function main() {
       authority: authority.publicKey,
       systemProgram: SystemProgram.programId,
     })
+    .signers([authority])
     .rpc({ commitment: "confirmed" });
 
   console.log("Transaction signature:", tx);
@@ -144,6 +177,7 @@ async function main() {
         authority: authority.publicKey,
         systemProgram: SystemProgram.programId,
       })
+      .signers([authority])
       .rpc({ commitment: "confirmed" });
 
     console.error("❌ Second migration call did NOT revert — double-migration protection MISSING");
