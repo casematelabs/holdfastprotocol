@@ -6,17 +6,34 @@ use crate::errors::EscrowError;
 use crate::state::*;
 
 pub(crate) const FULFILLED_SCORE_DELTA: i16 = 50;
+pub(crate) const PROTOCOL_FEE_BPS: u64 = 25;
+pub(crate) const BPS_DENOMINATOR: u64 = 10_000;
 
-/// Computes claim payouts: (beneficiary_payout, initiator_stake_return).
-/// Returns an overflow error on pathological stake values.
+/// Computes protocol fee charged on escrow principal only.
+/// fee = floor(escrow_amount * 25 / 10_000)
+pub(crate) fn compute_claim_fee(escrow_amount: u64) -> anchor_lang::Result<u64> {
+    let fee_u128 = (escrow_amount as u128)
+        .checked_mul(PROTOCOL_FEE_BPS as u128)
+        .ok_or_else(|| anchor_lang::error!(EscrowError::ArithmeticOverflow))?
+        / (BPS_DENOMINATOR as u128);
+    u64::try_from(fee_u128)
+        .map_err(|_| anchor_lang::error!(EscrowError::ArithmeticOverflow))
+}
+
+/// Computes claim payouts: (beneficiary_payout, initiator_stake_return, protocol_fee).
+/// Beneficiary receives (escrow_amount - fee + beneficiary_stake).
 pub(crate) fn compute_claim_payouts(
     escrow_amount: u64,
     beneficiary_stake: u64,
-) -> anchor_lang::Result<u64> {
-    use crate::errors::EscrowError;
-    escrow_amount
+) -> anchor_lang::Result<(u64, u64)> {
+    let fee = compute_claim_fee(escrow_amount)?;
+    let beneficiary_principal = escrow_amount
+        .checked_sub(fee)
+        .ok_or_else(|| anchor_lang::error!(EscrowError::ArithmeticOverflow))?;
+    let beneficiary_payout = beneficiary_principal
         .checked_add(beneficiary_stake)
-        .ok_or_else(|| anchor_lang::error!(EscrowError::ArithmeticOverflow))
+        .ok_or_else(|| anchor_lang::error!(EscrowError::ArithmeticOverflow))?;
+    Ok((beneficiary_payout, fee))
 }
 
 #[derive(Accounts)]
@@ -52,6 +69,15 @@ pub struct ClaimReleased<'info> {
             @ EscrowError::UnauthorizedTokenAccount,
     )]
     pub initiator_token_account: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+        mut,
+        constraint = treasury_token_account.owner == attestation_registry.authority
+            @ EscrowError::UnauthorizedTokenAccount,
+        constraint = treasury_token_account.mint == escrow_account.mint
+            @ EscrowError::UnauthorizedTokenAccount,
+    )]
+    pub treasury_token_account: Box<Account<'info, TokenAccount>>,
 
     #[account(constraint = beneficiary_wallet.authority == beneficiary.key()
         @ EscrowError::AgentWalletAuthorityMismatch)]
@@ -129,8 +155,22 @@ pub fn handler(ctx: Context<ClaimReleased>) -> Result<()> {
 
     let signer_seeds: &[&[&[u8]]] = &[&[b"escrow", escrow_id.as_ref(), &[bump]]];
 
-    // Transfer escrow_amount + beneficiary_stake to beneficiary
-    let beneficiary_payout = compute_claim_payouts(escrow_amount, beneficiary_stake)?;
+    // Compute claim payout and protocol fee (charged on escrow principal only).
+    let (beneficiary_payout, protocol_fee) = compute_claim_payouts(escrow_amount, beneficiary_stake)?;
+
+    if protocol_fee > 0 {
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.vault.to_account_info(),
+            to: ctx.accounts.treasury_token_account.to_account_info(),
+            authority: ctx.accounts.escrow_account.to_account_info(),
+        };
+        let cpi_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            cpi_accounts,
+            signer_seeds,
+        );
+        token::transfer(cpi_ctx, protocol_fee)?;
+    }
 
     if beneficiary_payout > 0 {
         let cpi_accounts = Transfer {
@@ -186,7 +226,12 @@ pub fn handler(ctx: Context<ClaimReleased>) -> Result<()> {
         pact_id,
     )?;
 
-    msg!("Escrow claimed: beneficiary={}, initiator_stake_returned={}", beneficiary_payout, initiator_stake);
+    msg!(
+        "Escrow claimed: beneficiary={}, initiator_stake_returned={}, protocol_fee={}",
+        beneficiary_payout,
+        initiator_stake,
+        protocol_fee
+    );
     Ok(())
 }
 
@@ -205,31 +250,54 @@ mod tests {
     // ── compute_claim_payouts ─────────────────────────────────────────────────
 
     #[test]
+    fn claim_fee_rounds_down() {
+        // floor(399 * 25 / 10000) = 0
+        assert_eq!(compute_claim_fee(399).unwrap(), 0);
+        // floor(400 * 25 / 10000) = 1
+        assert_eq!(compute_claim_fee(400).unwrap(), 1);
+    }
+
+    #[test]
     fn claim_payout_with_no_stake() {
-        assert_eq!(compute_claim_payouts(5_000, 0).unwrap(), 5_000);
+        let (beneficiary_payout, fee) = compute_claim_payouts(5_000, 0).unwrap();
+        assert_eq!(fee, 12);
+        assert_eq!(beneficiary_payout, 4_988);
     }
 
     #[test]
     fn claim_payout_adds_beneficiary_stake() {
-        assert_eq!(compute_claim_payouts(1_000, 500).unwrap(), 1_500);
+        let (beneficiary_payout, fee) = compute_claim_payouts(1_000, 500).unwrap();
+        assert_eq!(fee, 2);
+        assert_eq!(beneficiary_payout, 1_498);
     }
 
     #[test]
     fn claim_payout_zero_escrow_amount() {
         // edge case: zero escrow amount but non-zero beneficiary stake
-        assert_eq!(compute_claim_payouts(0, 2_000).unwrap(), 2_000);
+        let (beneficiary_payout, fee) = compute_claim_payouts(0, 2_000).unwrap();
+        assert_eq!(fee, 0);
+        assert_eq!(beneficiary_payout, 2_000);
+    }
+
+    #[test]
+    fn claim_payout_tiny_escrow_has_zero_fee() {
+        let (beneficiary_payout, fee) = compute_claim_payouts(1, 0).unwrap();
+        assert_eq!(fee, 0);
+        assert_eq!(beneficiary_payout, 1);
     }
 
     #[test]
     fn claim_payout_overflow_guard() {
-        let err = compute_claim_payouts(u64::MAX, 1).unwrap_err();
+        let err = compute_claim_payouts(u64::MAX, u64::MAX).unwrap_err();
         assert_eq!(err_code(err), u32::from(EscrowError::ArithmeticOverflow));
     }
 
     #[test]
     fn claim_payout_max_value_no_overflow() {
         // u64::MAX with zero beneficiary stake should be fine
-        assert_eq!(compute_claim_payouts(u64::MAX, 0).unwrap(), u64::MAX);
+        let (beneficiary_payout, fee) = compute_claim_payouts(u64::MAX, 0).unwrap();
+        assert!(fee > 0);
+        assert_eq!(beneficiary_payout.checked_add(fee).unwrap(), u64::MAX);
     }
 
     // ── FULFILLED_SCORE_DELTA constant ───────────────────────────────────────
