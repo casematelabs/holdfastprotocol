@@ -777,7 +777,7 @@ async function main(): Promise<void> {
 
   await provider.sendAndConfirm(new anchor.web3.Transaction().add(splMintToIx(mint.publicKey, iToken.publicKey, payer.publicKey, 10_000_000)), [payer]);
   await provider.sendAndConfirm(new anchor.web3.Transaction().add(splMintToIx(mint.publicKey, bToken.publicKey, payer.publicKey, 10_000_000)), [payer]);
-  const nowMs = Date.now();
+  const nowSecs = Math.floor(Date.now() / 1000);
 
   // MED-F-001
   const escrowId1 = randomEscrowId();
@@ -791,7 +791,7 @@ async function main(): Promise<void> {
     beneficiary: beneficiary.publicKey,
     arbiter: arbiter.publicKey,
     escrowAmount: new anchor.BN(400_000), initiatorStake: new anchor.BN(0), beneficiaryStake: new anchor.BN(0),
-    timeLockExpiresAt: new anchor.BN(nowMs + (2 * 60 * 60 * 1000)),
+    timeLockExpiresAt: new anchor.BN(nowSecs + (2 * 60 * 60)),
     deliverablesHash: Array(32).fill(1), deliverablesUri: Array(128).fill(0), autoReleaseOnExpiry: false, slashLoserStake: false,
     disputeDeadlineSecs: new anchor.BN(86400), initiatorReputationMin: new anchor.BN(0), beneficiaryReputationMin: new anchor.BN(0),
     initiatorMinTier: 0, initiatorMinPacts: new anchor.BN(0), beneficiaryMinTier: 0, beneficiaryMinPacts: new anchor.BN(0),
@@ -845,7 +845,7 @@ async function main(): Promise<void> {
   const [escrow2] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("escrow"), Buffer.from(escrowId2)], escrowProgram.programId);
   const [pact2] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("pact"), Buffer.from(escrowId2)], escrowProgram.programId);
   const vault2 = getAssociatedTokenAddress(mint.publicKey, escrow2);
-  const pastLock = nowMs - 60_000;
+  const pastLock = nowSecs - 60;
 
   await escrowProgram.methods.initializeEscrow({
     escrowId: escrowId2,
