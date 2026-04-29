@@ -30,7 +30,7 @@ const { p256 } = require("../oracle/node_modules/@noble/curves/nist.js");
 const RPC_URL = process.env["ANCHOR_PROVIDER_URL"] ?? "https://api.devnet.solana.com";
 const INDEXER_URL = process.env["INDEXER_URL"] ?? "https://holdfast-indexer.fly.dev";
 const HOLDFAST_PROGRAM_ID = new anchor.web3.PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
-const ESCROW_PROGRAM_ID = new anchor.web3.PublicKey("BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H");
+const ESCROW_PROGRAM_ID = new anchor.web3.PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
 
 const TOKEN_PROGRAM_ID = new anchor.web3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 const ASSOCIATED_TOKEN_PROGRAM_ID = new anchor.web3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
@@ -175,6 +175,21 @@ function buildRegistrationPreimage(
   ]);
 }
 
+function assertSecpRegistrationMessage(
+  ix: anchor.web3.TransactionInstruction,
+  expectedMessage: Buffer,
+): void {
+  const encodedMessageOffset = ix.data.readUInt16LE(10);
+  const encodedMessageLength = ix.data.readUInt16LE(12);
+  const encodedMessage = ix.data.subarray(
+    encodedMessageOffset,
+    encodedMessageOffset + encodedMessageLength,
+  );
+  if (!encodedMessage.equals(expectedMessage)) {
+    throw new Error("registration secp256r1 message drift: expected raw registration preimage bytes");
+  }
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function loadKeypair(filePath: string): anchor.web3.Keypair {
@@ -301,7 +316,11 @@ async function main(): Promise<void> {
     const preimageHash = crypto.createHash("sha256").update(preimage).digest();
     const sigBytes = p256.sign(preimageHash, privKey).toCompactRawBytes();
 
+    // Canonical compatibility path:
+    // - Signature over sha256(preimage)
+    // - secp256r1 precompile message payload is raw preimage bytes
     const secp256r1Ix = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimage);
+    assertSecpRegistrationMessage(secp256r1Ix, preimage);
     const registerIx = await holdfastProgram.methods
       .registerAgentWallet(Array.from(pubkeyX) as number[], Array.from(pubkeyY) as number[])
       .accounts({
