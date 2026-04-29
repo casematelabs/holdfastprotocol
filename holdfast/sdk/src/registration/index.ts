@@ -201,10 +201,11 @@ export async function registerAgentWallet(
     pubkeyX,
     pubkeyY,
   ]);
+  const preimageHash = createHash("sha256").update(preimage).digest();
   // noble return type differs across package versions/workspaces:
   // - Uint8Array(64) in newer builds
   // - Signature object with toCompactRawBytes() in older builds
-  const signature = p256.sign(preimage, privKey) as
+  const signature = p256.sign(preimageHash, privKey) as
     | Uint8Array
     | { toCompactRawBytes: () => Uint8Array };
   const sigBytes =
@@ -212,9 +213,9 @@ export async function registerAgentWallet(
       ? signature
       : signature.toCompactRawBytes();
 
-  // Devnet path: precompile receives the raw 131-byte registration preimage.
-  // The on-chain program compares sha256(signed_message) to its independently
-  // reconstructed challenge hash.
+  // Precompile verifies ECDSA over sha256(message) internally, so pass the
+  // raw registration preimage bytes as `message` and keep signature over
+  // sha256(preimage) for parity with Solana's helper contract.
   const secp256r1Ix = buildSecp256r1Instruction(
     sigBytes,
     compressedPubkey,

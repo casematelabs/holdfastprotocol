@@ -658,11 +658,10 @@ async function main(): Promise<void> {
         Uint8Array | { toCompactRawBytes: () => Uint8Array };
       const sigBytes = signature instanceof Uint8Array ? signature : signature.toCompactRawBytes();
       const secpModes: Array<{ name: string; build: (sig: Uint8Array, pubkey: Uint8Array, message: Buffer) => anchor.web3.TransactionInstruction }> = [
-        { name: "canonical-compressed-hash/legacy-header", build: buildSecp256r1InstructionLegacy },
-        { name: "canonical-compressed-hash/compact-header", build: buildSecp256r1InstructionCompact },
+        { name: "canonical-compressed-preimage/legacy-header", build: buildSecp256r1InstructionLegacy },
       ];
       for (const mode of secpModes) {
-        const secpIx = mode.build(sigBytes, compressedPubkey, preimageHash);
+        const secpIx = mode.build(sigBytes, compressedPubkey, preimage);
         const secpData = Buffer.from(secpIx.data);
         console.warn(`[register-debug] ${authority.publicKey.toBase58()} mode=${mode.name} msg_size=${secpData.readUInt16LE(mode.name.includes("legacy") ? 12 : 10)} len=${secpData.length}`);
         const tx = new anchor.web3.Transaction().add(secpIx, regIx);
