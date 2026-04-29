@@ -462,6 +462,24 @@ mod tests {
         assert_eq!(err_code(err), u32::from(EscrowError::InvalidBasisPoints));
     }
 
+    #[test]
+    fn dispute_paths_remain_fee_free() {
+        // Regression guard: dispute resolution paths must conserve escrow principal
+        // and stakes with no protocol-fee deduction.
+        let escrow_amount = 10_000;
+        let initiator_stake = 400;
+        let beneficiary_stake = 600;
+        let (b_release, i_release) = compute_dispute_payouts(
+            escrow_amount,
+            initiator_stake,
+            beneficiary_stake,
+            false,
+            &ArbiterDecision::ReleaseToBeneficiary,
+        )
+        .unwrap();
+        assert_eq!(b_release + i_release, escrow_amount + initiator_stake + beneficiary_stake);
+    }
+
     // ── Arithmetic overflow guards ───────────────────────────────────────────
 
     #[test]

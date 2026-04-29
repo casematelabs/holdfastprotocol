@@ -251,6 +251,18 @@ mod tests {
         assert_eq!(b_amount, 0);
     }
 
+    #[test]
+    fn refund_path_remains_fee_free() {
+        // Regression guard: refund must return full escrow principal to initiator.
+        let escrow_amount = 10_000;
+        let initiator_stake = 200;
+        let beneficiary_stake = 300;
+        let (i_amount, b_amount) =
+            compute_refund_amounts(escrow_amount, initiator_stake, beneficiary_stake).unwrap();
+        assert_eq!(i_amount, escrow_amount + initiator_stake);
+        assert_eq!(b_amount, beneficiary_stake);
+    }
+
     // ── Reputation delta constants ───────────────────────────────────────────
 
     #[test]

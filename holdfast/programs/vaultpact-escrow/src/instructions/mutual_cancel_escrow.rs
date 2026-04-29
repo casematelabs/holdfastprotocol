@@ -255,6 +255,18 @@ mod tests {
         assert_eq!(init, u64::MAX);
     }
 
+    #[test]
+    fn mutual_cancel_path_remains_fee_free() {
+        // Regression guard: mutual cancel must not deduct protocol fee.
+        let escrow_amount = 10_000;
+        let initiator_stake = 500;
+        let beneficiary_stake = 250;
+        let (init, bene) =
+            compute_mutual_cancel_refunds(escrow_amount, initiator_stake, beneficiary_stake).unwrap();
+        assert_eq!(init, escrow_amount + initiator_stake);
+        assert_eq!(bene, beneficiary_stake);
+    }
+
     // ── MUTUAL_CANCEL_SCORE_DELTA constant ───────────────────────────────────
 
     #[test]

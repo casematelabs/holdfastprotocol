@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_spl::associated_token::get_associated_token_address_with_program_id;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
 use crate::cpi_helpers::cpi_update_reputation;
@@ -76,6 +77,12 @@ pub struct ClaimReleased<'info> {
             @ EscrowError::UnauthorizedTokenAccount,
         constraint = treasury_token_account.mint == escrow_account.mint
             @ EscrowError::UnauthorizedTokenAccount,
+        constraint = treasury_token_account.key()
+            == get_associated_token_address_with_program_id(
+                &attestation_registry.authority,
+                &escrow_account.mint,
+                &token::ID,
+            ) @ EscrowError::UnauthorizedTokenAccount,
     )]
     pub treasury_token_account: Box<Account<'info, TokenAccount>>,
 
