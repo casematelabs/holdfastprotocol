@@ -11,7 +11,7 @@ Running `npm start` walks through every stage of a Holdfast pact:
 | Step | Action | SDK call |
 |------|--------|----------|
 | 1 | Register an AgentWallet on-chain (idempotent) | `registerAgentWallet()` |
-| 2 | Read the agent's on-chain reputation score | `client.reputation.get()` |
+| 2 | Verify reputation account readiness (explicit init required) | `client.reputation.meetsRequirements()` |
 | 3 | Create an escrow pact (wSOL, task-release) | `client.escrow.createPact()` |
 | 4 | Deposit funds into the escrow vault | `client.escrow.depositEscrow()` |
 | 5 | Stake the beneficiary (required before lock) | `client.escrow.stakeBeneficiary()` |
@@ -95,7 +95,7 @@ RPC:          https://api.devnet.solana.com
     https://explorer.solana.com/address/XyZw...5678?cluster=devnet
 
 ── Step 2: Read Reputation ───────────────────────────────────
-  No ReputationAccount yet — will be created on first pact signature.
+  No ReputationAccount yet — run explicit `init_reputation` before reading scores.
   Requirements check (minScore: 0): PASS ✓
 
 ── Step 3: Create Pact ───────────────────────────────────────

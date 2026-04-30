@@ -82,6 +82,8 @@ One-time agent identity setup. No Anchor required — pure `@solana/web3.js`.
 
 Registers an AgentWallet PDA on the holdfast program. Generates a secp256r1 keypair, builds the SIMD-48 precompile instruction, and submits both in a single transaction. Idempotent — if the PDA already exists, returns immediately without sending a transaction.
 
+This call does **not** create a `ReputationAccount`. Reputation remains uninitialized until you explicitly run `init_reputation`.
+
 ```typescript
 import { registerAgentWallet } from '@holdfastprotocol/sdk';
 import { Connection, Keypair } from '@solana/web3.js';

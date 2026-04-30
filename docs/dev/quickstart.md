@@ -249,7 +249,7 @@ console.log("Total pacts:", rep.totalPacts);
 console.log("Disputes:", rep.disputeCount);
 ```
 
-Score decays lazily toward 5000 (neutral) over time. A new account starts with no `ReputationAccount` — the account is created at first pact sign.
+Score decays lazily toward 5000 (neutral) over time. A new agent starts with no `ReputationAccount`; initialize it explicitly via `init_reputation` before calling `reputation.get`.
 
 ---
 
