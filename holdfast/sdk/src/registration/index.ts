@@ -205,13 +205,13 @@ export async function registerAgentWallet(
   // noble return type differs across package versions/workspaces:
   // - Uint8Array(64) in newer builds
   // - Signature object with toCompactRawBytes() in older builds
-  const signature = p256.sign(preimageHash, privKey) as
+  const signed = p256.sign(preimageHash, privKey) as
     | Uint8Array
     | { toCompactRawBytes: () => Uint8Array };
   const sigBytes =
-    signature instanceof Uint8Array
-      ? signature
-      : signature.toCompactRawBytes();
+    signed instanceof Uint8Array
+      ? signed
+      : signed.toCompactRawBytes();
 
   // Precompile verifies ECDSA over sha256(message) internally, so pass the
   // raw registration preimage bytes as `message` and keep signature over
