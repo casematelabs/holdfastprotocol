@@ -53,6 +53,23 @@ console.log('Agent qualified:', qualified);
 
 See [`examples/quickstart.ts`](./examples/quickstart.ts) for a runnable end-to-end script.
 
+For CI/runtime parity checks, run:
+
+```bash
+node --import tsx/esm --test tests/quickstart-parity.ci.test.ts
+```
+
+For a real devnet `createPact` smoke path, run:
+
+```bash
+node --import tsx/esm scripts/cas27-createpact-smoke.ts
+```
+
+Smoke prerequisites:
+- Local keypairs at `~/.config/solana/agent-a.json`, `~/.config/solana/agent-b.json`, and `~/.config/solana/devnet.json`
+- Distinct public keys for each role
+- At least `0.1` SOL per signer (the script attempts airdrop retries and then prints manual funding guidance)
+
 ---
 
 ## Modules
@@ -166,7 +183,7 @@ const page = await client.reputation.getHistory(agentPubkey, { limit: 20 });
 
 ### `escrow`
 
-TypeScript SDK surface for the `holdfast-escrow` program (devnet program ID: `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H`, deployed per CAS-54).
+TypeScript SDK surface for the `holdfast-escrow` program (devnet program ID: `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`, deployed per CAS-54).
 
 Write methods require `signer` and, where noted, `agentWallet` in client options. Read methods (`getPact`, `listPacts`) work without a signer.
 
@@ -273,7 +290,16 @@ const unsignedTx = await client.escrow.buildLockEscrowTransaction(
 
 #### `escrow.claimReleased(escrowId, initiatorPubkey)`
 
-Transfers `escrow_amount + beneficiary_stake` to the beneficiary, returns `initiator_stake` to the initiator, and awards both parties +50 reputation bp (`Fulfilled`). Status advances to `Claimed`.
+Finalizes claim-time settlement and is the **only** place protocol fees are charged in v1.
+
+- Fee rate: **25 bps** (0.25%) on `escrow_amount` only.
+- Formula: `fee = floor(escrow_amount * 25 / 10_000)`.
+- Beneficiary payout: `beneficiary_net = escrow_amount + beneficiary_stake - fee`.
+- Initiator payout: `initiator_stake` is returned unchanged.
+
+No protocol fees are charged on refunds, cancellations, disputes, or non-escrow paths in v1.
+
+On success, both parties receive +50 reputation bp (`Fulfilled`) and status advances to `Claimed`.
 
 The SDK pre-flights the dispute window — throws `DisputeWindowStillOpenError` before sending any transaction if `disputeWindowEndsAt` has not elapsed.
 
@@ -309,6 +335,22 @@ const page = await client.escrow.listPacts(agentPubkey, {
 // page.cursor?: string  — pass as `before` for the next page
 ```
 
+#### `escrow.getEscrowEvents(escrowId, opts?)`
+
+Fetches lifecycle events for one escrow from the off-chain indexer.
+
+Claim events surface fee accounting fields:
+- `grossAmount` (`beneficiaryNetAmount + protocolFeeAmount`)
+- `protocolFeeAmount`
+- `beneficiaryNetAmount`
+
+```typescript
+const events = await client.escrow.getEscrowEvents(escrowId, { limit: 20 });
+// events.events: EscrowEventEntry[]
+// events.hasMore: boolean
+// events.cursor?: string
+```
+
 #### Escrow error types
 
 | Class | When thrown |
@@ -319,7 +361,7 @@ const page = await client.escrow.listPacts(agentPubkey, {
 | `EscrowAgentWalletRequiredError` | `createPact`/`releasePact` called without `agentWallet` in client options |
 | `ReputationThresholdNotMet` | Pre-flight reputation check failed before `createPact` |
 | `DisputeWindowStillOpenError` | `claimReleased` pre-flight — dispute window has not yet elapsed |
-| `IndexerRequestError` | Indexer returned a non-2xx response (from `listPacts`) |
+| `IndexerRequestError` | Indexer returned a non-2xx response (from `listPacts` / `getEscrowEvents`) |
 
 ---
 
@@ -367,7 +409,7 @@ import { VerifTier, PactOutcome } from '@holdfastprotocol/sdk';
 | Program | Address |
 |---|---|
 | `holdfast` | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
-| `holdfast-escrow` | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| `holdfast-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 ---
 
