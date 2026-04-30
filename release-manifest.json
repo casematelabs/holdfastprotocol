@@ -1,0 +1,23 @@
+{
+  "release": {
+    "channel": "devnet",
+    "network": "solana-devnet",
+    "sdk": {
+      "package": "@holdfastprotocol/sdk",
+      "version": "0.2.0-devnet.2"
+    }
+  },
+  "endpoints": {
+    "rpc": "https://api.devnet.solana.com",
+    "indexerBase": "https://holdfast-indexer.fly.dev",
+    "indexerApiPath": "/v1"
+  },
+  "programs": {
+    "holdfast": "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
+    "holdfastEscrow": "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi"
+  },
+  "explorer": {
+    "baseUrl": "https://explorer.solana.com",
+    "cluster": "devnet"
+  }
+}

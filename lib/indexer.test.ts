@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
+import { DEVNET_INDEXER_BASE } from './release-manifest';
 
 type FetchLike = typeof fetch;
 
@@ -64,7 +65,7 @@ describe('indexer client: protocol health + events', () => {
     const { fetchHealth } = await loadIndexerModule();
     await fetchHealth();
 
-    assert.equal(calledUrl, 'http://localhost:8080/v1/health');
+    assert.equal(calledUrl, `${DEVNET_INDEXER_BASE}/health`);
   });
 
   test('fetchEvents applies limit parameter exactly once', async () => {
@@ -81,7 +82,7 @@ describe('indexer client: protocol health + events', () => {
     const { fetchEvents } = await loadIndexerModule();
     await fetchEvents(25);
 
-    assert.equal(calledUrl, 'http://localhost:8080/v1/events?limit=25');
+    assert.equal(calledUrl, `${DEVNET_INDEXER_BASE}/events?limit=25`);
   });
 
   test('fetchAgentEvents includes agent, limit, and optional cursor', async () => {
@@ -99,7 +100,7 @@ describe('indexer client: protocol health + events', () => {
     await fetchAgentEvents('AgentPubkey123', 50, 'cursor-42');
 
     const u = new URL(calledUrl);
-    assert.equal(`${u.origin}${u.pathname}`, 'http://localhost:8080/v1/events');
+    assert.equal(`${u.origin}${u.pathname}`, `${DEVNET_INDEXER_BASE}/events`);
     assert.equal(u.searchParams.get('agent'), 'AgentPubkey123');
     assert.equal(u.searchParams.get('limit'), '50');
     assert.equal(u.searchParams.get('after'), 'cursor-42');

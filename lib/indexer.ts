@@ -1,4 +1,6 @@
-const INDEXER_BASE = process.env.NEXT_PUBLIC_INDEXER_URL ?? 'http://localhost:8080/v1';
+import { DEVNET_INDEXER_BASE } from './release-manifest';
+
+const INDEXER_BASE = process.env.NEXT_PUBLIC_INDEXER_URL ?? DEVNET_INDEXER_BASE;
 
 export type PactStatus =
   | 'pending' | 'funded' | 'locked' | 'released'

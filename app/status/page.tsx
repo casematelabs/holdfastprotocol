@@ -9,9 +9,10 @@ import {
   type HealthResponse,
   type ProtocolEvent,
 } from '../../lib/indexer';
+import { DEVNET_RPC_URL, releaseManifest } from '../../lib/release-manifest';
 
-const SDK_VERSION = '0.2.0-devnet.2';
-const SOLANA_DEVNET_RPC = 'https://api.devnet.solana.com';
+const SDK_VERSION = releaseManifest.release.sdk.version;
+const SOLANA_DEVNET_RPC = DEVNET_RPC_URL;
 const POLL_MS = 30_000;
 
 type Level = 'ok' | 'degraded' | 'critical';
@@ -247,7 +248,7 @@ function ActivityFeed({ events, loading }: { events: ProtocolEvent[]; loading: b
             <div className="flex-1 min-w-0">
               <div className="text-xs font-semibold text-slate-200">{label}</div>
               <a
-                href={`https://explorer.solana.com/tx/${evt.txSignature}?cluster=devnet`}
+                href={`${releaseManifest.explorer.baseUrl}/tx/${evt.txSignature}?cluster=${releaseManifest.explorer.cluster}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs font-mono text-cyan-500 hover:text-cyan-400 transition-colors"
@@ -403,7 +404,7 @@ export default function StatusPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <StatusCard
             title="Solana RPC"
-            subtitle="api.devnet.solana.com"
+            subtitle={new URL(SOLANA_DEVNET_RPC).host}
             level={rpcLevel}
             loading={loading}
             metrics={[
@@ -468,7 +469,7 @@ export default function StatusPage() {
             </h2>
             <div className="border border-slate-800/50 rounded-lg bg-slate-900/50 p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-white font-mono">@holdfastprotocol/sdk</span>
+                <span className="text-sm font-bold text-white font-mono">{releaseManifest.release.sdk.package}</span>
                 <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-bold font-mono">
                   v{SDK_VERSION}
                 </span>
@@ -478,7 +479,7 @@ export default function StatusPage() {
               </p>
               <dl className="flex flex-col gap-2 pt-3 border-t border-slate-800">
                 {([
-                  ['network', 'devnet',    'text-cyan-400'],
+                  ['network', releaseManifest.release.channel, 'text-cyan-400'],
                   ['chain',   'Solana',    'text-slate-300'],
                   ['anchor',  '0.31.1',    'text-slate-400'],
                   ['audit',   'pre-audit', 'text-amber-400'],

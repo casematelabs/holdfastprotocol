@@ -3,7 +3,7 @@ import { ReputationModule } from "./reputation/index.js";
 import { EscrowModule } from "./escrow/index.js";
 
 export const PREAUDIT_WARNING =
-  "[Holdfast SDK v0.1.0-devnet.1] This package has NOT been externally audited. " +
+  "[Holdfast SDK pre-audit release] This package has NOT been externally audited. " +
   "It is published for devnet integration testing only. " +
   "Mainnet use is blocked until the external security audit is complete. " +
   "Track audit status at https://docs.holdfastprotocol.com/security";
@@ -22,7 +22,7 @@ function assertNotMainnet(rpcUrl: string): void {
   const lower = rpcUrl.toLowerCase();
   if (MAINNET_PATTERNS.some((p) => lower.includes(p))) {
     throw new Error(
-      `[Holdfast SDK] Mainnet connections are disabled in pre-audit release v0.1.0-devnet.1. ` +
+      `[Holdfast SDK] Mainnet connections are disabled in this pre-audit devnet release. ` +
         `Attempted RPC: ${rpcUrl}. ` +
         `This restriction will be lifted after the external security audit is complete. ` +
         `See https://docs.holdfastprotocol.com/security`,
@@ -62,6 +62,7 @@ export interface HoldfastClientOptions {
   holdfastProgramId?: PublicKey;
 }
 
+// Canonical defaults mapped from root release-manifest.json.
 const DEVNET_RPC = "https://api.devnet.solana.com";
 const DEVNET_INDEXER = "https://holdfast-indexer.fly.dev";
 
