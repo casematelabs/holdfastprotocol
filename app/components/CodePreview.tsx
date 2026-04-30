@@ -3,28 +3,26 @@
 import { useState } from "react";
 import { Copy, CheckCircle2 } from "lucide-react";
 
-const codeSnippet = `import { Vault, Pact, Trust } from '@holdfastprotocol/sdk';
+const codeSnippet = `import { createHoldfastClient, registerAgentWallet } from '@holdfastprotocol/sdk';
+import { Connection, Keypair } from '@solana/web3.js';
 
-// 1. Initialize hardware-attested agent wallet
-const agentVault = await Vault.attest({
-  curve: 'secp256r1',
-  enclave: true
+const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+const signer = Keypair.fromSecretKey(/* ... */);
+
+// 1. Register the agent wallet PDA (idempotent on repeat runs)
+const { agentWallet } = await registerAgentWallet({ connection, signer });
+
+// 2. Initialize the SDK client for devnet
+const client = createHoldfastClient({ connection, signer, agentWallet });
+
+// 3. Pre-flight reputation requirements before creating a pact
+const counterparty = Keypair.generate().publicKey;
+const isQualified = await client.reputation.meetsRequirements(counterparty, {
+  minScore: 5000,
+  minPacts: 3,
 });
 
-// 2. Verify counterparty agent solvency & reputation
-const targetScore = await Trust.queryScore('agent_b.sol');
-if (targetScore.rating < 850) throw new Error('Unreliable Agent');
-
-// 3. Create programmable escrow for task execution
-const escrow = await Pact.create({
-  funder: agentVault.address,
-  executor: 'agent_b.sol',
-  amount: 5000,
-  token: 'USDC',
-  releaseCondition: 'cryptographic_proof_provided'
-});
-
-await escrow.execute();`;
+if (!isQualified) throw new Error('Counterparty does not meet requirements');`;
 
 export default function CodePreview() {
   const [copied, setCopied] = useState(false);
@@ -64,69 +62,62 @@ export default function CodePreview() {
           <pre>
             <code className="text-slate-300">
               <span className="text-purple-400">import</span>{" "}
-              {"{ Vault, Pact, Trust }"}{" "}
+              {"{ createHoldfastClient, registerAgentWallet }"}{" "}
               <span className="text-purple-400">from</span>{" "}
               <span className="text-emerald-300">
                 &apos;@holdfastprotocol/sdk&apos;
               </span>
-              ;{"\n\n"}
+              ;{"\n"}
+              <span className="text-purple-400">import</span>{" "}
+              {"{ Connection, Keypair }"} <span className="text-purple-400">from</span>{" "}
+              <span className="text-emerald-300">&apos;@solana/web3.js&apos;</span>;
+              {"\n\n"}
               <span className="text-slate-500">
-                {"// 1. Initialize hardware-attested agent wallet"}
+                {"// 1. Register the agent wallet PDA (idempotent on repeat runs)"}
               </span>
               {"\n"}
-              <span className="text-purple-400">const</span> agentVault ={" "}
-              <span className="text-purple-400">await</span> Vault.
-              <span className="text-cyan-400">attest</span>({"{"}{"\n"}
-              {"  "}curve:{" "}
-              <span className="text-emerald-300">&apos;secp256r1&apos;</span>,
-              {"\n"}
-              {"  "}enclave: <span className="text-amber-400">true</span>
-              {"\n"}
-              {"}"});{"\n\n"}
-              <span className="text-slate-500">
-                {"// 2. Verify counterparty agent solvency & reputation"}
-              </span>
-              {"\n"}
-              <span className="text-purple-400">const</span> targetScore ={" "}
-              <span className="text-purple-400">await</span> Trust.
-              <span className="text-cyan-400">queryScore</span>(
+              <span className="text-purple-400">const</span> connection ={" "}
+              <span className="text-purple-400">new</span>{" "}
+              <span className="text-amber-300">Connection</span>(
               <span className="text-emerald-300">
-                &apos;agent_b.sol&apos;
+                &apos;https://api.devnet.solana.com&apos;
               </span>
-              );{"\n"}
-              <span className="text-purple-400">if</span> (targetScore.rating{" "}
-              {"<"} <span className="text-amber-400">850</span>){" "}
+              , <span className="text-emerald-300">&apos;confirmed&apos;</span>);
+              {"\n"}
+              <span className="text-purple-400">const</span> signer = Keypair.
+              <span className="text-cyan-400">fromSecretKey</span>(
+              <span className="text-slate-500">/* ... */</span>);{"\n"}
+              <span className="text-purple-400">const</span> {"{ agentWallet }"} ={" "}
+              <span className="text-purple-400">await</span>{" "}
+              <span className="text-cyan-400">registerAgentWallet</span>({"{"}
+              connection, signer{"}"});{"\n\n"}
+              <span className="text-slate-500">
+                {"// 2. Initialize the SDK client for devnet"}
+              </span>
+              {"\n"}
+              <span className="text-purple-400">const</span> client ={" "}
+              <span className="text-cyan-400">createHoldfastClient</span>({"{"}
+              connection, signer, agentWallet{"}"});{"\n\n"}
+              <span className="text-slate-500">
+                {"// 3. Pre-flight reputation requirements before creating a pact"}
+              </span>
+              {"\n"}
+              <span className="text-purple-400">const</span> counterparty = Keypair.
+              <span className="text-cyan-400">generate</span>().publicKey;{"\n"}
+              <span className="text-purple-400">const</span> isQualified ={" "}
+              <span className="text-purple-400">await</span> client.reputation.
+              <span className="text-cyan-400">meetsRequirements</span>(
+              counterparty, {"{"}{"\n"}
+              {"  "}minScore: <span className="text-amber-400">5000</span>,{"\n"}
+              {"  "}minPacts: <span className="text-amber-400">3</span>,{"\n"}
+              {"}"});{"\n\n"}
+              <span className="text-purple-400">if</span> (!isQualified){" "}
               <span className="text-purple-400">throw new</span>{" "}
               <span className="text-amber-300">Error</span>(
               <span className="text-emerald-300">
-                &apos;Unreliable Agent&apos;
+                &apos;Counterparty does not meet requirements&apos;
               </span>
-              );{"\n\n"}
-              <span className="text-slate-500">
-                {"// 3. Create programmable escrow for task execution"}
-              </span>
-              {"\n"}
-              <span className="text-purple-400">const</span> escrow ={" "}
-              <span className="text-purple-400">await</span> Pact.
-              <span className="text-cyan-400">create</span>({"{"}{"\n"}
-              {"  "}funder: agentVault.address,{"\n"}
-              {"  "}executor:{" "}
-              <span className="text-emerald-300">
-                &apos;agent_b.sol&apos;
-              </span>
-              ,{"\n"}
-              {"  "}amount: <span className="text-amber-400">5000</span>,
-              {"\n"}
-              {"  "}token:{" "}
-              <span className="text-emerald-300">&apos;USDC&apos;</span>,{"\n"}
-              {"  "}releaseCondition:{" "}
-              <span className="text-emerald-300">
-                &apos;cryptographic_proof_provided&apos;
-              </span>
-              {"\n"}
-              {"}"});{"\n\n"}
-              <span className="text-purple-400">await</span> escrow.
-              <span className="text-cyan-400">execute</span>();
+              );
             </code>
           </pre>
         </div>

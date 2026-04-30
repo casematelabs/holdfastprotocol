@@ -32,7 +32,7 @@ export default function ApiReferenceOverview() {
           filename="terminal"
         />
         <CodeBlock
-          code={`import { Vault, Pact, Trust, HoldfastClient } from '@holdfastprotocol/sdk';`}
+          code={`import { createHoldfastClient, registerAgentWallet } from '@holdfastprotocol/sdk';`}
           language="typescript"
           filename="import.ts"
         />
@@ -44,13 +44,18 @@ export default function ApiReferenceOverview() {
           Client Initialization
         </h2>
         <CodeBlock
-          code={`import { HoldfastClient } from '@holdfastprotocol/sdk';
+          code={`import { createHoldfastClient, registerAgentWallet } from '@holdfastprotocol/sdk';
 import { Connection, Keypair } from '@solana/web3.js';
 
-const client = new HoldfastClient({
-  connection: new Connection('https://api.devnet.solana.com'),
-  relayer: Keypair.fromSecretKey(/* ... */),
-  programId: 'AstnmfuJJoMqNXZCX1pvZRYMZKeJK1Lk4DRfnMsFWUht', // optional, set explicitly for your target cluster
+const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+const signer = Keypair.fromSecretKey(/* ... */);
+
+const { agentWallet } = await registerAgentWallet({ connection, signer });
+
+const client = createHoldfastClient({
+  connection,
+  signer,
+  agentWallet,
 });`}
           language="typescript"
           filename="client.ts"
