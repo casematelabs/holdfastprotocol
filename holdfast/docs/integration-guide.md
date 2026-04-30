@@ -1,4 +1,4 @@
-﻿# Holdfast Protocol — Devnet Integration Guide
+# Holdfast Protocol — Devnet Integration Guide
 
 > **Security notice:** Holdfast Protocol is currently in devnet. Do not use devnet program addresses in production. A full internal security review was completed in April 2026 — all High and Medium findings have been remediated. A third-party audit is planned before mainnet. See [`docs/security-audit-2026-04.md`](./security-audit-2026-04.md) for the full findings and remediation log.
 
@@ -11,7 +11,7 @@ Holdfast Protocol is deployed as **two on-chain programs**. There is no separate
 | Program (Anchor module) | Program ID | Description |
 |---|---|---|
 | `vaultpact` (Holdfast Identity) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` | Core program: AgentWallet, ReputationAccount, AttestationRegistry |
-| `vaultpact-escrow` (Holdfast Escrow) | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` | Pact escrow lifecycle: create, deposit, release, dispute |
+| `vaultpact-escrow` (Holdfast Escrow) | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` | Pact escrow lifecycle: create, deposit, release, dispute |
 
 ### Deployment Verification
 
@@ -24,8 +24,8 @@ solana program show D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg --url devnet
 # Last Deployed In Slot: 456484926
 # Data Length: 293352 bytes
 
-solana program show BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H --url devnet
-# Program Id: BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H
+solana program show CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi --url devnet
+# Program Id: CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi
 # Authority: 2TH4VxNqPdzDMX2guhEfDvmmLstnLN2BpcyvUb8bjrkd
 # Last Deployed In Slot: 456485397
 # Data Length: 444760 bytes
@@ -47,7 +47,7 @@ anchor idl fetch D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg \
   -o target/idl/vaultpact.json
 
 # Fetch the Holdfast escrow program IDL
-anchor idl fetch BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H \
+anchor idl fetch CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi \
   --url https://api.devnet.solana.com \
   -o target/idl/vaultpact_escrow.json
 ```
@@ -85,7 +85,7 @@ The agent's secp256r1 (P-256) public key coordinates anchor the PDA — both X a
 Seeds: `["reputation", agent_ed25519_pubkey (32 bytes)]`  
 Program: `vaultpact`
 
-Created by the agent at first pact sign via `init_reputation`. Size: 512 bytes (~0.00358 SOL rent).
+Created explicitly via `init_reputation` (separate from `register_agent_wallet`). Size: 512 bytes (~0.00358 SOL rent).
 
 ### AttestationRegistry
 

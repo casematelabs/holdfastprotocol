@@ -327,8 +327,8 @@ function StepWelcome({ onNext }: { onNext: () => void }) {
         <p style={{ fontSize: '14px', color: '#8A99AC', lineHeight: 1.65, maxWidth: '540px' }}>
           This wizard walks you through registering a new AI agent identity on the
           Holdfast Protocol. At the end, your agent will have an on-chain wallet PDA,
-          a cryptographic identity keypair, and a baseline reputation score — ready to
-          sign pacts and hold escrow.
+          a cryptographic identity keypair, and a registered identity ready for
+          explicit reputation initialization.
         </p>
       </div>
 
@@ -778,11 +778,15 @@ const client = createHoldfastClient({
   p256PrivateKey,
 });
 
-const rep = await client.reputation.get();
-console.log('Reputation:', rep.score, '—', rep.tier);`;
+try {
+  const rep = await client.reputation.get();
+  console.log('Reputation:', rep.score, '—', rep.tier);
+} catch (err) {
+  console.log('No ReputationAccount yet — run init_reputation first.');
+}`;
 
   const nextSteps = [
-    { href: '/dashboard/reputation', label: 'View reputation dashboard',     desc: "Check your agent's baseline score and tier" },
+    { href: '/dashboard/reputation', label: 'View reputation dashboard',     desc: "Verify whether your ReputationAccount is initialized" },
     { href: '/docs/concepts/pact',   label: 'Create your first pact',        desc: 'Lock escrow with a counterparty agent'         },
     { href: '/docs/concepts/trust',  label: 'Configure reputation thresholds', desc: 'Set minimum scores for counterparty acceptance' },
   ];
@@ -791,8 +795,6 @@ console.log('Reputation:', rep.score, '—', rep.tier);`;
     ? [
         { label: 'Operator wallet',      value: `${publicKey.toBase58().slice(0,10)}…${publicKey.toBase58().slice(-6)}`, mono: true },
         { label: 'Network',              value: 'devnet',  mono: true  },
-        { label: 'Initial score',        value: '0',       mono: true  },
-        { label: 'Starting tier',        value: 'Bronze',  mono: false },
       ]
     : [];
 
@@ -810,9 +812,8 @@ console.log('Reputation:', rep.score, '—', rep.tier);`;
           Agent registered
         </h2>
         <p style={{ fontSize: '13px', color: '#8A99AC', lineHeight: 1.65, maxWidth: '480px', margin: '0 auto' }}>
-          Your agent identity is live on Holdfast devnet with a baseline reputation
-          score of <strong style={{ color: '#E8EDF2' }}>0</strong>.
-          The AgentWallet PDA can now sign pacts and hold escrow.
+          Your agent identity is live on Holdfast devnet.
+          Next, initialize a ReputationAccount with <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#A8C0D8' }}>init_reputation</code> before expecting reputation reads to succeed.
         </p>
       </div>
 

@@ -42,7 +42,7 @@ const client = createHoldfastClient(); // defaults to devnet
 
 const agentPubkey = Keypair.generate().publicKey;
 
-// Check reputation (returns false for unregistered agents)
+// Check reputation (returns false when no ReputationAccount exists yet)
 const qualified = await client.reputation.meetsRequirements(agentPubkey, {
   minScore: 5000, // neutral or above
   minPacts: 3,
@@ -144,11 +144,11 @@ console.log('Pacts:', rep.totalPacts);  // lifetime completed pacts
 console.log('Disputes:', rep.disputeCount);
 ```
 
-Throws `ReputationNotFoundError` if the agent has no account yet. Accounts are created at first pact sign.
+Throws `ReputationNotFoundError` if the agent has no account yet. Initialize the account explicitly via `init_reputation` before calling `get`.
 
 #### `reputation.meetsRequirements(agentPubkey, requirements)`
 
-Pre-flight check that mirrors the on-chain `validate_reputation_for_pact` logic. Returns `false` (not throws) for unregistered agents.
+Pre-flight check that mirrors the on-chain `validate_reputation_for_pact` logic. Returns `false` (not throws) when the agent has no `ReputationAccount` yet.
 
 ```typescript
 const ok = await client.reputation.meetsRequirements(agentPubkey, {

@@ -253,7 +253,7 @@ export class ReputationNotFoundError extends Error {
   constructor(readonly agentPubkey: string) {
     super(
       `ReputationAccount not found for agent ${agentPubkey}. ` +
-        `Account is created at first pact sign (see CAS-11 §3.1).`,
+        `Initialize it explicitly with init_reputation before reading reputation.`,
     );
     this.name = "ReputationNotFoundError";
   }

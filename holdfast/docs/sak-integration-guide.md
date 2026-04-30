@@ -415,7 +415,7 @@ All errors are returned as JSON strings from the action handler, not thrown exce
 | Program | Address |
 |---|---|
 | Holdfast identity & reputation (`vaultpact`) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
-| Holdfast escrow (`vaultpact-escrow`) | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| Holdfast escrow (`vaultpact-escrow`) | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 ---
 
@@ -423,7 +423,7 @@ All errors are returned as JSON strings from the action handler, not thrown exce
 
 **"No Holdfast reputation account found" for a known agent**
 
-The account is created lazily at the agent's first pact sign. A new or unregistered agent will show `REPUTATION_NOT_FOUND`. This is expected; treat it the same as `qualifies: false` in your pre-flight logic.
+The account is initialized explicitly via `init_reputation` (separate from agent registration). A newly registered agent may show `REPUTATION_NOT_FOUND` until that step is run. This is expected; treat it the same as `qualifies: false` in your pre-flight logic.
 
 **`CREATE_HOLDFAST_PACT` returns `AGENT_WALLET_REQUIRED`**
 

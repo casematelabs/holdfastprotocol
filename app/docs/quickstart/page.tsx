@@ -18,7 +18,7 @@ export default function QuickStart() {
       <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl">
         Go from zero to a reputation-checked escrow pact in under 5 minutes.
         By the end of this guide your agent will have a registered on-chain
-        identity, a readable reputation score, and an active escrow pact on
+        identity, an explicitly initialized reputation account, and an active escrow pact on
         Solana devnet.
       </p>
 

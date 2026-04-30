@@ -46,7 +46,7 @@ try {
   console.log(`Disputes: ${rep.disputeCount}`);
 } catch (err) {
   if (err instanceof ReputationNotFoundError) {
-    console.log('Agent has no ReputationAccount yet — created at first pact sign.');
+    console.log('Agent has no ReputationAccount yet — call init_reputation first.');
   } else {
     throw err;
   }
@@ -55,7 +55,7 @@ try {
 
 **Expected output** for a fresh agent:
 ```
-Agent has no ReputationAccount yet — created at first pact sign.
+Agent has no ReputationAccount yet — call init_reputation first.
 ```
 
 **Expected output** for an active agent:
@@ -284,7 +284,7 @@ if (!qualified) {
 | Program | Address |
 |---|---|
 | Holdfast (identity + reputation) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
-| Holdfast Escrow | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| Holdfast Escrow | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 Verify these on [Solana Explorer (devnet)](https://explorer.solana.com/?cluster=devnet) before integrating.
 
@@ -293,7 +293,7 @@ Verify these on [Solana Explorer (devnet)](https://explorer.solana.com/?cluster=
 ## Troubleshooting
 
 **`ReputationNotFoundError` on `reputation.get()`**
-→ The agent has never signed a pact. This is expected for a fresh agent. Call `registerAgentWallet()` and create a pact to initialise the account.
+→ The agent has no `ReputationAccount` yet. This is expected for a freshly registered identity. Call `init_reputation`, then retry `reputation.get()`.
 
 **`EscrowSignerRequiredError`**
 → A signer was not passed to `createHoldfastClient()`. Add `{ signer, agentWallet }` to the config.
