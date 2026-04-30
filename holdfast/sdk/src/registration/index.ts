@@ -213,13 +213,12 @@ export async function registerAgentWallet(
       ? signed
       : signed.toCompactRawBytes();
 
-  // Precompile verifies ECDSA over sha256(message) internally, so pass the
-  // raw registration preimage bytes as `message` and keep signature over
-  // sha256(preimage) for parity with Solana's helper contract.
+  // Devnet secp256r1 precompile path accepts the 32-byte challenge digest
+  // (sha256(preimage)) as the message payload for verification.
   const secp256r1Ix = buildSecp256r1Instruction(
     sigBytes,
     compressedPubkey,
-    preimage,
+    preimageHash,
   );
   const registerIx = buildRegisterInstruction(
     agentWallet,
