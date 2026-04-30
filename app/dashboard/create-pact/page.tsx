@@ -445,7 +445,7 @@ export default function CreatePactPage() {
       };
 
       // SDK call: client.escrow.createPact(params)
-      // For now, simulate the transaction since SDK is not yet wired
+      // Current dashboard mode is simulation-only until live devnet wiring is complete.
       console.log('[CreatePact] SDK call params:', params);
       await new Promise(resolve => setTimeout(resolve, 1500));
       const ts = Date.now();
@@ -456,9 +456,8 @@ export default function CreatePactPage() {
       pushNotif({
         category: 'pact',
         severity: 'success',
-        title: 'Pact created',
-        body: `${s2.mode.charAt(0).toUpperCase() + s2.mode.slice(1)} pact with ${truncAddr(s1.counterparty)} for ${s1.amount} SOL`,
-        href: `${DEVNET_EXPLORER}/${mockTxSig}?cluster=devnet`,
+        title: 'Simulated pact draft created',
+        body: `${s2.mode.charAt(0).toUpperCase() + s2.mode.slice(1)} flow preview with ${truncAddr(s1.counterparty)} for ${s1.amount} SOL (not sent on-chain)`,
         pactId: mockPactId,
       });
 
@@ -511,7 +510,7 @@ export default function CreatePactPage() {
           Create Pact
         </h1>
         <p style={{ fontSize: '12px', color: '#8A99AC', lineHeight: 1.6, marginBottom: '24px' }}>
-          Set up a new escrow agreement. Choose task, milestone, or timed release mode.
+          Simulation mode: previews a pact setup flow only. No devnet transaction is submitted from this page yet.
         </p>
       </div>
 
@@ -1018,14 +1017,14 @@ export default function CreatePactPage() {
               fontSize: '20px', fontWeight: 800, color: '#E8EDF2',
               letterSpacing: '-0.02em', marginBottom: '8px',
             }}>
-              Pact is live
+              Simulated pact preview ready
             </h2>
             <p style={{
               fontSize: '12px', color: '#8A99AC', lineHeight: 1.65,
               maxWidth: '380px', margin: '0 auto',
             }}>
-              {pactResult.amount} SOL is locked in escrow.
-              The pact will release when both parties fulfil the{' '}
+              This preview shows the payload that would create a {pactResult.amount} SOL escrow on devnet.
+              No funds were moved. A live flow will release when both parties fulfil the{' '}
               <span style={{ textTransform: 'capitalize' }}>{pactResult.mode}</span> conditions.
             </p>
           </div>
@@ -1037,10 +1036,10 @@ export default function CreatePactPage() {
                 <span style={LABEL_STYLE}>Pact ID</span>
                 <span style={{
                   fontSize: '9px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: '#22C55E', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+                  color: '#F59E0B', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)',
                   padding: '2px 8px',
                 }}>
-                  Active
+                  Simulation
                 </span>
               </div>
               <CopyRow value={pactResult.pactId} display={truncAddr(pactResult.pactId)} />
@@ -1056,25 +1055,21 @@ export default function CreatePactPage() {
               <CopyRow
                 value={pactResult.escrowAddress}
                 display={pactResult.escrowAddress}
-                explorerHref={`https://explorer.solana.com/address/${pactResult.escrowAddress}?cluster=devnet`}
               />
             </div>
           </div>
 
-          {/* TX link */}
+          {/* TX output */}
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <a
-              href={`${DEVNET_EXPLORER}/${pactResult.txSig}?cluster=devnet`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <span
               style={{
-                fontSize: '10px', color: '#4D5E72', textDecoration: 'none',
+                fontSize: '10px', color: '#4D5E72',
                 fontFamily: "'JetBrains Mono', 'Courier New', monospace",
                 letterSpacing: '0.02em',
               }}
             >
-              View transaction on Solana Explorer ↗
-            </a>
+              Simulated signature: {pactResult.txSig}
+            </span>
           </div>
 
           {/* CTAs */}
