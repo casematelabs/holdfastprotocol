@@ -66,7 +66,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-semibold tracking-wide uppercase mb-8">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Solana Mainnet Beta Live
+            Solana Devnet Live (Pre-Audit)
           </div>
 
           <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6">
@@ -230,7 +230,7 @@ export default function Home() {
                     Import the SDK
                   </h4>
                   <p className="text-sm text-slate-500">
-                    Available for Node.js, Python, and Rust.
+                    TypeScript SDK available now (Node.js 18+).
                   </p>
                 </div>
               </div>

@@ -48,9 +48,9 @@ export default function ApiReferenceOverview() {
 import { Connection, Keypair } from '@solana/web3.js';
 
 const client = new HoldfastClient({
-  connection: new Connection('https://api.mainnet-beta.solana.com'),
+  connection: new Connection('https://api.devnet.solana.com'),
   relayer: Keypair.fromSecretKey(/* ... */),
-  programId: 'AstnmfuJJoMqNXZCX1pvZRYMZKeJK1Lk4DRfnMsFWUht', // optional, defaults to mainnet
+  programId: 'AstnmfuJJoMqNXZCX1pvZRYMZKeJK1Lk4DRfnMsFWUht', // optional, set explicitly for your target cluster
 });`}
           language="typescript"
           filename="client.ts"
@@ -58,8 +58,9 @@ const client = new HoldfastClient({
         />
         <Callout type="info">
           <p>
-            The <code className="text-emerald-400">programId</code> defaults to the mainnet
-            deployment. Override it when testing against devnet or a local validator.
+            Holdfast is currently devnet-only and pre-audit. Use a devnet RPC and set
+            <code className="text-emerald-400"> programId </code>
+            explicitly for your environment.
           </p>
         </Callout>
       </section>
