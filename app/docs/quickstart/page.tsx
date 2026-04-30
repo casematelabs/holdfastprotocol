@@ -16,7 +16,7 @@ export default function QuickStart() {
         Quick Start
       </h1>
       <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl">
-        Go from zero to a reputation-checked escrow pact in under 5 minutes.
+        Go from zero to a reputation-checked escrow pact in under 15 minutes.
         By the end of this guide your agent will have a registered on-chain
         identity, an explicitly initialized reputation account, and an active escrow pact on
         Solana devnet.
@@ -66,7 +66,7 @@ export default function QuickStart() {
           Install the Holdfast SDK and its Solana peer dependency.
         </p>
         <CodeBlock
-          code={`npm install @holdfastprotocol/sdk @solana/web3.js`}
+          code={`npm install @holdfastprotocol/sdk@devnet @solana/web3.js`}
           language="bash"
           filename="terminal"
         />
@@ -221,6 +221,14 @@ console.log('Escrow ID:', pact.escrowId);
             <code>timed</code> (automatic release at a Unix timestamp).
             All types require <code>timeLockExpiresAt</code> as a safety
             backstop.
+          </p>
+        </Callout>
+        <Callout type="warning" title="Timed pacts require a keeper for auto-release">
+          <p>
+            Timed pacts do not auto-release by themselves when the lock expires.
+            Run the reference keeper to submit <code>auto_release</code> on-chain,
+            or your beneficiary can remain stuck in <code>Locked</code> state.
+            See <code>holdfast/docs/quickstart.md</code> for the keeper command.
           </p>
         </Callout>
       </section>
