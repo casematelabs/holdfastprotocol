@@ -29,8 +29,12 @@ const { p256 } = require("../oracle/node_modules/@noble/curves/nist.js");
 
 const RPC_URL = process.env["ANCHOR_PROVIDER_URL"] ?? "https://api.devnet.solana.com";
 const INDEXER_URL = process.env["INDEXER_URL"] ?? "https://holdfast-indexer.fly.dev";
-const HOLDFAST_PROGRAM_ID = new anchor.web3.PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
-const ESCROW_PROGRAM_ID = new anchor.web3.PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
+const HOLDFAST_PROGRAM_ID = new anchor.web3.PublicKey(
+  process.env["HOLDFAST_PROGRAM_ID"] ?? "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+);
+const ESCROW_PROGRAM_ID = new anchor.web3.PublicKey(
+  process.env["ESCROW_PROGRAM_ID"] ?? "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
+);
 
 const TOKEN_PROGRAM_ID = new anchor.web3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 const ASSOCIATED_TOKEN_PROGRAM_ID = new anchor.web3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
@@ -257,6 +261,8 @@ async function main(): Promise<void> {
   console.log(`  Oracle: ${oracleKeypair.publicKey.toBase58()}`);
   console.log(`  RPC: ${RPC_URL}`);
   console.log(`  Indexer: ${INDEXER_URL}`);
+  console.log(`  Holdfast Program: ${HOLDFAST_PROGRAM_ID.toBase58()}`);
+  console.log(`  Escrow Program: ${ESCROW_PROGRAM_ID.toBase58()}`);
 
   if (payerBalance < 0.1 * anchor.web3.LAMPORTS_PER_SOL) {
     console.log("  Requesting airdrop...");
@@ -292,6 +298,19 @@ async function main(): Promise<void> {
       escrowProgram: ESCROW_PROGRAM_ID,
     }).rpc();
   } catch (err: any) {
+    if (err.error?.errorCode?.code === "ConstraintSeeds") {
+      const compared = err.error?.comparedValues as anchor.web3.PublicKey[] | undefined;
+      const left = compared?.[0]?.toBase58?.() ?? "unknown";
+      const right = compared?.[1]?.toBase58?.() ?? "unknown";
+      throw new Error(
+        [
+          "Attestation registry seed mismatch on devnet.",
+          `Configured holdfast=${HOLDFAST_PROGRAM_ID.toBase58()} escrow=${ESCROW_PROGRAM_ID.toBase58()}.`,
+          `Program compared seeds left=${left} right=${right}.`,
+          "Set HOLDFAST_PROGRAM_ID and ESCROW_PROGRAM_ID env vars to the deployed pair and rerun.",
+        ].join(" "),
+      );
+    }
     if (!err.message?.includes("already in use")) throw err;
     console.log("  Registry already initialized");
   }

@@ -41,6 +41,7 @@ cd holdfast
 $env:TS_NODE_TRANSPILE_ONLY='1'
 $env:ANCHOR_PROVIDER_URL='https://api.devnet.solana.com'
 $env:INDEXER_URL='https://holdfast-indexer.fly.dev'
+$env:HOLDFAST_PROGRAM_ID='2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq'
 npx ts-node --transpile-only -P tsconfig.json scripts/devnet-smoke-test.ts | Tee-Object -FilePath ..\tmp\cas66-smoke-output.log
 ```
 
@@ -102,6 +103,13 @@ Manual until blockers clear:
 
 - dashboard screenshot capture and human visual confirmation of same tx row
 - final launch-readiness signoff comment in issue thread
+
+## Known Current Blocker (2026-04-30)
+
+- Indexer host resolution failed from this environment for both:
+  - `https://holdfast-indexer.fly.dev/health`
+  - `https://indexer.devnet.holdfastprotocol.com/health`
+- Result: on-chain tx evidence can be captured, but indexer and dashboard trace correlation cannot be completed until indexer DNS/service is restored or a reachable endpoint is provided.
 
 ## QA Reproduction Contract
 
