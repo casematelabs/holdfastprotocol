@@ -1,6 +1,6 @@
 # Holdfast Protocol — Quickstart Example App
 
-A fork-ready Node.js app that runs a complete pact lifecycle on Solana devnet in under 5 minutes.
+A fork-ready Node.js app that runs a complete pact lifecycle on Solana devnet in under 15 minutes.
 
 > **DEVNET ONLY.** Holdfast programs have not been formally audited. Do not use on mainnet.
 
@@ -130,6 +130,15 @@ After the 7-day dispute window closes, call `claimReleased()` to finalise:
 
 ```typescript
 await client.escrow.claimReleased(escrowId, initiatorPubkey);
+```
+
+If you switch to timed release conditions, run the reference keeper so expired
+timed pacts are auto-released on-chain:
+
+```bash
+KEEPER_KEYPAIR_PATH=~/.config/solana/devnet.json \
+KEEPER_AGENT_WALLET=<your-agent-wallet-pda> \
+npx ts-node --transpile-only holdfast/scripts/auto-release-keeper.ts
 ```
 
 See the [SDK reference](https://docs.holdfastprotocol.com/sdk) for:

@@ -9,6 +9,7 @@
 - `holdfast/docs/quickstart.md` (holdfast package docs)
 - `app/docs/quickstart/page.tsx` (website/docs app page)
 - `holdfast/sdk/examples/quickstart.ts` (runnable example)
+- `examples/holdfast-quickstart/README.md` (forkable example app guide)
 
 ## Drift Matrix
 
@@ -77,3 +78,10 @@ Then treat other surfaces as synchronized derivatives:
 
 ## Next Action
 - Apply sequence step 1 and 2 in CAS-63 implementation patch: update app quickstart install command, duration copy, and timed-keeper guidance to match canonical devnet onboarding posture.
+
+## Continuation Audit (Example App README)
+
+`examples/holdfast-quickstart/README.md` originally carried a conflicting
+runtime expectation (`under 5 minutes`). It has now been aligned to
+`under 15 minutes` and now includes an explicit timed-mode keeper note so users
+do not infer background auto-release behavior.
