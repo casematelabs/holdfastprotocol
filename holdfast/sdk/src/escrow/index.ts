@@ -11,6 +11,8 @@ import { sendAndConfirmWithRetry } from "../resilience.js";
 import type {
   EscrowAccount,
   EscrowStatus,
+  EscrowEventPage,
+  GetEscrowEventsOptions,
   ListPactsOptions,
   PactPage,
   ReleaseCondition,
@@ -24,7 +26,7 @@ const DEVNET_ESCROW_PROGRAM_ID = new PublicKey(
   "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
 );
 const DEVNET_HOLDFAST_PROGRAM_ID = new PublicKey(
-  "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+  "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
 );
 const TOKEN_PROGRAM_ID = new PublicKey(
   "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
@@ -1255,6 +1257,30 @@ export class EscrowModule {
       throw new IndexerRequestError(res.status, await res.text());
     }
     return res.json() as Promise<PactPage>;
+  }
+
+  /**
+   * List escrow lifecycle events for a specific escrow via the off-chain indexer.
+   * Calls `GET /v1/escrows/:escrow/events`.
+   */
+  async getEscrowEvents(
+    escrowId: PublicKey | string,
+    opts: GetEscrowEventsOptions = {},
+  ): Promise<EscrowEventPage> {
+    const escrowStr = typeof escrowId === "string" ? escrowId : escrowId.toBase58();
+    const limit = Math.min(opts.limit ?? 50, 200);
+
+    const url = new URL(`/v1/escrows/${escrowStr}/events`, this.indexerUrl);
+    url.searchParams.set("limit", String(limit));
+    if (opts.before !== undefined) {
+      url.searchParams.set("before", opts.before);
+    }
+
+    const res = await fetch(url.toString());
+    if (!res.ok) {
+      throw new IndexerRequestError(res.status, await res.text());
+    }
+    return res.json() as Promise<EscrowEventPage>;
   }
 
   private requireSigner(): Signer {

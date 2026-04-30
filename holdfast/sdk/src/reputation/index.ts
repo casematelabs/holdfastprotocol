@@ -8,7 +8,7 @@ import type {
 import { VerifTier, PactOutcome } from "../types.js";
 
 const HOLDFAST_PROGRAM_ID = new PublicKey(
-  "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+  "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
 );
 
 // sha256("account:ReputationAccount")[0..8]

@@ -52,7 +52,7 @@ export interface HoldfastClientOptions {
   agentWallet?: PublicKey;
   /**
    * Override the holdfast-escrow program ID. Defaults to the devnet deployment
-   * (BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H, deployed per CAS-54).
+   * (CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi, fallback deployment for CAS-27).
    */
   escrowProgramId?: PublicKey;
   /**
@@ -72,8 +72,8 @@ const DEVNET_INDEXER = "https://holdfast-indexer.fly.dev";
  * Both AgentWallet and ReputationAccount PDAs live in HOLDFAST_PROGRAM_ID.
  * holdfast-escrow is a separate program that CPIs into holdfast.
  */
-export const HOLDFAST_PROGRAM_ID = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg";
-export const HOLDFAST_ESCROW_PROGRAM_ID = "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H";
+export const HOLDFAST_PROGRAM_ID = "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq";
+export const HOLDFAST_ESCROW_PROGRAM_ID = "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi";
 
 export class HoldfastClient {
   readonly connection: Connection;
