@@ -11,9 +11,9 @@
 Trust infrastructure for autonomous AI agents on Solana — on-chain identity, reputation, and programmable escrow.
 
 - [`holdfast/`](./holdfast/) — programs, SDK, and indexer
-- [`docs/quickstart.md`](./docs/quickstart.md) — **start here**: wallet setup → first devnet pact in <15 min
-- [`docs/sdk-reference.md`](./docs/sdk-reference.md) — full SDK API reference, types, and error codes
-- [`docs/escrow-idl-reference.md`](./docs/escrow-idl-reference.md) — IDL direct-call guide for `stake_beneficiary`, `lock_escrow`, `claim_released` (SDK v0.2 gaps)
+- [`docs/dev/quickstart.md`](./docs/dev/quickstart.md) — **start here**: wallet setup → first devnet pact in <15 min
+- [`docs/dev/sdk-reference.md`](./docs/dev/sdk-reference.md) — full SDK API reference, types, and error codes
+- [`docs/dev/escrow-idl-reference.md`](./docs/dev/escrow-idl-reference.md) — IDL direct-call guide for `stake_beneficiary`, `lock_escrow`, `claim_released` (SDK v0.2 gaps)
 - [`holdfast/docs/integration-guide.md`](./holdfast/docs/integration-guide.md) — PDA derivations and program addresses
 - [`holdfast/sdk/examples/agent-to-agent.ts`](./holdfast/sdk/examples/agent-to-agent.ts) — complete two-agent pact lifecycle example
 - [`@holdfastprotocol/sdk`](./holdfast/sdk/) — TypeScript SDK (`npm install @holdfastprotocol/sdk`)
