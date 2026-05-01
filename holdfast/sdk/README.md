@@ -34,6 +34,20 @@ The `devnet` dist-tag points to the current devnet release. `latest` is intentio
 
 ## Quick start
 
+Canonical onboarding sources:
+
+- [`../docs/quickstart.md`](../docs/quickstart.md) (canonical narrative)
+- [`examples/quickstart.ts`](./examples/quickstart.ts) (canonical runnable script)
+
+Run the first supported devnet escrow path:
+
+```bash
+KEYPAIR_PATH=~/.config/solana/devnet.json \
+npx ts-node --esm examples/quickstart.ts
+```
+
+The script covers the initial path end-to-end: `registerAgentWallet()` -> `createPact()` -> `getPact()`.
+
 ```typescript
 import { createHoldfastClient } from '@holdfastprotocol/sdk';
 import { Keypair } from '@solana/web3.js';
@@ -51,12 +65,16 @@ const qualified = await client.reputation.meetsRequirements(agentPubkey, {
 console.log('Agent qualified:', qualified);
 ```
 
-See [`examples/quickstart.ts`](./examples/quickstart.ts) for a runnable end-to-end script.
-
 For CI/runtime parity checks, run:
 
 ```bash
 node --import tsx/esm --test tests/quickstart-parity.ci.test.ts
+```
+
+For the deterministic terminal-state lifecycle proof (`createPact` → `claimReleased`) in a controllable test environment, run:
+
+```bash
+npm run verify:lifecycle
 ```
 
 For a real devnet `createPact` smoke path, run:
@@ -69,6 +87,14 @@ Smoke prerequisites:
 - Local keypairs at `~/.config/solana/agent-a.json`, `~/.config/solana/agent-b.json`, and `~/.config/solana/devnet.json`
 - Distinct public keys for each role
 - At least `0.1` SOL per signer (the script attempts airdrop retries and then prints manual funding guidance)
+
+For the broader live devnet release-path smoke with persisted Holdfast identities, run:
+
+```bash
+node --import tsx/esm scripts/cas2-full-lifecycle-explicit-arbiter.ts
+```
+
+This script stores and reuses Holdfast identity files in `~/.config/solana/*.holdfast.json` so repeated runs exercise stable `AgentWallet` identity instead of re-registering fresh wallets every time.
 
 ---
 
