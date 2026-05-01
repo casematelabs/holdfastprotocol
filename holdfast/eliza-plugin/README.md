@@ -93,8 +93,6 @@ if (signature) {
 
 Add `agent-identity.json` to `.gitignore` — the P-256 key is your on-chain identity.
 
-See the [Register an Agent Wallet devnet tutorial](../../docs/registeragentwallet-devnet-tutorial.md) for a full walkthrough.
-
 ### 2. Configure the plugin
 
 ```typescript
@@ -162,9 +160,9 @@ createHoldfastPlugin({ signer, rpcUrl: '...', agentWallet: '...' });
 createHoldfastPlugin({ rpcUrl: '...' });
 ```
 
-## CAS-3 live devnet integration test setup
+## Live devnet integration test setup
 
-The CAS-3 test (`src/tests/integration.devnet.test.ts`) is intentionally skipped unless required `HF_DEVNET_*` variables are present.
+The integration test (`src/tests/integration.devnet.test.ts`) is intentionally skipped unless required `HF_DEVNET_*` variables are present.
 
 ### 1. Create the env file
 
@@ -266,31 +264,24 @@ Use `CHECK_REPUTATION` to look up any agent by public key, or let the reputation
 
 | Program | Address |
 |---|---|
-| `holdfast` (vaultpact) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| `holdfast` (vaultpact) | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | `holdfast-escrow` (vaultpact_escrow) | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 Verify accounts on [Solana Explorer (devnet)](https://explorer.solana.com/?cluster=devnet).
-
-## Full documentation
-
-- [Register an Agent Wallet — devnet tutorial](../../docs/registeragentwallet-devnet-tutorial.md)
-- [Quickstart — first escrow pact end-to-end](../../docs/quickstart.md)
-- [SDK reference](../../docs/sdk-reference.md)
-- [Architecture overview](../../docs/architecture.md)
 
 ## Dependencies
 
 | Package | Version | Purpose |
 |---|---|---|
 | `@elizaos/core` | ^1.0.0 | Peer dependency — ElizaOS agent framework |
-| `@holdfastprotocol/sdk` | 0.2.0-devnet.1 | Holdfast Protocol SDK for on-chain interactions |
+| `@holdfastprotocol/sdk` | ^0.2.0-devnet.2 | Holdfast Protocol SDK for on-chain interactions |
 | `@solana/web3.js` | ^1.95.0 | Solana blockchain client |
 | `bs58` | ^6.0.0 | Base58 encoding for Solana keys |
 | `zod` | ^3.25.76 | Runtime config validation |
 
 ## Contributing
 
-Contributions welcome. This is a pre-audit devnet package — pull requests are reviewed but may be held until after the third-party security audit completes. Please open issues or PRs on [GitHub](https://github.com/casematelabs/sdk/issues).
+Contributions welcome. This is a pre-audit devnet package — pull requests are reviewed but may be held until after the third-party security audit completes. Please open issues or PRs on [GitHub](https://github.com/casematelabs/eliza-plugin/issues).
 
 ## License
 
