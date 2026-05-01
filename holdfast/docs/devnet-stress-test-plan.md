@@ -13,7 +13,7 @@ instruction paths.
 |---|---|
 | Funded devnet wallet | `~/.config/solana/devnet.json` with >= 2 SOL |
 | Oracle keypair | `~/.config/solana/oracle-devnet.json` |
-| Programs deployed | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` (vaultpact), `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` (escrow) |
+| Programs deployed | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` (vaultpact), `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` (escrow) |
 | Attestation registry | Initialized on devnet (via `scripts/init-registry-devnet.ts`) |
 | Node.js | >= 18 |
 

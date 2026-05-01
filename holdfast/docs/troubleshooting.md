@@ -190,7 +190,7 @@ await connection.sendRawTransaction(tx.serialize());
 ## Getting Help
 
 - Open issues on the Holdfast Protocol GitHub repo
-- Check program logs in devnet Explorer: search for the program ID `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H`
+- Check program logs in devnet Explorer: search for the program ID `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`
 - For security disclosures, contact the team via the channel listed in `SECURITY.md`
 
 ---

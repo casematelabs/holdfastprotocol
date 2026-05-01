@@ -117,14 +117,14 @@ Resolved in [CAS-33](/CAS/issues/CAS-33) on 2026-04-19. The two constants that g
 |---|---|
 | Canonical address | `DLzsM2CA7mhp2KQcQfkzsbL6r55H8TEZJgL223xfXxA2` |
 | Type | Program-Derived Address (off-curve) |
-| Program | Holdfast Protocol escrow program, devnet ID `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| Program | Holdfast Protocol escrow program, devnet ID `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 | Seeds | `[b"vp_escrow_authority"]` |
 | Bump | 255 |
 | Program keypair | `~/.config/solana/escrow-program-devnet.json` (do not commit) |
 
 Derivation command:
 ```
-solana find-program-derived-address BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H string:vp_escrow_authority
+solana find-program-derived-address CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi string:vp_escrow_authority
 ```
 
 When the escrow program is implemented, it **must** use the same seeds (`[b"vp_escrow_authority", &[255u8]]`) as its CPI signer when calling `update_reputation`, or derivation will produce a different address and all reputation writes will be rejected.

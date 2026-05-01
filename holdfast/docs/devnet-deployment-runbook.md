@@ -28,7 +28,7 @@ solana config set --url devnet --keypair ~/.config/solana/devnet.json
 | Program | Module name | Program ID |
 |---|---|---|
 | Holdfast (agent registry) | `vaultpact` | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
-| Holdfast Escrow | `vaultpact_escrow` | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| Holdfast Escrow | `vaultpact_escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 > Note: The Anchor module names (`vaultpact`, `vaultpact_escrow`) are the on-chain identifiers and are unchanged by the Holdfast brand rename. Do not rename them.
 
@@ -50,7 +50,7 @@ solana-keygen pubkey target/deploy/vaultpact-keypair.json
 # Expected: D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg
 
 solana-keygen pubkey target/deploy/vaultpact_escrow-keypair.json
-# Expected: BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H
+# Expected: CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi
 ```
 
 If the pubkeys don't match, stop. The keypair files are gitignored — retrieve them from 1Password (see Prerequisites).
@@ -105,7 +105,7 @@ solana program upgrade \
 # Escrow
 solana program upgrade \
   <ESCROW_BUFFER> \
-  BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H \
+  CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi \
   --upgrade-authority keys/devnet-protocol-authority.json \
   --url devnet
 ```
@@ -120,7 +120,7 @@ solana program upgrade \
 
 ```bash
 solana program show D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg --url devnet
-solana program show BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H --url devnet
+solana program show CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi --url devnet
 ```
 
 Both should show `Executable: true` and the `Last Deployed In Slot` should be recent.
@@ -136,7 +136,7 @@ solana program dump --url devnet \
 sha256sum /tmp/holdfast.so
 
 solana program dump --url devnet \
-  BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H \
+  CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi \
   /tmp/escrow.so
 sha256sum /tmp/escrow.so
 ```

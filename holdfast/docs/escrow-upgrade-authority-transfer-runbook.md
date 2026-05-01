@@ -24,7 +24,7 @@ upgrade, eliminating single-point-of-failure risk.
 
 | Field | Value |
 |-------|-------|
-| Devnet program ID | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| Devnet program ID | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 | Mainnet program ID | TBD — derive with `solana-keygen pubkey keys/mainnet-escrow-program-keypair.json` |
 | Target upgrade authority (Squads vault PDA) | `F7koW9b6RYpGrwEXNCGx5V5cKmK2YwhR5e5UyPyBj1J9` |
 | Squads vault configuration | 2-of-2 threshold |

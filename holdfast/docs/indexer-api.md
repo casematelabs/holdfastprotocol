@@ -351,7 +351,7 @@ None.
     {
       "name": "holdfast-escrow",
       "anchorModule": "vaultpact-escrow",
-      "programId": "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H",
+      "programId": "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
       "status": "active",
       "lastSeenSlot": 456490000
     }
