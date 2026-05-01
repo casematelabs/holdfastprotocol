@@ -1,4 +1,4 @@
-﻿# Holdfast Protocol
+# Holdfast Protocol
 
 [![Holdfast CI](https://github.com/meanstackofdoom/vaultpack/actions/workflows/ci.yml/badge.svg)](https://github.com/meanstackofdoom/vaultpack/actions/workflows/ci.yml)
 
@@ -89,7 +89,7 @@ Holdfast Protocol is deployed as **two programs** on Solana devnet. Both `AgentW
 | Program | Address | Contains |
 |---|---|---|
 | `vaultpact` | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` | `AgentWallet` PDA, `ReputationAccount` PDA, `AttestationRegistry` |
-| `vaultpact-escrow` | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` | `EscrowAccount` PDA, vault token accounts |
+| `vaultpact-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` | `EscrowAccount` PDA, vault token accounts |
 
 **Upgrade authority (devnet):** `2TH4VxNqPdzDMX2guhEfDvmmLstnLN2BpcyvUb8bjrkd`  
 Last verified deployed: 2026-04-20 (CAS-121). See `docs/integration-guide.md` for full deployment details.
@@ -137,13 +137,55 @@ yarn test
 
 The `yarn demo` script runs `scripts/hackathon-demo.ts` — a walkthrough of the full pact lifecycle against devnet.
 
+### CAS-5 Devnet Ops
+
+Use these helper scripts when reproducing/following CAS-5 MED devnet runs:
+
+```bash
+# Print environment flags and usage
+yarn cas5:help
+
+# Print top-up shortfalls + commands + live payer balance
+yarn cas5:status
+
+# Write a status artifact file (tmp-cas5-status.txt)
+yarn cas5:status:file
+
+# Run full baseline only when payer balance is high enough (>= 0.02 SOL)
+yarn cas5:run-if-funded
+
+# Combined heartbeat: run funding gate, then refresh status artifact
+yarn cas5:ops:heartbeat
+
+# Print concise top-up hints only
+yarn cas5:topup:hint
+
+# Print human-readable dry-run funding requirements
+yarn cas5:funding:dry
+
+# Emit machine-readable funding JSON (stdout / file)
+yarn cas5:funding:json
+yarn cas5:funding:json:file
+
+# Attempt staged devnet airdrops to payer
+yarn cas5:airdrop
+
+# Sweep saved participant keypairs back to payer
+yarn cas5:recover
+
+# Remove local CAS-5 temp artifacts
+yarn cas5:clean-temp
+```
+
 ---
 
 ## SDK quick start
 
 ```bash
-npm install @holdfastprotocol/sdk @solana/web3.js
+npm install @holdfastprotocol/sdk@devnet @solana/web3.js
 ```
+
+The `devnet` dist-tag points to the current devnet SDK release. `latest` is intentionally unset until the external audit completes.
 
 ```typescript
 import { createHoldfastClient } from '@holdfastprotocol/sdk';
