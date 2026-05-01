@@ -3,6 +3,15 @@
   "version": "0.1.0-devnet.1",
   "description": "Holdfast plugin for ElizaOS — add on-chain identity, reputation, and escrow to autonomous agents.",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/casematelabs/holdfastprotocol-eliza-plugin.git"
+  },
+  "homepage": "https://github.com/casematelabs/holdfastprotocol-eliza-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/casematelabs/holdfastprotocol-eliza-plugin/issues"
+  },
   "exports": {
     ".": {
       "import": {
@@ -51,6 +60,5 @@
     "reputation",
     "escrow",
     "agent"
-  ],
-  "license": "MIT"
+  ]
 }
