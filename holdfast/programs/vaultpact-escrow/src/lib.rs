@@ -75,11 +75,11 @@ pub mod fuzz_helpers {
     }
 }
 
-// Devnet program ID pre-generated 2026-04-19 (CAS-33).
-// Keypair: ~/.config/solana/escrow-program-devnet.json
+// Devnet fallback escrow program ID generated for CAS-27 fallback remediation.
+// Keypair: holdfast/keys/devnet-escrow-fallback.json
 // HOLDFAST_ESCROW_AUTHORITY PDA derived from this ID:
-//   find_program_address([b"vp_escrow_authority"], this_id) => DLzsM2CA7mhp2KQcQfkzsbL6r55H8TEZJgL223xfXxA2
-declare_id!("BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H");
+//   find_program_address([b"vp_escrow_authority"], this_id) => DZifyzpP2weUS2QSpenB3fH9xdCyeYLduB8PxyEqoHwj (bump 254)
+declare_id!("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
 
 #[program]
 pub mod vaultpact_escrow {

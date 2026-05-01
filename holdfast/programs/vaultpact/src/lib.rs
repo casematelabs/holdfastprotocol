@@ -84,14 +84,14 @@ pub mod secp256r1_program {
     ]);
 }
 
-declare_id!("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
+declare_id!("2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq");
 
 /// Devnet protocol authority: dedicated keypair at keys/devnet-protocol-authority.json
-/// Pubkey: 9xSsPbk6Fh9LNfEsDnqM3SEwz4RDyqndgHhrAbRBomfk
+/// Pubkey: C5XepxkBuYenXRVgRzbzFyLFn7iBzQPdebuR5FrWs6x1
 #[cfg(not(feature = "mainnet"))]
 pub const INITIAL_AUTHORITY: Pubkey = Pubkey::new_from_array([
-    0x85,0x11,0xb0,0x99,0x63,0x2b,0x12,0x95,0xd2,0xc3,0x5c,0x19,0x51,0x4d,0xb4,0x85,
-    0xe9,0x24,0x69,0xd5,0xc4,0x77,0x14,0xfb,0x0e,0x18,0xe0,0xb4,0xab,0xce,0xb3,0xc7,
+    0xa4,0x99,0x89,0xb8,0x21,0x9b,0xcf,0x3b,0xdd,0x1d,0xa5,0x42,0x59,0x15,0x31,0xa0,
+    0x9b,0x51,0x06,0x97,0xae,0x70,0xd6,0xff,0x7c,0x84,0x38,0x07,0x62,0x1b,0x79,0xea,
 ]);
 
 /// Mainnet authority: Squads v4 multisig vault PDA.
@@ -137,11 +137,11 @@ const ALLOWED_ORIGINS: &[&[u8]] = &[
 // REPUTATION_ORACLE_AUTHORITY
 //   Pubkey of the oracle daemon's ed25519 signing keypair.
 
-/// Devnet escrow authority PDA: DLzsM2CA7mhp2KQcQfkzsbL6r55H8TEZJgL223xfXxA2 (bump = 255)
+/// Devnet escrow authority PDA: DZifyzpP2weUS2QSpenB3fH9xdCyeYLduB8PxyEqoHwj (bump = 254)
 #[cfg(not(feature = "mainnet"))]
 pub const VAULTPACT_ESCROW_AUTHORITY: Pubkey = Pubkey::new_from_array([
-    0xb7,0x6b,0xb5,0xc7,0x02,0x7c,0x2c,0x0a,0x69,0x2b,0x5e,0x1b,0xf8,0x1c,0x9f,0xc9,
-    0x90,0x00,0xc0,0x94,0x9f,0x59,0x77,0x40,0xcf,0x22,0xe7,0xe4,0x8a,0x11,0xc5,0x37,
+    0xba,0xad,0xf2,0xa4,0x32,0x60,0x5e,0x41,0xc0,0x02,0x86,0x2c,0xb5,0xc4,0xfe,0xb6,
+    0x08,0xe2,0xef,0x9e,0x86,0x42,0xf4,0xb0,0xf1,0x40,0x37,0x57,0x1f,0x20,0x11,0x76,
 ]);
 
 /// Mainnet escrow program: 7TuzcGkRQ4KfF4sE4YDMHgkCCu7XKzgetuVaZV3Q2Jux
@@ -1616,11 +1616,11 @@ mod tests {
     #[cfg(not(feature = "mainnet"))]
     fn vaultpact_escrow_authority_matches_devnet_escrow_program() {
         // Verify the hardcoded constant matches find_program_address for the
-        // known devnet escrow program ID (BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H).
+        // known devnet escrow program ID (CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi).
         // If the escrow program is redeployed, update VAULTPACT_ESCROW_AUTHORITY AND
         // this test together to catch divergence at CI time.
         use std::str::FromStr;
-        let escrow_program_id = Pubkey::from_str("BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H")
+        let escrow_program_id = Pubkey::from_str("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi")
             .expect("hardcoded devnet escrow program ID must parse");
         let (derived, _bump) = Pubkey::find_program_address(
             &[b"vp_escrow_authority"],

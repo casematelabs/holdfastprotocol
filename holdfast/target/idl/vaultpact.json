@@ -1,5 +1,5 @@
 {
-  "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+  "address": "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
   "metadata": {
     "name": "vaultpact",
     "version": "0.1.0",
@@ -233,6 +233,79 @@
         },
         {
           "name": "escrow_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "migrate_attestation_registry",
+      "docs": [
+        "One-time migration: realloc AttestationRegistry from 49 to 81 bytes (HOL-233).",
+        "",
+        "Accounts on devnet and mainnet that were initialized before HOL-182 have the",
+        "legacy layout (disc[8] + authority[32] + agent_count[8] + bump[1] = 49 bytes).",
+        "HOL-182 added the `oracle_authority` field, expanding the struct to 81 bytes.",
+        "This instruction reallocates the on-chain account and inserts the field without",
+        "losing any existing state.",
+        "",
+        "Guard: reverts with `AlreadyMigrated` if the account is already 81 bytes.",
+        "Gated by INITIAL_AUTHORITY. Can only be called once."
+      ],
+      "discriminator": [
+        99,
+        100,
+        32,
+        30,
+        90,
+        234,
+        150,
+        68
+      ],
+      "accounts": [
+        {
+          "name": "attestation_registry",
+          "docs": [
+            "Seeds and discriminator validated in instruction body; size guard prevents double-migration."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  116,
+                  116,
+                  101,
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": []
@@ -572,6 +645,74 @@
       ]
     },
     {
+      "name": "set_oracle_authority",
+      "docs": [
+        "Rotate the oracle authority stored in AttestationRegistry.",
+        "",
+        "Gated by the current attestation_registry.authority (the live protocol authority,",
+        "which may differ from INITIAL_AUTHORITY after a set_protocol_authority call).",
+        "Enables oracle keypair rotation without a program upgrade if the oracle is compromised."
+      ],
+      "discriminator": [
+        39,
+        155,
+        66,
+        106,
+        213,
+        226,
+        114,
+        174
+      ],
+      "accounts": [
+        {
+          "name": "attestation_registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  116,
+                  116,
+                  101,
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "attestation_registry"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "new_oracle",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
       "name": "set_protocol_authority",
       "docs": [
         "Rotate the protocol authority stored in AttestationRegistry.",
@@ -772,6 +913,38 @@
         {
           "name": "update_authority",
           "signer": true
+        },
+        {
+          "name": "attestation_registry",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  116,
+                  116,
+                  101,
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
         }
       ],
       "args": [
@@ -1038,6 +1211,21 @@
       "code": 6025,
       "name": "RotationToSameKey",
       "msg": "New key must differ from the current key"
+    },
+    {
+      "code": 6026,
+      "name": "EscrowAuthorityMismatch",
+      "msg": "Derived escrow authority PDA does not match VAULTPACT_ESCROW_AUTHORITY constant"
+    },
+    {
+      "code": 6027,
+      "name": "InvalidAuthority",
+      "msg": "New authority must not be the zero pubkey (permanent DoS prevention)"
+    },
+    {
+      "code": 6028,
+      "name": "AlreadyMigrated",
+      "msg": "AttestationRegistry already migrated to 81 bytes"
     }
   ],
   "types": [
@@ -1114,6 +1302,10 @@
           {
             "name": "agent_count",
             "type": "u64"
+          },
+          {
+            "name": "oracle_authority",
+            "type": "pubkey"
           },
           {
             "name": "bump",
