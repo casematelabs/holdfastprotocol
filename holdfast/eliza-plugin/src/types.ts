@@ -7,6 +7,14 @@ export const HoldfastPluginConfigSchema = z.object({
   rpcUrl: z.string().url("rpcUrl must be a valid URL (e.g. https://api.devnet.solana.com)").optional(),
   indexerUrl: z.string().url("indexerUrl must be a valid URL").optional(),
   signer: z.custom<Signer>().optional(),
+  escrowProgramId: z
+    .string()
+    .regex(base58PubkeyPattern, "escrowProgramId must be a valid base58-encoded Solana public key")
+    .optional(),
+  holdfastProgramId: z
+    .string()
+    .regex(base58PubkeyPattern, "holdfastProgramId must be a valid base58-encoded Solana public key")
+    .optional(),
   agentWallet: z
     .string()
     .regex(base58PubkeyPattern, "agentWallet must be a valid base58-encoded Solana public key")

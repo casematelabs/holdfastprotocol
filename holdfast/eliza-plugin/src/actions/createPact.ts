@@ -33,6 +33,8 @@ export function makeCreatePactAction(client: HoldfastClient): Action {
           client.escrow.createPact({
             counterparty: new PublicKey(options.counterparty as string),
             counterpartyWallet: new PublicKey(options.counterpartyWallet as string),
+            ...(options.arbiter ? { arbiter: new PublicKey(options.arbiter as string) } : {}),
+            ...(options.arbiterWallet ? { arbiterWallet: new PublicKey(options.arbiterWallet as string) } : {}),
             mint: new PublicKey(options.mint as string),
             amount: BigInt(String(options.amount)),
             releaseCondition: (options.releaseCondition ?? {

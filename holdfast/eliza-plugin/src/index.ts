@@ -1,5 +1,6 @@
 import type { Plugin, IAgentRuntime } from "@elizaos/core";
 import { createHoldfastClient, PREAUDIT_WARNING } from "@holdfastprotocol/sdk";
+import { PublicKey } from "@solana/web3.js";
 
 import type { HoldfastPluginConfig } from "./types.js";
 import { HoldfastPluginConfigSchema } from "./types.js";
@@ -27,6 +28,9 @@ export function createHoldfastPlugin(config: HoldfastPluginConfig): Plugin {
     rpcUrl: parsed.rpcUrl,
     indexerUrl: parsed.indexerUrl,
     signer: parsed.signer,
+    agentWallet: parsed.agentWallet ? new PublicKey(parsed.agentWallet) : undefined,
+    escrowProgramId: parsed.escrowProgramId ? new PublicKey(parsed.escrowProgramId) : undefined,
+    holdfastProgramId: parsed.holdfastProgramId ? new PublicKey(parsed.holdfastProgramId) : undefined,
   });
 
   return {

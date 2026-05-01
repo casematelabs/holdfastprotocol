@@ -162,6 +162,57 @@ createHoldfastPlugin({ signer, rpcUrl: '...', agentWallet: '...' });
 createHoldfastPlugin({ rpcUrl: '...' });
 ```
 
+## CAS-3 live devnet integration test setup
+
+The CAS-3 test (`src/tests/integration.devnet.test.ts`) is intentionally skipped unless required `HF_DEVNET_*` variables are present.
+
+### 1. Create the env file
+
+From `holdfast/eliza-plugin/`:
+
+```powershell
+Copy-Item .env.devnet.integration.example .env.devnet.integration
+```
+
+Fill these required values in `.env.devnet.integration`:
+
+- `HF_DEVNET_SIGNER_PRIVATE_KEY_BASE58`
+- `HF_DEVNET_AGENT_WALLET`
+- `HF_DEVNET_COUNTERPARTY`
+- `HF_DEVNET_MINT`
+- `HF_DEVNET_AMOUNT_BASE_UNITS`
+
+Optional:
+
+- `HF_DEVNET_COUNTERPARTY_WALLET` (defaults to `HF_DEVNET_AGENT_WALLET` in the test path)
+- `HF_DEVNET_RPC_URL` (default: `https://api.devnet.solana.com`)
+- `HF_DEVNET_INDEXER_URL`
+
+### 2. Run the integration test
+
+```powershell
+npm run test:integration:devnet:ps1
+```
+
+This command loads `.env.devnet.integration`, validates required vars, and runs the full 5-action test against devnet.
+
+Optional preflight check (env only, no test execution):
+
+```powershell
+npm run test:integration:devnet:status
+```
+
+Optional bootstrap (auto-fills signer, agent wallet, counterparty from `~/.config/solana/devnet.json`):
+
+```powershell
+npm run test:integration:devnet:bootstrap
+```
+
+After bootstrap, you still need to set:
+
+- `HF_DEVNET_MINT`
+- `HF_DEVNET_AMOUNT_BASE_UNITS`
+
 ## Actions
 
 | Action | Aliases | Description | Signer required |
@@ -216,7 +267,7 @@ Use `CHECK_REPUTATION` to look up any agent by public key, or let the reputation
 | Program | Address |
 |---|---|
 | `holdfast` (vaultpact) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
-| `holdfast-escrow` (vaultpact_escrow) | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
+| `holdfast-escrow` (vaultpact_escrow) | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 Verify accounts on [Solana Explorer (devnet)](https://explorer.solana.com/?cluster=devnet).
 
