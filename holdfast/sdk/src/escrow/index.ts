@@ -542,8 +542,7 @@ export class EscrowModule {
 
     let sent = false;
     let lastErr: unknown = undefined;
-    for (let i = 0; i < initLayouts.length; i += 1) {
-      const layout = initLayouts[i];
+    for (const [i, layout] of initLayouts.entries()) {
       const ix = new TransactionInstruction({
         programId: this.programId,
         data: layout.data,
