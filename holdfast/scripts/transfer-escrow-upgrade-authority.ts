@@ -53,7 +53,7 @@ import * as path from "node:path";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const DEVNET_ESCROW_PROGRAM_ID = "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H";
+const DEVNET_ESCROW_PROGRAM_ID = "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi";
 const SQUADS_VAULT_PDA = "F7koW9b6RYpGrwEXNCGx5V5cKmK2YwhR5e5UyPyBj1J9";
 
 // Solana BPF Upgradeable Loader program ID (immutable system program)

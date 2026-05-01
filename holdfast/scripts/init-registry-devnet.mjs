@@ -5,7 +5,7 @@ import os from "os";
 import path from "path";
 
 const PROGRAM_ID = new PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
-const ESCROW_PROGRAM_ID = new PublicKey("BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H");
+const ESCROW_PROGRAM_ID = new PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
 
 const walletPath = path.join(os.homedir(), ".config", "solana", "devnet.json");
 const raw = JSON.parse(fs.readFileSync(walletPath, "utf-8"));

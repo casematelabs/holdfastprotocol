@@ -62,7 +62,7 @@ const RPC_URL = process.env["RPC_URL"] ?? "https://api.devnet.solana.com";
 const POLL_INTERVAL_MS = parseInt(process.env["POLL_INTERVAL_SECS"] ?? "300", 10) * 1000;
 const DRY_RUN = process.env["DRY_RUN"] === "1";
 
-const ESCROW_PROGRAM_ID = new PublicKey("BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H");
+const ESCROW_PROGRAM_ID = new PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
 const DEFAULT_PUBKEY = new PublicKey(new Uint8Array(32));
 
 // Indexer-returned pact shape (subset used by the keeper)

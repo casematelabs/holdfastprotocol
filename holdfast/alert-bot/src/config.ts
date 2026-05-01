@@ -36,7 +36,7 @@ export function loadConfig(): AlertBotConfig {
       "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
     escrowProgramId:
       process.env["ESCROW_PROGRAM_ID"] ??
-      "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H",
+      "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
     alertCooldownMs:
       parseInt(process.env["ALERT_COOLDOWN_SECONDS"] ?? "300", 10) * 1000,
     intervals: {

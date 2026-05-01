@@ -48,7 +48,7 @@ export function loadConfig(): OracleConfig {
       // Keypair at ~/.config/solana/escrow-program-devnet.json.
       // VAULTPACT_ESCROW_AUTHORITY PDA is derived from this program ID:
       //   find_program_address([b"vp_escrow_authority"], escrowProgramId) => DLzsM2CA7mhp2KQcQfkzsbL6r55H8TEZJgL223xfXxA2
-      "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H",
+      "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
   );
 
   // null until CAS-45 confirms the devnet address. Set AGENT_REGISTRY_PROGRAM_ID env var to enable.

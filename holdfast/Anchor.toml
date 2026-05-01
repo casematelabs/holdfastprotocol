@@ -5,12 +5,12 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-vaultpact = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
-vaultpact_escrow = "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H"
+vaultpact = "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq"
+vaultpact_escrow = "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi"
 
 [programs.devnet]
-vaultpact = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
-vaultpact_escrow = "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H"
+vaultpact = "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq"
+vaultpact_escrow = "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi"
 
 [registry]
 url = "https://api.apr.dev"

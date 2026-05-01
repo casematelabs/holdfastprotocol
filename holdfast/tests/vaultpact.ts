@@ -34,7 +34,7 @@ const SYSVAR_INSTRUCTIONS = new anchor.web3.PublicKey(
   "Sysvar1nstructions1111111111111111111111111",
 );
 const ESCROW_PROGRAM_ID = new anchor.web3.PublicKey(
-  "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H",
+  "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
 );
 
 /**
@@ -317,7 +317,7 @@ describe("holdfast", () => {
 
   it("VAULTPACT_ESCROW_AUTHORITY matches the derivable PDA", () => {
     const escrowProgramId = new anchor.web3.PublicKey(
-      "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H",
+      "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
     );
     const [pda] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("vp_escrow_authority")],

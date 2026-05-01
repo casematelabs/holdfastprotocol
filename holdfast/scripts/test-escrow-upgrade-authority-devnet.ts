@@ -2,7 +2,7 @@
  * Devnet integration test for escrow program upgrade authority transfer (HOL-237).
  *
  * Prerequisites:
- *   1. vaultpact_escrow deployed to devnet at BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H
+ *   1. vaultpact_escrow deployed to devnet at CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi
  *   2. Current upgrade authority keypair available locally
  *      Default path: ~/.config/solana/upgrade-authority.json
  *      (matches DEVNET_UPGRADE_AUTHORITY_JSON GitHub secret)
@@ -42,7 +42,7 @@ import * as os from "node:os";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const ESCROW_PROGRAM_ID = new PublicKey("BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H");
+const ESCROW_PROGRAM_ID = new PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
 const DEVNET_RPC = "https://api.devnet.solana.com";
 const DEFAULT_AUTHORITY_KEYPAIR_PATH = path.join(os.homedir(), ".config", "solana", "upgrade-authority.json");
 

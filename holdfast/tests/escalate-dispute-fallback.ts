@@ -44,7 +44,7 @@ function getAssociatedTokenAddress(
   this.timeout(120_000);
 
   const VAULTPACT_ID = new anchor.web3.PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
-  const ESCROW_ID = new anchor.web3.PublicKey("BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H");
+  const ESCROW_ID = new anchor.web3.PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
 
   let context: any;
   let brProvider: any;

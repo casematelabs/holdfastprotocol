@@ -10,7 +10,7 @@ const PROGRAM_ID =
 
 const ESCROW_PROGRAM_ID =
   process.env["ESCROW_PROGRAM_ID"] ??
-  "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H";
+  "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi";
 
 const RPC_URL =
   process.env["SOLANA_RPC_URL"] ?? "https://api.devnet.solana.com";

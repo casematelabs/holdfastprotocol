@@ -203,7 +203,7 @@ startup_wait = 15000
 
 [programs.localnet]
 vaultpact = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
-vaultpact_escrow = "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H"
+vaultpact_escrow = "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi"
 ```
 
 **tsconfig.json** — Tests compile with `ts-mocha` using `transpileOnly` mode (no type-checking at test time). Types are provided by `@types/mocha`, `@types/chai`, and `@types/node`.
