@@ -281,7 +281,7 @@ Verify accounts on [Solana Explorer (devnet)](https://explorer.solana.com/?clust
 
 ## Contributing
 
-Contributions welcome. This is a pre-audit devnet package — pull requests are reviewed but may be held until after the third-party security audit completes. Please open issues or PRs on [GitHub](https://github.com/casematelabs/eliza-plugin/issues).
+Contributions welcome. This is a pre-audit devnet package — pull requests are reviewed but may be held until after the third-party security audit completes. Please open issues or PRs on [GitHub](https://github.com/casematelabs/holdfastprotocol-eliza-plugin/issues).
 
 ## License
 
