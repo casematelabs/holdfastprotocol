@@ -47,5 +47,10 @@ npm-debug.log*
 # Build artifacts
 tsconfig.tsbuildinfo
 
+# Playwright artifacts
+test-results/
+playwright-report/
+.playwright/
+
 # Python cache
 __pycache__/
