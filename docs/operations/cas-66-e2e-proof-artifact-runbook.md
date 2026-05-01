@@ -29,7 +29,7 @@ This covers the required chain with one artifact id set:
 - Solana CLI configured for devnet.
 - `~/.config/solana/devnet.json` funded payer keypair.
 - `~/.config/solana/oracle-devnet.json` funded oracle keypair.
-- Indexer endpoint reachable (default: `https://holdfast-indexer.fly.dev`).
+- Indexer endpoint reachable (canonical for proof flow: `http://localhost:3001`).
 - Dashboard running locally (`app`) or deployed status page reachable.
 
 ## Canonical Command Sequence
@@ -40,7 +40,7 @@ Run from repo root.
 cd holdfast
 $env:TS_NODE_TRANSPILE_ONLY='1'
 $env:ANCHOR_PROVIDER_URL='https://api.devnet.solana.com'
-$env:INDEXER_URL='https://holdfast-indexer.fly.dev'
+$env:INDEXER_URL='http://localhost:3001'
 $env:HOLDFAST_PROGRAM_ID='2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq'
 npx ts-node --transpile-only -P tsconfig.json scripts/devnet-smoke-test.ts | Tee-Object -FilePath ..\tmp\cas66-smoke-output.log
 ```
@@ -82,6 +82,18 @@ Save under `tmp/cas66-proof/` (or attach equivalent outputs in issue thread).
 - screenshot or structured output from `/status` showing the same `txSignature` in Recent Pact Activity.
 - include capture timestamp and URL used.
 
+Dashboard/indexer env override for proof capture:
+
+```powershell
+$env:NEXT_PUBLIC_INDEXER_URL='http://localhost:3001'
+```
+
+Route expectations:
+
+- health route: `GET /health` on root host
+- events feed route: `GET /events?limit=...`
+- `/v1/...` routes remain for escrow and history queries
+
 ## Evidence Matching Rules
 
 PASS only if all are true:
@@ -104,12 +116,10 @@ Manual until blockers clear:
 - dashboard screenshot capture and human visual confirmation of same tx row
 - final launch-readiness signoff comment in issue thread
 
-## Known Current Blocker (2026-04-30)
+## Known Current Blocker (2026-05-01)
 
-- Indexer host resolution failed from this environment for both:
-  - `https://holdfast-indexer.fly.dev/health`
-  - `https://indexer.devnet.holdfastprotocol.com/health`
-- Result: on-chain tx evidence can be captured, but indexer and dashboard trace correlation cannot be completed until indexer DNS/service is restored or a reachable endpoint is provided.
+- Devnet registration path can fail intermittently on secp256r1 simulation (`custom program error: 0x2`) in `scripts/devnet-smoke-test.ts`.
+- Use `scripts/cas-5-med-devnet.ts` as fallback generator for on-chain proof tx signatures when the smoke script aborts during registration.
 
 ## QA Reproduction Contract
 

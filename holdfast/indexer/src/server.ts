@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { PublicKey } from "@solana/web3.js";
 import type { EventStore } from "./store.js";
-import type { EscrowEventPage, HistoryPage } from "./types.js";
+import type { EscrowEventPage, HistoryPage, ProtocolEventPage } from "./types.js";
 
 const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 50;
@@ -17,6 +17,7 @@ class BodyTooLargeError extends Error {
 const HEALTH_RE = /^\/health(\?.*)?$/;
 const ROUTE_REP_HISTORY = /^\/v1\/agents\/([^/?]+)\/reputation\/history(\?.*)?$/;
 const ROUTE_ESCROW_EVENTS = /^\/v1\/escrows\/([^/?]+)\/events(\?.*)?$/;
+const ROUTE_PROTOCOL_EVENTS = /^\/events(\?.*)?$/;
 const ROUTE_CANCEL_INTENT = /^\/v1\/escrows\/([^/?]+)\/cancel-intent(\?.*)?$/;
 
 function parseQuery(search: string): URLSearchParams {
@@ -100,6 +101,14 @@ export function createApiServer(store: EventStore): ReturnType<typeof createServ
     if (evMatch !== null) {
       if (method !== "GET") { sendError(res, 405, "Method Not Allowed"); return; }
       handleEscrowEvents(req, res, store, evMatch);
+      return;
+    }
+
+    // Dashboard protocol events route (GET only).
+    const protocolEventsMatch = ROUTE_PROTOCOL_EVENTS.exec(url);
+    if (protocolEventsMatch !== null) {
+      if (method !== "GET") { sendError(res, 405, "Method Not Allowed"); return; }
+      handleProtocolEvents(req, res, store, protocolEventsMatch);
       return;
     }
 
@@ -187,6 +196,37 @@ function handleEscrowEvents(
   let page: EscrowEventPage;
   try {
     page = store.getEscrowEvents(escrowId, limit, beforeId);
+  } catch (err) {
+    console.error("[server] Store error:", err);
+    sendError(res, 500, "Internal Server Error");
+    return;
+  }
+
+  sendJson(res, 200, page);
+}
+
+function handleProtocolEvents(
+  _req: IncomingMessage,
+  res: ServerResponse,
+  store: EventStore,
+  match: RegExpExecArray,
+): void {
+  const qs = parseQuery(match[1] ?? "");
+  const rawLimit = parseInt(qs.get("limit") ?? String(DEFAULT_LIMIT), 10);
+  const limit = isNaN(rawLimit) || rawLimit < 1
+    ? DEFAULT_LIMIT
+    : Math.min(rawLimit, MAX_LIMIT);
+
+  const beforeStr = qs.get("before");
+  const beforeId = beforeStr !== null ? parseInt(beforeStr, 10) : undefined;
+  if (beforeId !== undefined && isNaN(beforeId)) {
+    sendError(res, 400, "Invalid cursor");
+    return;
+  }
+
+  let page: ProtocolEventPage;
+  try {
+    page = store.getProtocolEvents(limit, beforeId);
   } catch (err) {
     console.error("[server] Store error:", err);
     sendError(res, 500, "Internal Server Error");

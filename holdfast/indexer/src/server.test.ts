@@ -10,9 +10,10 @@ const REQUESTER = "11111111111111111111111111111111";
 
 let server: Server;
 let port: number;
+let store: EventStore;
 
 before(async () => {
-  const store = new EventStore(":memory:");
+  store = new EventStore(":memory:");
   server = createApiServer(store);
   await new Promise<void>((resolve, reject) => {
     server.on("error", reject);
@@ -98,4 +99,47 @@ test("DELETE cancel-intent with valid body succeeds", async () => {
   const body = Buffer.from(JSON.stringify({ requestedBy: REQUESTER }));
   const { status } = await doRequest(CANCEL_PATH, "DELETE", body);
   assert.equal(status, 200);
+});
+
+test("GET escrow events returns claim fee fields when indexed", async () => {
+  store.upsertEscrowEvent({
+    escrow: ESCROW_ID,
+    kind: "claimed",
+    slot: 123,
+    signature: "sig-claim-1",
+    ts: 1700000000,
+    indexedAt: 1700000001,
+    grossAmount: 1050n,
+    protocolFeeAmount: 25n,
+    beneficiaryNetAmount: 1025n,
+  });
+
+  const { status, json } = await doRequest(`/v1/escrows/${ESCROW_ID}/events`, "GET", Buffer.alloc(0));
+  assert.equal(status, 200);
+  assert.ok(typeof json === "object" && json !== null);
+  const payload = json as { events: Array<Record<string, unknown>> };
+  assert.equal(payload.events.length, 1);
+  assert.equal(payload.events[0]?.["grossAmount"], "1050");
+  assert.equal(payload.events[0]?.["protocolFeeAmount"], "25");
+  assert.equal(payload.events[0]?.["beneficiaryNetAmount"], "1025");
+});
+
+test("GET /events returns dashboard-compatible protocol event shape", async () => {
+  store.upsertEscrowEvent({
+    escrow: ESCROW_ID,
+    kind: "funded",
+    slot: 456,
+    signature: "sig-funded-1",
+    ts: 1700000100,
+    indexedAt: 1700000101,
+  });
+
+  const { status, json } = await doRequest("/events?limit=5", "GET", Buffer.alloc(0));
+  assert.equal(status, 200);
+  assert.ok(typeof json === "object" && json !== null);
+  const payload = json as { events: Array<Record<string, unknown>> };
+  assert.equal(payload.events.length > 0, true);
+  assert.equal(payload.events[0]?.["type"], "pact_funded");
+  assert.equal(payload.events[0]?.["txSignature"], "sig-funded-1");
+  assert.equal(payload.events[0]?.["program"], "escrow");
 });

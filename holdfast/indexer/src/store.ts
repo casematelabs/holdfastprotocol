@@ -1,5 +1,15 @@
 import Database from "better-sqlite3";
-import type { ReputationEvent, HistEntry, HistoryPage, CancelIntentRecord, EscrowEvent, EscrowEventEntry, EscrowEventPage } from "./types.js";
+import type {
+  ReputationEvent,
+  HistEntry,
+  HistoryPage,
+  CancelIntentRecord,
+  EscrowEvent,
+  EscrowEventEntry,
+  EscrowEventPage,
+  ProtocolEventEntry,
+  ProtocolEventPage,
+} from "./types.js";
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS reputation_events (
@@ -36,6 +46,9 @@ CREATE TABLE IF NOT EXISTS escrow_events (
   signature   TEXT    NOT NULL,
   ts          INTEGER NOT NULL,
   indexed_at  INTEGER NOT NULL,
+  gross_amount TEXT,
+  protocol_fee_amount TEXT,
+  beneficiary_net_amount TEXT,
   UNIQUE(escrow, signature, kind)
 );
 CREATE INDEX IF NOT EXISTS idx_escrow_events_escrow ON escrow_events(escrow, ts DESC);
@@ -49,6 +62,24 @@ export class EventStore {
     this.db.pragma("journal_mode = WAL");
     this.db.pragma("synchronous = NORMAL");
     this.db.exec(SCHEMA);
+    this.ensureEscrowAmountColumns();
+  }
+
+  private ensureEscrowAmountColumns(): void {
+    for (const column of [
+      "gross_amount",
+      "protocol_fee_amount",
+      "beneficiary_net_amount",
+    ]) {
+      try {
+        this.db.exec(`ALTER TABLE escrow_events ADD COLUMN ${column} TEXT`);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "";
+        if (!message.includes("duplicate column name")) {
+          throw err;
+        }
+      }
+    }
   }
 
   upsertEvent(event: ReputationEvent): void {
@@ -197,8 +228,8 @@ export class EventStore {
     this.db
       .prepare(
         `INSERT OR IGNORE INTO escrow_events
-         (escrow, kind, slot, signature, ts, indexed_at)
-         VALUES (@escrow, @kind, @slot, @signature, @ts, @indexedAt)`,
+         (escrow, kind, slot, signature, ts, indexed_at, gross_amount, protocol_fee_amount, beneficiary_net_amount)
+         VALUES (@escrow, @kind, @slot, @signature, @ts, @indexedAt, @grossAmount, @protocolFeeAmount, @beneficiaryNetAmount)`,
       )
       .run({
         escrow: event.escrow,
@@ -207,6 +238,9 @@ export class EventStore {
         signature: event.signature,
         ts: event.ts,
         indexedAt: event.indexedAt,
+        grossAmount: event.grossAmount?.toString() ?? null,
+        protocolFeeAmount: event.protocolFeeAmount?.toString() ?? null,
+        beneficiaryNetAmount: event.beneficiaryNetAmount?.toString() ?? null,
       });
   }
 
@@ -221,7 +255,7 @@ export class EventStore {
     const rows = beforeId !== undefined
       ? this.db
           .prepare<[string, number, number], EscrowEventDbRow>(
-            `SELECT id, kind, slot, signature, ts
+            `SELECT id, kind, slot, signature, ts, gross_amount, protocol_fee_amount, beneficiary_net_amount
              FROM escrow_events
              WHERE escrow = ? AND id < ?
              ORDER BY id DESC
@@ -230,7 +264,7 @@ export class EventStore {
           .all(escrow, beforeId, limit)
       : this.db
           .prepare<[string, number], EscrowEventDbRow>(
-            `SELECT id, kind, slot, signature, ts
+            `SELECT id, kind, slot, signature, ts, gross_amount, protocol_fee_amount, beneficiary_net_amount
              FROM escrow_events
              WHERE escrow = ?
              ORDER BY id DESC
@@ -243,6 +277,9 @@ export class EventStore {
       slot: r.slot,
       signature: r.signature,
       timestamp: r.ts,
+      ...(r.gross_amount !== null ? { grossAmount: r.gross_amount } : {}),
+      ...(r.protocol_fee_amount !== null ? { protocolFeeAmount: r.protocol_fee_amount } : {}),
+      ...(r.beneficiary_net_amount !== null ? { beneficiaryNetAmount: r.beneficiary_net_amount } : {}),
     }));
 
     const lastRow = rows[rows.length - 1];
@@ -263,6 +300,53 @@ export class EventStore {
       )
       .get();
     return row?.signature ?? null;
+  }
+
+  getProtocolEvents(limit: number, beforeId?: number): ProtocolEventPage {
+    const countRow = this.db
+      .prepare<[], { n: number }>("SELECT COUNT(*) as n FROM escrow_events")
+      .get();
+    const total = countRow?.n ?? 0;
+
+    const rows = beforeId !== undefined
+      ? this.db
+          .prepare<[number, number], ProtocolEventDbRow>(
+            `SELECT id, escrow, kind, slot, signature, ts
+             FROM escrow_events
+             WHERE id < ?
+             ORDER BY id DESC
+             LIMIT ?`,
+          )
+          .all(beforeId, limit)
+      : this.db
+          .prepare<[number], ProtocolEventDbRow>(
+            `SELECT id, escrow, kind, slot, signature, ts
+             FROM escrow_events
+             ORDER BY id DESC
+             LIMIT ?`,
+          )
+          .all(limit);
+
+    const events: ProtocolEventEntry[] = rows.map((r) => ({
+      id: String(r.id),
+      type: `pact_${r.kind}`,
+      slot: r.slot,
+      timestamp: new Date(r.ts * 1000).toISOString(),
+      txSignature: r.signature,
+      program: "escrow",
+      actors: { escrow: r.escrow },
+      meta: {},
+    }));
+
+    const lastRow = rows[rows.length - 1];
+    const hasMore = rows.length === limit;
+
+    return {
+      events,
+      total,
+      hasMore,
+      ...(hasMore && lastRow ? { cursor: String(lastRow.id) } : {}),
+    };
   }
 
   close(): void {
@@ -287,6 +371,18 @@ interface DbRow {
 
 interface EscrowEventDbRow {
   id: number;
+  kind: string;
+  slot: number;
+  signature: string;
+  ts: number;
+  gross_amount: string | null;
+  protocol_fee_amount: string | null;
+  beneficiary_net_amount: string | null;
+}
+
+interface ProtocolEventDbRow {
+  id: number;
+  escrow: string;
   kind: string;
   slot: number;
   signature: string;

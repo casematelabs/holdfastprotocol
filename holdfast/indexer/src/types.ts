@@ -45,6 +45,9 @@ export interface EscrowEvent {
   signature: string;
   ts: number;
   indexedAt: number;
+  grossAmount?: bigint;
+  protocolFeeAmount?: bigint;
+  beneficiaryNetAmount?: bigint;
 }
 
 export interface EscrowEventEntry {
@@ -52,10 +55,31 @@ export interface EscrowEventEntry {
   slot: number;
   signature: string;
   timestamp: number;
+  grossAmount?: string;
+  protocolFeeAmount?: string;
+  beneficiaryNetAmount?: string;
 }
 
 export interface EscrowEventPage {
   events: EscrowEventEntry[];
+  total: number;
+  hasMore: boolean;
+  cursor?: string;
+}
+
+export interface ProtocolEventEntry {
+  id: string;
+  type: string;
+  slot: number;
+  timestamp: string;
+  txSignature: string;
+  program: "escrow";
+  actors: Record<string, string>;
+  meta: Record<string, unknown>;
+}
+
+export interface ProtocolEventPage {
+  events: ProtocolEventEntry[];
   total: number;
   hasMore: boolean;
   cursor?: string;
