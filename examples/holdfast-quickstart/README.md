@@ -4,6 +4,16 @@ A fork-ready Node.js app that runs a complete pact lifecycle on Solana devnet in
 
 > **DEVNET ONLY.** Holdfast programs have not been formally audited. Do not use on mainnet.
 
+## Canonical onboarding sources
+
+This example app is a runnable mirror of the canonical SDK onboarding path:
+
+- `holdfast/docs/quickstart.md` (canonical narrative guide)
+- `holdfast/sdk/examples/quickstart.ts` (canonical minimal runnable script)
+- `holdfast/sdk/README.md` (SDK API and quickstart entry point)
+
+When onboarding flow details change, update those canonical sources first.
+
 ## What this demonstrates
 
 Running `npm start` walks through every stage of a Holdfast pact:
