@@ -1,6 +1,6 @@
 # Holdfast Protocol SDK API Reference
 
-SDK version: `@holdfastprotocol/sdk` v0.2.0-devnet.1 — devnet only, pre-audit.
+SDK channel: `@holdfastprotocol/sdk@devnet` — devnet only, pre-audit.
 
 ---
 
@@ -352,7 +352,17 @@ const txSig = await client.escrow.lockEscrow(
 
 ### `claimReleased(escrowId, initiatorPubkey)`
 
-Transfers `escrow_amount + beneficiary_stake` to the beneficiary and returns `initiator_stake` to the initiator. Awards both parties +50 reputation bp (`Fulfilled` outcome). Status advances to `Claimed` (6).
+Finalizes a released pact by charging the protocol fee and paying out claim-time transfers:
+
+- Protocol fee is charged **only** in `claim_released`.
+- Fee rate is fixed at **25 bps** (0.25%) on `escrow_amount` only.
+- Formula: `fee = floor(escrow_amount * 25 / 10_000)`.
+- Beneficiary receives `beneficiary_net = escrow_amount + beneficiary_stake - fee`.
+- Initiator receives `initiator_stake` back unchanged.
+
+On success, both parties receive +50 reputation bp (`Fulfilled` outcome) and status advances to `Claimed` (7).
+
+Out of scope in v1: no protocol fees on refunds, cancellations, disputes, or any non-escrow path.
 
 The SDK pre-flights the dispute window: if `disputeWindowEndsAt` has not elapsed, `DisputeWindowStillOpenError` is thrown **before** any transaction is sent.
 
@@ -433,6 +443,38 @@ const page = await client.escrow.listPacts(agentPubkey, {
 | `opts.before` | `string` | Cursor for pagination (opaque string from previous response). |
 
 **Returns** `Promise<PactPage>`
+
+**Throws**
+
+| Error | Condition |
+|---|---|
+| `IndexerRequestError` | Non-2xx response from the indexer. |
+
+---
+
+### `getEscrowEvents(escrowId, opts?)`
+
+Lists escrow lifecycle events for one escrow via the off-chain indexer (`GET /v1/escrows/:escrow/events`).
+
+For claim events, fee accounting is surfaced explicitly:
+
+- `grossAmount` = `beneficiaryNetAmount + protocolFeeAmount`
+- `protocolFeeAmount` = claim-time protocol fee
+- `beneficiaryNetAmount` = beneficiary payout after fee
+
+```typescript
+const events = await client.escrow.getEscrowEvents(escrowIdPubkey, { limit: 20 });
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+|---|---|---|
+| `escrowId` | `PublicKey \| string` | Escrow PDA address (base58) or `PublicKey`. |
+| `opts.limit` | `number` | Page size. Max 200, defaults to 50. |
+| `opts.before` | `string` | Cursor for pagination. |
+
+**Returns** `Promise<EscrowEventPage>`
 
 **Throws**
 
@@ -663,7 +705,8 @@ Returned by `escrow.listPacts()`.
 
 | Field | Type | Description |
 |---|---|---|
-| `items` | `EscrowAccount[]` | Pact list for this page. |
+| `pacts` | `EscrowAccount[]` | Pact list for this page. |
+| `hasMore` | `boolean` | Whether another page is available. |
 | `cursor` | `string \| undefined` | Opaque pagination cursor. Pass as `opts.before` for the next page. |
 
 ---
@@ -675,7 +718,25 @@ Returned by `reputation.getHistory()`.
 | Field | Type | Description |
 |---|---|---|
 | `items` | `HistEntry[]` | History entries for this page. |
+| `total` | `number` | Total matching entries. |
+| `hasMore` | `boolean` | Whether another page is available. |
 | `cursor` | `string \| undefined` | Opaque pagination cursor. |
+
+---
+
+### `EscrowEventEntry`
+
+Returned inside `EscrowEventPage.events` from `escrow.getEscrowEvents()`.
+
+| Field | Type | Description |
+|---|---|---|
+| `kind` | `string` | Event kind (for example, `claimed`). |
+| `slot` | `number` | Solana slot. |
+| `signature` | `string` | Transaction signature. |
+| `timestamp` | `number` | Unix timestamp (seconds). |
+| `grossAmount` | `string \| undefined` | Gross claim amount at claim-time (`beneficiaryNetAmount + protocolFeeAmount`). |
+| `protocolFeeAmount` | `string \| undefined` | Claim-time protocol fee amount. |
+| `beneficiaryNetAmount` | `string \| undefined` | Beneficiary payout after fee deduction. |
 
 ---
 
@@ -692,7 +753,7 @@ Returned by `reputation.getHistory()`.
 | `ReputationNotFoundError` | `reputation.get()` — the agent has no on-chain `ReputationAccount` yet. Account is created at first pact sign. |
 | `ReputationAccountCorruptError` | `reputation.get()` — discriminator or schema version mismatch. |
 | `DisputeWindowStillOpenError` | `claimReleased()` pre-flight — `disputeWindowEndsAt` has not elapsed. Check `pact.disputeWindowEndsAt` before retrying. |
-| `IndexerRequestError` | `listPacts()`, `reputation.getHistory()` — non-2xx HTTP response from the indexer. Check `error.status` and `error.body`. |
+| `IndexerRequestError` | `listPacts()`, `getEscrowEvents()`, `reputation.getHistory()` — non-2xx HTTP response from the indexer. Check `error.status` and `error.body`. |
 
 ---
 

@@ -16,7 +16,7 @@ Trust infrastructure for autonomous AI agents on Solana — on-chain identity, r
 - [`docs/dev/escrow-idl-reference.md`](./docs/dev/escrow-idl-reference.md) — IDL direct-call guide for `stake_beneficiary`, `lock_escrow`, `claim_released` (SDK v0.2 gaps)
 - [`holdfast/docs/integration-guide.md`](./holdfast/docs/integration-guide.md) — PDA derivations and program addresses
 - [`holdfast/sdk/examples/agent-to-agent.ts`](./holdfast/sdk/examples/agent-to-agent.ts) — complete two-agent pact lifecycle example
-- [`@holdfastprotocol/sdk`](./holdfast/sdk/) — TypeScript SDK (`npm install @holdfastprotocol/sdk`)
+- [`@holdfastprotocol/sdk`](./holdfast/sdk/) — TypeScript SDK (`npm install @holdfastprotocol/sdk@devnet`)
 - [`video/`](./video/) — Remotion environment for pitch + demo video production
 
 ### Hardline Protocol

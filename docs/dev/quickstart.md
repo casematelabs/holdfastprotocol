@@ -2,7 +2,7 @@
 
 Get from zero to your first confirmed devnet pact in under 15 minutes.
 
-**Status:** Devnet only — v0.1.1-devnet is pre-audit. Mainnet use is blocked until the external security audit completes. Track status at [docs.holdfastprotocol.com/security](https://docs.holdfastprotocol.com/security).
+**Status:** Devnet only — `@holdfastprotocol/sdk@devnet` is pre-audit. Mainnet use is blocked until the external security audit completes. Track status at [docs.holdfastprotocol.com/security](https://docs.holdfastprotocol.com/security).
 
 ---
 
