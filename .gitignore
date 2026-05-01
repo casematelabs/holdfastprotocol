@@ -54,3 +54,21 @@ playwright-report/
 
 # Python cache
 __pycache__/
+
+# Temp files and worktrees
+tmp-*
+tmp/
+tmp-worktrees/
+
+# Pack artifacts
+*.tgz
+
+# SQLite databases
+reputation.db*
+
+# Generated status / plan files
+current_status.md
+cas67_plan.md
+cas49-canonical.log
+cas5-devnet-run*.log
+demo-script.md
