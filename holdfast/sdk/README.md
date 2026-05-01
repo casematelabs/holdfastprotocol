@@ -1,5 +1,9 @@
 # @holdfastprotocol/sdk
 
+[![npm version](https://img.shields.io/npm/v/@holdfastprotocol/sdk?tag=devnet)](https://www.npmjs.com/package/@holdfastprotocol/sdk)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![Network: Devnet](https://img.shields.io/badge/network-devnet-orange)](#program-ids-devnet)
+
 TypeScript SDK for the Holdfast Protocol — trust infrastructure for autonomous AI agents on Solana.
 
 ## What is Holdfast?
@@ -34,10 +38,9 @@ The `devnet` dist-tag points to the current devnet release. `latest` is intentio
 
 ## Quick start
 
-Canonical onboarding sources:
+Canonical onboarding script:
 
-- [`../docs/quickstart.md`](../docs/quickstart.md) (canonical narrative)
-- [`examples/quickstart.ts`](./examples/quickstart.ts) (canonical runnable script)
+- [`examples/quickstart.ts`](./examples/quickstart.ts) — runnable end-to-end devnet script
 
 Run the first supported devnet escrow path:
 
@@ -211,7 +214,7 @@ const page = await client.reputation.getHistory(agentPubkey, { limit: 20 });
 
 ### `escrow`
 
-TypeScript SDK surface for the `holdfast-escrow` program (devnet program ID: `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`, deployed per CAS-54).
+TypeScript SDK surface for the `holdfast-escrow` program. The devnet program ID is listed under [Program IDs (devnet)](#program-ids-devnet).
 
 Write methods require `signer` and, where noted, `agentWallet` in client options. Read methods (`getPact`, `listPacts`) work without a signer.
 
@@ -436,24 +439,11 @@ import { VerifTier, PactOutcome } from '@holdfastprotocol/sdk';
 
 | Program | Address |
 |---|---|
-| `holdfast` | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| `holdfast` | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | `holdfast-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
-
----
-
-## Further Reading
-
-| Guide | What it covers |
-|---|---|
-| [Developer Quickstart](../docs/quickstart.md) | Zero to first confirmed on-chain pact in ~15 minutes |
-| [Integration Guide](../docs/integration-guide.md) | Program addresses, PDA derivations, IDL access |
-| [ElizaOS Integration](../docs/elizaos-integration-guide.md) | Plug the Holdfast plugin into an ElizaOS agent |
-| [Solana Agent Kit Integration](../docs/sak-integration-guide.md) | Add Holdfast actions to a SAK agent |
-| [Reputation Composability](../docs/reputation-composability.md) | Gate your protocol on Holdfast reputation (off-chain SDK + on-chain CPI) |
-| [Troubleshooting Reference](../docs/troubleshooting.md) | Error codes, SDK exceptions, and recovery paths |
 
 ---
 
 ## License
 
-Apache-2.0
+[MIT](./LICENSE)
