@@ -51,6 +51,21 @@ test("'Escrow claimed:' -> kind=claimed, idx=1", () => {
   assert.ok(result !== null);
   assert.equal(result.kind, "claimed");
   assert.equal(result.escrowAccountIndex, 1);
+  assert.equal(result.claimAmounts, undefined);
+});
+
+test("'Escrow claimed:' with payout numbers extracts gross/fee/net amounts", () => {
+  const result = parseEscrowLog(
+    "Escrow claimed: beneficiary=1025, initiator_stake_returned=500, protocol_fee=25",
+  );
+  assert.ok(result !== null);
+  assert.equal(result.kind, "claimed");
+  assert.equal(result.escrowAccountIndex, 1);
+  assert.deepEqual(result.claimAmounts, {
+    grossAmount: 1050n,
+    protocolFeeAmount: 25n,
+    beneficiaryNetAmount: 1025n,
+  });
 });
 
 test("'Dispute raised by' -> kind=dispute_raised, idx=1", () => {
@@ -257,4 +272,13 @@ test("returned ParsedEscrowLog has exactly kind and escrowAccountIndex", () => {
   assert.ok(result !== null);
   const keys = Object.keys(result).sort();
   assert.deepEqual(keys, ["escrowAccountIndex", "kind"]);
+});
+
+test("claimed payout log includes claimAmounts in ParsedEscrowLog", () => {
+  const result = parseEscrowLog(
+    "Escrow claimed: beneficiary=10, initiator_stake_returned=3, protocol_fee=1",
+  );
+  assert.ok(result !== null);
+  const keys = Object.keys(result).sort();
+  assert.deepEqual(keys, ["claimAmounts", "escrowAccountIndex", "kind"]);
 });

@@ -113,6 +113,7 @@ export class EscrowSubscriber {
           signature,
           ts: blockTs,
           indexedAt: Math.floor(Date.now() / 1000),
+          ...(parsed.claimAmounts ?? {}),
         };
 
         this.store.upsertEscrowEvent(event);

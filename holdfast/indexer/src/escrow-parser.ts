@@ -19,6 +19,11 @@ export interface ParsedEscrowLog {
   kind: EscrowEventKind;
   /** Zero-based index in the instruction's accounts array where the escrow account lives. */
   escrowAccountIndex: number;
+  claimAmounts?: {
+    grossAmount: bigint;
+    protocolFeeAmount: bigint;
+    beneficiaryNetAmount: bigint;
+  };
 }
 
 // Each pattern maps a program log line to an event kind and the index of the
@@ -43,7 +48,25 @@ const LOG_PATTERNS: Array<{ re: RegExp; kind: EscrowEventKind; idx: number }> = 
   { re: /^Escrow closed$/,          kind: "closed",            idx: 1 },
 ];
 
+const CLAIM_AMOUNTS_RE =
+  /^Escrow claimed: beneficiary=(\d+), initiator_stake_returned=(\d+), protocol_fee=(\d+)$/;
+
 export function parseEscrowLog(line: string): ParsedEscrowLog | null {
+  const claimMatch = CLAIM_AMOUNTS_RE.exec(line);
+  if (claimMatch !== null) {
+    const beneficiaryNetAmount = BigInt(claimMatch[1]!);
+    const protocolFeeAmount = BigInt(claimMatch[3]!);
+    return {
+      kind: "claimed",
+      escrowAccountIndex: 1,
+      claimAmounts: {
+        grossAmount: beneficiaryNetAmount + protocolFeeAmount,
+        protocolFeeAmount,
+        beneficiaryNetAmount,
+      },
+    };
+  }
+
   for (const { re, kind, idx } of LOG_PATTERNS) {
     if (re.test(line)) return { kind, escrowAccountIndex: idx };
   }
