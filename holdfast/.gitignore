@@ -7,3 +7,28 @@ node_modules
 test-ledger
 keys/*.json
 .env.local
+.env.devnet.integration
+
+# Logs
+*.log
+
+# Temp files
+tmp-*
+tmp/
+tmp-worktrees/
+
+# Pack artifacts
+*.tgz
+
+# SQLite databases
+reputation.db*
+
+# Build artifacts
+tsconfig.tsbuildinfo
+
+# Generated status / plan files
+current_status.md
+cas67_plan.md
+cas49-canonical.log
+cas5-devnet-run*.log
+demo-script.md
