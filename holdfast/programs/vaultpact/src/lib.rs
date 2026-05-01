@@ -1137,15 +1137,18 @@ fn verify_secp256r1_precompile(
 
     let msg_offset = u16::from_le_bytes([data[10], data[11]]) as usize;
     let msg_size   = u16::from_le_bytes([data[12], data[13]]) as usize;
-    // Devnet secp256r1 precompile (Agave 2.x / SIMD-48) takes a pre-hashed
-    // 32-byte message — it does NOT hash msg_data internally.  Callers must
-    // pass sha256(preimage) as msg_data and the returned value is that same
-    // 32-byte hash (not sha256-of-sha256).
-    require!(msg_size == 32, VaultPactError::InvalidSignatureData);
-    require!(data.len() >= msg_offset + 32, VaultPactError::InvalidSignatureData);
+    require!(msg_size > 0, VaultPactError::InvalidSignatureData);
+    require!(data.len() >= msg_offset + msg_size, VaultPactError::InvalidSignatureData);
 
+    let message = &data[msg_offset..msg_offset + msg_size];
     let mut result = [0u8; 32];
-    result.copy_from_slice(&data[msg_offset..msg_offset + 32]);
+    if msg_size == 32 {
+        // Preferred mode: caller passes sha256(preimage) directly.
+        result.copy_from_slice(message);
+    } else {
+        // Compatibility mode: caller passes the full preimage bytes.
+        result.copy_from_slice(&anchor_lang::solana_program::hash::hash(message).to_bytes());
+    }
     Ok(result)
 }
 
