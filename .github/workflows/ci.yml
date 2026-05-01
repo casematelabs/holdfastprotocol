@@ -5,10 +5,12 @@ on:
     branches: [master]
     paths:
       - "holdfast/**"
+      - "examples/holdfast-quickstart/**"
       - ".github/workflows/ci.yml"
   pull_request:
     paths:
       - "holdfast/**"
+      - "examples/holdfast-quickstart/**"
       - ".github/workflows/ci.yml"
 
 concurrency:
@@ -162,3 +164,53 @@ jobs:
       - name: Run keeper tests
         working-directory: holdfast/keeper
         run: npm test
+
+  quickstart-parity:
+    name: Quickstart CI parity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: |
+            holdfast/sdk/package-lock.json
+            examples/holdfast-quickstart/package-lock.json
+
+      - name: Build local SDK package
+        working-directory: holdfast/sdk
+        run: |
+          npm ci
+          npm run build
+          npm pack
+
+      - name: Wire quickstart to local SDK and typecheck
+        working-directory: examples/holdfast-quickstart
+        run: |
+          npm ci
+          npm install ../../holdfast/sdk/holdfastprotocol-sdk-*.tgz --no-save
+          npm run build
+
+      - name: Run deterministic SDK quickstart parity test
+        working-directory: holdfast/sdk
+        run: node --import tsx/esm --test tests/quickstart-parity.ci.test.ts
+
+      - name: Run deterministic SDK terminal lifecycle proof
+        working-directory: holdfast/sdk
+        run: npm run verify:lifecycle
+
+  quickstart-drift:
+    name: Quickstart drift guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run quickstart drift checks
+        run: bash scripts/check-quickstart-drift.sh

@@ -39,7 +39,12 @@ require_not_contains() {
 
 require_contains "docs/dev/quickstart.md" "@holdfastprotocol/sdk@devnet" "devnet install tag"
 require_contains "holdfast/docs/quickstart.md" "@holdfastprotocol/sdk@devnet" "devnet install tag"
+require_contains "holdfast/sdk/README.md" "@holdfastprotocol/sdk@devnet" "devnet install tag"
 require_contains "app/docs/quickstart/page.tsx" "@holdfastprotocol/sdk@devnet" "devnet install tag"
+require_contains "examples/holdfast-quickstart/README.md" "under 15 minutes" "quickstart duration claim"
+require_contains "holdfast/sdk/README.md" "examples/quickstart.ts" "sdk quickstart script link"
+require_contains "docs/dev/quickstart.md" "holdfast/docs/quickstart.md" "canonical quickstart link"
+require_contains "docs/dev/quickstart.md" "holdfast/sdk/examples/quickstart.ts" "canonical quickstart script link"
 
 require_not_contains "app/docs/quickstart/page.tsx" "under 5 minutes" "stale duration claim"
 require_not_contains "examples/holdfast-quickstart/README.md" "under 5 minutes" "stale duration claim"
