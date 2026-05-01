@@ -7,8 +7,24 @@ import * as path from "path";
 
 import idl from "../target/idl/vaultpact.json";
 
-const PROGRAM_ID = new PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
-const ESCROW_PROGRAM_ID = new PublicKey("BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H");
+const PROGRAM_ID = new PublicKey(process.env["HOLDFAST_PROGRAM_ID"] ?? "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq");
+const ESCROW_PROGRAM_ID = new PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
+
+function withLegacyAccountTypes(rawIdl: any): any {
+  const next = JSON.parse(JSON.stringify(rawIdl));
+  const typeByName = new Map<string, any>((next.types ?? []).map((t: any) => [t.name, t.type]));
+  if (Array.isArray(next.accounts)) {
+    next.accounts = next.accounts.map((acct: any) => {
+      if (acct?.type) return acct;
+      const legacyType = typeByName.get(acct?.name);
+      return legacyType ? { ...acct, type: legacyType } : acct;
+    });
+  }
+  // Anchor TS in this workspace fails account namespace construction for this IDL shape.
+  // initialize_registry only needs instruction namespace, so drop account namespace.
+  next.accounts = [];
+  return next;
+}
 
 async function main() {
   const authorityPath = path.join(__dirname, "..", "keys", "devnet-protocol-authority.json");
@@ -26,7 +42,9 @@ async function main() {
   });
   anchor.setProvider(provider);
 
-  const program = new Program(idl as any, provider);
+  const compatibleIdl = withLegacyAccountTypes(idl);
+  compatibleIdl.address = PROGRAM_ID.toBase58();
+  const program = new Program(compatibleIdl as any, provider as any) as any;
 
   const [registryPda] = PublicKey.findProgramAddressSync(
     [Buffer.from("attestation_registry")],
@@ -47,11 +65,7 @@ async function main() {
 
   console.log("Transaction signature:", tx);
 
-  const registryAccount = await program.account.attestationRegistry.fetch(registryPda);
-  console.log("Registry initialized:");
-  console.log("  authority:", registryAccount.authority.toBase58());
-  console.log("  agent_count:", registryAccount.agentCount.toString());
-  console.log("  bump:", registryAccount.bump);
+  console.log("Registry initialized.");
 }
 
 main().catch((err) => {
