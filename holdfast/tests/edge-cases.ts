@@ -270,7 +270,7 @@ describe("Edge Cases (CAS-425)", function () {
     const preimageHash = crypto.createHash("sha256").update(preimage).digest();
     const sigBytes = p256.sign(preimageHash, privKey).toCompactRawBytes();
 
-    const secp256r1Ix = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimage);
+    const secp256r1Ix = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimageHash);
     const registerIx = await vaultpactProgram.methods
       .registerAgentWallet(Array.from(pubkeyX) as number[], Array.from(pubkeyY) as number[])
       .accounts({
@@ -414,7 +414,7 @@ describe("Edge Cases (CAS-425)", function () {
     );
     const preimageHash = crypto.createHash("sha256").update(preimage).digest();
     const regSig = p256.sign(preimageHash, ecPrivKey).toCompactRawBytes();
-    const regPrecompileIx = buildSecp256r1Instruction(regSig, ecCompressedPubkey, preimage);
+    const regPrecompileIx = buildSecp256r1Instruction(regSig, ecCompressedPubkey, preimageHash);
     const regIx = await vaultpactProgram.methods
       .registerAgentWallet(Array.from(ecPubkeyX) as number[], Array.from(ecPubkeyY) as number[])
       .accounts({
@@ -558,7 +558,7 @@ describe("Edge Cases (CAS-425)", function () {
       );
       const zeroSig = Buffer.alloc(64, 0x00);
 
-      const malformedIx = buildSecp256r1Instruction(zeroSig, ecCompressedPubkey, preimage);
+      const malformedIx = buildSecp256r1Instruction(zeroSig, ecCompressedPubkey, preimageHash);
       const registerIx = await vaultpactProgram.methods
         .registerAgentWallet(Array.from(ecPubkeyX) as number[], Array.from(ecPubkeyY) as number[])
         .accounts({
@@ -598,7 +598,7 @@ describe("Edge Cases (CAS-425)", function () {
       );
       const randomSig = crypto.randomBytes(64);
 
-      const malformedIx = buildSecp256r1Instruction(randomSig, ecCompressedPubkey, preimage);
+      const malformedIx = buildSecp256r1Instruction(randomSig, ecCompressedPubkey, preimageHash);
       const registerIx = await vaultpactProgram.methods
         .registerAgentWallet(Array.from(ecPubkeyX) as number[], Array.from(ecPubkeyY) as number[])
         .accounts({
@@ -684,7 +684,7 @@ describe("Edge Cases (CAS-425)", function () {
       const sigFromA = p256.sign(preimageHash, ecPrivKey).toCompactRawBytes();
 
       // Present key B's pubkey alongside a signature from key A.
-      const mismatchIx = buildSecp256r1Instruction(sigFromA, compressedPubkeyB, preimage);
+      const mismatchIx = buildSecp256r1Instruction(sigFromA, compressedPubkeyB, preimageHash);
       const registerIx = await vaultpactProgram.methods
         .registerAgentWallet(Array.from(ecPubkeyX) as number[], Array.from(ecPubkeyY) as number[])
         .accounts({

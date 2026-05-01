@@ -209,7 +209,7 @@ async function main(): Promise<void> {
     const preimageHash = crypto.createHash("sha256").update(preimage).digest();
     const sigBytes = p256.sign(preimageHash, privKey).toCompactRawBytes() as Uint8Array;
 
-    const secp256r1Ix = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimage);
+    const secp256r1Ix = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimageHash);
     const registerIx = await program.methods
       .registerAgentWallet(Array.from(pubkeyX) as number[], Array.from(pubkeyY) as number[])
       .accounts({

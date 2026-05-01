@@ -390,7 +390,7 @@ describe("SPL token error scenarios — escrow (CAS-149)", () => {
     const preimageHash = crypto.createHash("sha256").update(preimage).digest();
     const sigBytes = p256.sign(preimageHash, privKey).toCompactRawBytes();
 
-    const secp256r1Ix = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimage);
+    const secp256r1Ix = buildSecp256r1Instruction(sigBytes, compressedPubkey, preimageHash);
     const registerIx = await vaultpactProgram.methods
       .registerAgentWallet(Array.from(pubkeyX) as number[], Array.from(pubkeyY) as number[])
       .accounts({
@@ -1077,7 +1077,7 @@ describe("SPL token error scenarios — escrow (CAS-149)", () => {
     this.timeout(120_000);
 
     const VAULTPACT_ID = new anchor.web3.PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
-    const ESCROW_ID = new anchor.web3.PublicKey("BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H");
+    const ESCROW_ID = new anchor.web3.PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
 
     let context: any;
     let brProvider: any;

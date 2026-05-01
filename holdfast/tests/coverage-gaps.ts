@@ -243,7 +243,7 @@ describe("coverage-gaps: set_agent_status (isolated)", () => {
     const hash = crypto.createHash("sha256").update(preimage).digest();
     const sig = p256.sign(hash, privKey).toCompactRawBytes();
 
-    const secp256r1Ix = buildSecp256r1Instruction(sig, compressedPubkey, preimage);
+    const secp256r1Ix = buildSecp256r1Instruction(sig, compressedPubkey, preimageHash);
     const registerIx = await program.methods
       .registerAgentWallet(
         Array.from(pubkeyX) as number[],
@@ -656,7 +656,7 @@ describe("coverage-gaps: ring buffer full overwrite (history_head wraparound)", 
       "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
     );
     const ESCROW_PROGRAM_ID = new anchor.web3.PublicKey(
-      "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H",
+      "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
     );
 
     let context: any;
@@ -787,7 +787,7 @@ describe("coverage-gaps: ring buffer full overwrite (history_head wraparound)", 
         const preimage = buildRegistrationPreimage(signer.publicKey, px as Buffer, py as Buffer);
         const h = crypto.createHash("sha256").update(preimage).digest();
         const s = p256.sign(h, privK).toCompactRawBytes();
-        const secp256r1Ix = buildSecp256r1Instruction(s, comp as Uint8Array, preimage);
+        const secp256r1Ix = buildSecp256r1Instruction(s, comp as Uint8Array, h);
         const regIx = await brVaultpact.methods
           .registerAgentWallet(Array.from(px) as number[], Array.from(py) as number[])
           .accounts({
@@ -1135,7 +1135,7 @@ describe("coverage-gaps: UnsupportedKeyFormat (dead-code analysis)", () => {
       "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
     );
     const ESCROW_ID = new anchor.web3.PublicKey(
-      "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H",
+      "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
     );
 
     let context: any;
