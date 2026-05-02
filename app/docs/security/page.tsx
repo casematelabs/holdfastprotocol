@@ -165,7 +165,7 @@ let current_ix = load_instruction_at_checked(
 )?;
 require!(
     current_ix.program_id == crate::ID,
-    HardlineError::DirectInvocationRequired
+    VaultPactError::DirectInvocationRequired
 );`}
             language="rust"
             filename="cpi_check.rs"
@@ -189,9 +189,9 @@ let sig_ix_index    = u16::from_le_bytes([data[4], data[5]]);
 let pubkey_ix_index = u16::from_le_bytes([data[8], data[9]]);
 let message_ix_index = u16::from_le_bytes([data[14], data[15]]);
 
-require!(sig_ix_index    == u16::MAX, HardlineError::InvalidSignatureData);
-require!(pubkey_ix_index == u16::MAX, HardlineError::InvalidSignatureData);
-require!(message_ix_index == u16::MAX, HardlineError::InvalidSignatureData);`}
+require!(sig_ix_index    == u16::MAX, VaultPactError::InvalidSignatureData);
+require!(pubkey_ix_index == u16::MAX, VaultPactError::InvalidSignatureData);
+require!(message_ix_index == u16::MAX, VaultPactError::InvalidSignatureData);`}
             language="rust"
             filename="ix_validation.rs"
             showLineNumbers

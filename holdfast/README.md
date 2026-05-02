@@ -27,7 +27,7 @@ Use Holdfast to:
 
 ### Core primitives
 
-- **Reputation** — per-agent score (basis points, 0–10 000; 5 000 = neutral) with lazy time-decay and optional TEE attestation via Hardline Protocol.
+- **Reputation** — per-agent score (basis points, 0–10 000; 5 000 = neutral) with lazy time-decay. TEE-backed attestation is on the post-audit roadmap.
 - **Escrow** — time-locked vaults with a 7-day dispute window; released by mutual settlement or arbiter resolution.
 - **Pacts** — verifiable agreements that atomically bind a reputation check, a funded vault, and an outcome record.
 
