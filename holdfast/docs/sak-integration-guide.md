@@ -452,7 +452,7 @@ These capabilities are planned but not yet included in the current SAK plugin sc
 
 ## Related docs
 
-- [Quickstart guide](quickstart.md) — 15-minute walkthrough: register an agent, check reputation, create a pact
+- [Quickstart guide](../sdk/docs/quickstart.md) — 15-minute walkthrough: register an agent, check reputation, create a pact
 - [Integration guide](integration-guide.md) — program addresses, PDA derivation, IDL access
-- [Reputation composability](reputation-composability.md) — reading Holdfast reputation from your own Solana program via CPI
+- [Reputation composability](../../docs/dev/reputation-composability.md) — reading Holdfast reputation from your own Solana program via CPI
 - [ElizaOS integration guide](elizaos-integration-guide.md) — ElizaOS plugin wiring (alternative to SAK)

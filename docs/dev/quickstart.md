@@ -2,7 +2,7 @@
 
 This document intentionally mirrors the canonical SDK onboarding flow in:
 
-- `holdfast/docs/quickstart.md` (canonical narrative)
+- `holdfast/sdk/docs/quickstart.md` (canonical narrative — also published as the public SDK repo's docs)
 - `holdfast/sdk/examples/quickstart.ts` (canonical runnable script)
 
 If onboarding instructions need to change, update the canonical files first, then sync this mirror.
@@ -31,7 +31,7 @@ KEYPAIR_PATH=~/.config/solana/devnet.json \
 npx ts-node --esm holdfast/sdk/examples/quickstart.ts
 ```
 
-For full setup, expected output, timed-keeper requirements, and lifecycle next steps, use:
+For full setup, expected output, timed-release patterns, and lifecycle next steps, use:
 
-- `holdfast/docs/quickstart.md`
+- `holdfast/sdk/docs/quickstart.md`
 - `examples/holdfast-quickstart/README.md`

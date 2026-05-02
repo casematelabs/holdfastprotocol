@@ -8,7 +8,7 @@ A fork-ready Node.js app that runs a complete pact lifecycle on Solana devnet in
 
 This example app is a runnable mirror of the canonical SDK onboarding path:
 
-- `holdfast/docs/quickstart.md` (canonical narrative guide)
+- `holdfast/sdk/docs/quickstart.md` (canonical narrative guide — also published in the public SDK repo)
 - `holdfast/sdk/examples/quickstart.ts` (canonical minimal runnable script)
 - `holdfast/sdk/README.md` (SDK API and quickstart entry point)
 

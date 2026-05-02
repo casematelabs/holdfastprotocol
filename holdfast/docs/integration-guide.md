@@ -223,8 +223,8 @@ Once the Squads v4 multisig is created and the vault PDA is confirmed, this tabl
 
 | Guide | What it covers |
 |---|---|
-| [Developer Quickstart](./quickstart.md) | Zero to first confirmed on-chain pact in ~15 minutes |
+| [Developer Quickstart](../sdk/docs/quickstart.md) | Zero to first confirmed on-chain pact in ~15 minutes |
 | [ElizaOS Integration](./elizaos-integration-guide.md) | Wire the Holdfast plugin into an ElizaOS agent |
 | [Solana Agent Kit Integration](./sak-integration-guide.md) | Add Holdfast actions to a SAK agent |
-| [Reputation Composability](./reputation-composability.md) | Gate your protocol on Holdfast reputation (off-chain SDK + on-chain CPI) |
+| [Reputation Composability](../../docs/dev/reputation-composability.md) | Gate your protocol on Holdfast reputation (off-chain SDK + on-chain CPI) |
 | [Troubleshooting Reference](./troubleshooting.md) | Error codes, SDK exceptions, and recovery paths |
