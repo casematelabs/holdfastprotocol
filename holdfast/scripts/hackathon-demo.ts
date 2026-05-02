@@ -13,7 +13,7 @@
  *   - ~/.config/solana/devnet.json  (funded payer keypair, ≥ 0.1 SOL)
  *   - ~/.config/solana/oracle-devnet.json  (oracle authority keypair)
  *   - Holdfast indexer running at INDEXER_URL (or set INDEXER_URL env var)
- *   - Holdfast programs deployed to devnet at D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg
+ *   - Holdfast programs deployed to devnet at 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq
  *
  * Run:
  *   yarn demo
@@ -35,7 +35,7 @@ const { p256 } = require("../oracle/node_modules/@noble/curves/nist.js");
 
 const RPC_URL = process.env["ANCHOR_PROVIDER_URL"] ?? "https://api.devnet.solana.com";
 const INDEXER_URL = process.env["INDEXER_URL"] ?? "https://holdfast-indexer.fly.dev";
-const PROGRAM_ID = new anchor.web3.PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
+const PROGRAM_ID = new anchor.web3.PublicKey("2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq");
 
 const SECP256R1_PROGRAM_ID = new anchor.web3.PublicKey(
   Buffer.from([

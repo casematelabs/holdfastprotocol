@@ -30,7 +30,7 @@ const { p256 } = require("../oracle/node_modules/@noble/curves/nist.js");
 const RPC_URL = process.env["ANCHOR_PROVIDER_URL"] ?? "https://api.devnet.solana.com";
 const INDEXER_URL = process.env["INDEXER_URL"] ?? "https://holdfast-indexer.fly.dev";
 const HOLDFAST_PROGRAM_ID = new anchor.web3.PublicKey(
-  process.env["HOLDFAST_PROGRAM_ID"] ?? "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+  process.env["HOLDFAST_PROGRAM_ID"] ?? "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
 );
 const ESCROW_PROGRAM_ID = new anchor.web3.PublicKey(
   process.env["ESCROW_PROGRAM_ID"] ?? "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",

@@ -414,7 +414,7 @@ All errors are returned as JSON strings from the action handler, not thrown exce
 
 | Program | Address |
 |---|---|
-| Holdfast identity & reputation (`vaultpact`) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| Holdfast identity & reputation (`vaultpact`) | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | Holdfast escrow (`vaultpact-escrow`) | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 ---

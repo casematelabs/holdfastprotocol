@@ -37,7 +37,7 @@ import * as path from "node:path";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const PROGRAM_ID = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg";
+const PROGRAM_ID = "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq";
 const DEVNET_RPC = "https://api.devnet.solana.com";
 const AUTHORITY_KEYPAIR_PATH = path.join(__dirname, "..", "keys", "devnet-protocol-authority.json");
 

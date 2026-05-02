@@ -36,7 +36,7 @@ The on-chain reputation account is a PDA. Any other program can read it directly
 
 | Program | Address |
 |---|---|
-| `holdfast` (identity + reputation) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| `holdfast` (identity + reputation) | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | `holdfast-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 Verify these on [Solana Explorer (devnet)](https://explorer.solana.com/?cluster=devnet) before integrating.
@@ -229,7 +229,7 @@ Three layers, live on devnet:
 → Programmable escrow (task-based, milestone-gated, dispute-resolvable)
 
 Program IDs:
-• `holdfast`: `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg`
+• `holdfast`: `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq`
 • `holdfast-escrow`: `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`
 
 ---

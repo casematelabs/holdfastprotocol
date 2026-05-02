@@ -50,7 +50,7 @@ This document provides a structured threat model for the Holdfast Protocol (form
 
 | Program | ID |
 |---|---|
-| Holdfast Identity & Reputation | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| Holdfast Identity & Reputation | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | Holdfast Escrow | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 **Anchor version:** 0.31.1

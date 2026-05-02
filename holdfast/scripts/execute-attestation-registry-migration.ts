@@ -26,7 +26,7 @@ import * as path from "path";
 
 import idl from "../target/idl/vaultpact.json";
 
-const DEFAULT_PROGRAM_ID = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg";
+const DEFAULT_PROGRAM_ID = "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq";
 const PROGRAM_ID = new PublicKey(process.env.HOLDFAST_PROGRAM_ID ?? DEFAULT_PROGRAM_ID);
 const DEVNET_RPC = process.env.HOLDFAST_RPC_URL ?? "https://api.devnet.solana.com";
 const EXPECTED_ORACLE = "3Kj7GpYVoARqCT1bfBmCC5NZhw37ahEiyxsJW9zcTSiy";

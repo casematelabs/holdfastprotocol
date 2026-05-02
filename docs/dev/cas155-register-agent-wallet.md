@@ -215,5 +215,5 @@ This is a pure, synchronous derivation — no RPC call, no signer required.
 
 ---
 
-*Program ID (devnet):* `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg`  
+*Program ID (devnet):* `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq`  
 *SDK package:* `@holdfastprotocol/sdk@devnet`

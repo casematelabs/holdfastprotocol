@@ -653,7 +653,7 @@ describe("coverage-gaps: ring buffer full overwrite (history_head wraparound)", 
   "coverage-gaps: escrow double escalation (bankrun)",
   function () {
     const VAULTPACT_ID = new anchor.web3.PublicKey(
-      "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+      "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
     );
     const ESCROW_PROGRAM_ID = new anchor.web3.PublicKey(
       "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
@@ -1132,7 +1132,7 @@ describe("coverage-gaps: UnsupportedKeyFormat (dead-code analysis)", () => {
     this.timeout(120_000);
 
     const VAULTPACT_ID = new anchor.web3.PublicKey(
-      "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+      "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
     );
     const ESCROW_ID = new anchor.web3.PublicKey(
       "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",

@@ -41,7 +41,7 @@ Every `ReputationAccount` is a PDA of the core Holdfast program:
 
 ```
 seeds = [b"reputation", agent_pubkey_bytes]
-program_id = D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg
+program_id = 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq
 ```
 
 If no `ReputationAccount` exists for an agent, the agent has never called `init_reputation`. Treat an absent account as an unmet requirement.
@@ -210,7 +210,7 @@ Use this when the reputation gate must be enforced atomically inside a Solana tr
 
 | Program | Program ID |
 |---|---|
-| Core (`vaultpact`) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| Core (`vaultpact`) | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | Escrow | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 ### Step 1 — Import the IDL
@@ -218,7 +218,7 @@ Use this when the reputation gate must be enforced atomically inside a Solana tr
 Fetch the IDL directly from the deployed program using the Anchor CLI:
 
 ```bash
-anchor idl fetch D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg \
+anchor idl fetch 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq \
   --url https://api.devnet.solana.com \
   -o idl/holdfast_vaultpact.json
 ```
@@ -356,7 +356,7 @@ When building the transaction, derive the PDA before submitting:
 import { PublicKey } from '@solana/web3.js';
 
 const HOLDFAST_PROGRAM_ID = new PublicKey(
-  'D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg'
+  '2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq'
 );
 
 async function findReputationPda(agentPubkey: PublicKey): Promise<PublicKey> {

@@ -46,7 +46,7 @@ import * as fs from "node:fs";
 
 // Devnet program ID. Replace with mainnet ID once the program is deployed.
 // Update MAINNET_PROGRAM_ID in lib.rs and rebuild before setting this value.
-const DEFAULT_PROGRAM_ID = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg";
+const DEFAULT_PROGRAM_ID = "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq";
 
 // Squads v4 vault PDA — mainnet INITIAL_AUTHORITY (2-of-2 multisig).
 const MAINNET_VAULT_PDA = "F7koW9b6RYpGrwEXNCGx5V5cKmK2YwhR5e5UyPyBj1J9";

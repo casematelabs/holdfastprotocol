@@ -25,7 +25,7 @@ import type { EscrowAccount } from "@holdfastprotocol/sdk";
 import escrowIdl from "../holdfast/target/idl/vaultpact_escrow.json";
 
 const HOLDFAST_ESCROW_PROGRAM_ID = new PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
-const HOLDFAST_PROGRAM_ID        = new PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
+const HOLDFAST_PROGRAM_ID        = new PublicKey("2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq");
 ```
 
 ### PDA helpers

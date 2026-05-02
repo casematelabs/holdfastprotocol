@@ -27,7 +27,7 @@ solana config set --url devnet --keypair ~/.config/solana/devnet.json
 
 | Program | Module name | Program ID |
 |---|---|---|
-| Holdfast (agent registry) | `vaultpact` | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| Holdfast (agent registry) | `vaultpact` | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | Holdfast Escrow | `vaultpact_escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 > Note: The Anchor module names (`vaultpact`, `vaultpact_escrow`) are the on-chain identifiers and are unchanged by the Holdfast brand rename. Do not rename them.
@@ -47,7 +47,7 @@ Verify the build outputs match the expected program IDs:
 
 ```bash
 solana-keygen pubkey target/deploy/vaultpact-keypair.json
-# Expected: D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg
+# Expected: 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq
 
 solana-keygen pubkey target/deploy/vaultpact_escrow-keypair.json
 # Expected: CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi
@@ -98,7 +98,7 @@ solana program set-buffer-authority <ESCROW_BUFFER> \
 # Holdfast
 solana program upgrade \
   <HOLDFAST_BUFFER> \
-  D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg \
+  2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq \
   --upgrade-authority keys/devnet-protocol-authority.json \
   --url devnet
 
@@ -119,7 +119,7 @@ solana program upgrade \
 ### 1. Confirm programs are executable
 
 ```bash
-solana program show D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg --url devnet
+solana program show 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq --url devnet
 solana program show CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi --url devnet
 ```
 
@@ -131,7 +131,7 @@ Capture and store the new hashes in the CI secret `EXPECTED_HOLDFAST_HASH` and `
 
 ```bash
 solana program dump --url devnet \
-  D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg \
+  2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq \
   /tmp/holdfast.so
 sha256sum /tmp/holdfast.so
 

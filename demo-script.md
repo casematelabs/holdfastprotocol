@@ -18,7 +18,7 @@
 - [ ] Payer keypair funded ≥ 0.1 SOL: `~/.config/solana/devnet.json`
 - [ ] Oracle keypair funded ≥ 0.05 SOL: `~/.config/solana/oracle-devnet.json`
 - [ ] Holdfast Protocol program confirmed live on devnet (Backend Engineer to confirm by April 23)
-  - Program ID: `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg`
+  - Program ID: `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq`
 - [ ] `AttestationRegistry` PDA initialized via `scripts/init-registry-devnet.ts` (one-time setup — confirm with Backend Engineer)
 - [ ] `yarn install` complete in `holdfast/` directory
 - [ ] Terminal font: ≥ 14pt, white on dark background
@@ -89,7 +89,7 @@ solana balance ~/.config/solana/devnet.json
 cd ~/projects/holdfast
 
 # Confirm program is deployed
-solana program show D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg \
+solana program show 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq \
   --url https://api.devnet.solana.com
 ```
 
@@ -103,7 +103,7 @@ Commitment: confirmed
 
 0.125 SOL
 
-Program Id: D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg
+Program Id: 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq
 Owner: BPFLoaderUpgradeab1e11111111111111111111111
 Status: Upgradeable
 ```
@@ -112,7 +112,7 @@ Status: Upgradeable
 
 > "We're running entirely on Solana devnet — no real funds involved. The Holdfast Protocol reputation program is deployed here at address D-6-m-U... You can verify it directly in Solana Explorer."
 
-*(Switch to browser, show program page: `https://explorer.solana.com/address/D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg?cluster=devnet`)*
+*(Switch to browser, show program page: `https://explorer.solana.com/address/2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq?cluster=devnet`)*
 
 > "Everything you're about to see is live on-chain. Not a simulation."
 
@@ -172,7 +172,7 @@ https://explorer.solana.com/tx/3HgX7YqZN2abPmKvRtLs9qWxD5nCfJ8eB4hU1oM6yk?cluste
 
 **Explorer talking points — linger 5–8 seconds:**
 - "Status: Success — green checkmark"
-- "Program: `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` — the Holdfast Protocol program"
+- "Program: `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` — the Holdfast Protocol program"
 - "Instruction: `registerAgentWallet` — one instruction, one on-chain account created"
 
 ### Voiceover
@@ -354,7 +354,7 @@ Before screen recording begins, CTO must confirm each item:
 
 - [ ] Stage sequence is correct: `registerAgentWallet` → `updateReputation` → `reputation.get()` — no escrow
 - [ ] Escrow program (`CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`) does not appear anywhere in demo
-- [ ] Program ID `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` is accurate for devnet
+- [ ] Program ID `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` is accurate for devnet
 - [ ] `oracle-devnet.json` authority matches deployed program's `REPUTATION_ORACLE_AUTHORITY`
 - [ ] Expected terminal output format matches actual `scripts/hackathon-demo.ts` output
 - [ ] Indexer URL `https://indexer.devnet.holdfastprotocol.com` is live, or fallback instructions are sufficient

@@ -161,7 +161,7 @@ See the [SDK reference](https://docs.holdfastprotocol.com/sdk) for:
 
 | Program | Address |
 |---------|---------|
-| Holdfast Identity | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| Holdfast Identity | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | Holdfast Escrow | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 ## Troubleshooting

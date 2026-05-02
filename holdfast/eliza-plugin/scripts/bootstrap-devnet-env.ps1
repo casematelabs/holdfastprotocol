@@ -50,7 +50,7 @@ try {
 } catch (err) {
   registerError = err instanceof Error ? err.message : String(err);
   try {
-    const holdfastProgramId = new PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
+    const holdfastProgramId = new PublicKey("2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq");
     const wallets = await connection.getProgramAccounts(holdfastProgramId, {
       filters: [
         { dataSize: 132 },

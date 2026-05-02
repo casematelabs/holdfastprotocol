@@ -2721,7 +2721,7 @@ function buildRotationPreimage(
   this.timeout(120_000);
 
   const HOLDFAST_ID = new anchor.web3.PublicKey(
-    "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+    "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
   );
 
   let context: any;

@@ -33,7 +33,7 @@ export function loadConfig(): AlertBotConfig {
     oracleUrl: process.env["ORACLE_URL"] ?? null,
     holdfastProgramId:
       process.env["HOLDFAST_PROGRAM_ID"] ??
-      "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+      "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
     escrowProgramId:
       process.env["ESCROW_PROGRAM_ID"] ??
       "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",

@@ -42,7 +42,7 @@ The only required variable is `DISCORD_WEBHOOK_URL`. Everything else has sensibl
 
 ```bash
 # Dump current program binary and hash it
-solana program dump D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg /tmp/holdfast.so
+solana program dump 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq /tmp/holdfast.so
 sha256sum /tmp/holdfast.so
 # Add the hash to .env as HOLDFAST_PROGRAM_BASELINE_HASH
 ```

@@ -101,11 +101,11 @@ function makeMockConn(opts: {
           "Error processing Instruction 0: custom program error: 0x1775"
         );
         (err as any).logs = [
-          "Program D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg invoke [1]",
+          "Program 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq invoke [1]",
           "Program log: AnchorError occurred. Error Code: UnauthorizedReputationWriter. " +
           "Error Number: 6005. Error Message: Caller is not an authorized reputation writer (escrow or oracle program).",
-          "Program D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg consumed 5200 of 200000 compute units",
-          "Program D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg failed: custom program error: 0x1775",
+          "Program 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq consumed 5200 of 200000 compute units",
+          "Program 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq failed: custom program error: 0x1775",
         ];
         throw err;
       }

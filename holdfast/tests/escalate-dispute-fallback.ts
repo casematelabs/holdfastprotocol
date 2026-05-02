@@ -43,7 +43,7 @@ function getAssociatedTokenAddress(
 (bankrunMod ? describe : describe.skip)("CAS-171: escalate_dispute fallback path regressions (bankrun)", function () {
   this.timeout(120_000);
 
-  const VAULTPACT_ID = new anchor.web3.PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
+  const VAULTPACT_ID = new anchor.web3.PublicKey("2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq");
   const ESCROW_ID = new anchor.web3.PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
 
   let context: any;

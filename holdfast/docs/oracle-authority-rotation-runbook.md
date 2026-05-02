@@ -27,7 +27,7 @@ or devnet protocol authority keypair on devnet).
 
 | Field | Value |
 |---|---|
-| Program ID | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| Program ID | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | Registry PDA | `G692JfAp6GrgqePqRJD2eL87TPTqqfeQTBzZQbGfZGKP` |
 | Mainnet protocol authority | `F7koW9b6RYpGrwEXNCGx5V5cKmK2YwhR5e5UyPyBj1J9` (Squads 2-of-2) |
 | Current oracle pubkey (hardcoded at init) | `5GeSYa2BYViRjqXGZvPGwWGkRLi7YyukmJTTGSQQw8FL` |
@@ -106,7 +106,7 @@ The dry-run prints:
 1. Open Squads vault `F7koW9b6RYpGrwEXNCGx5V5cKmK2YwhR5e5UyPyBj1J9`.
 2. Create a new transaction proposal.
 3. Add an instruction:
-   - **Program:** `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg`
+   - **Program:** `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq`
    - **Accounts:**
      - `G692JfAp6GrgqePqRJD2eL87TPTqqfeQTBzZQbGfZGKP` (writable, not signer)
      - `F7koW9b6RYpGrwEXNCGx5V5cKmK2YwhR5e5UyPyBj1J9` (signer, not writable)

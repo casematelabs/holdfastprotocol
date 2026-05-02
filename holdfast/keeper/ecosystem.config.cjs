@@ -18,7 +18,7 @@ module.exports = {
         KEEPER_LOOKAHEAD_SECONDS: "120",
         KEEPER_DRY_RUN: "true",
         KEEPER_HEALTH_PORT: "8888",
-        HOLDFAST_PROGRAM_ID: "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+        HOLDFAST_PROGRAM_ID: "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
         HOLDFAST_ESCROW_PROGRAM_ID: "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
       },
       env_live: {
@@ -29,7 +29,7 @@ module.exports = {
         KEEPER_LOOKAHEAD_SECONDS: "120",
         KEEPER_DRY_RUN: "false",
         KEEPER_HEALTH_PORT: "8888",
-        HOLDFAST_PROGRAM_ID: "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+        HOLDFAST_PROGRAM_ID: "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
         HOLDFAST_ESCROW_PROGRAM_ID: "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
       },
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",

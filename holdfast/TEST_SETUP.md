@@ -202,7 +202,7 @@ wallet = "~/.config/solana/id.json"
 startup_wait = 15000
 
 [programs.localnet]
-vaultpact = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+vaultpact = "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq"
 vaultpact_escrow = "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi"
 ```
 

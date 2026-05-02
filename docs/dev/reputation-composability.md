@@ -281,7 +281,7 @@ Use this when the reputation gate must be enforced atomically inside a Solana tr
 
 | Program | Program ID |
 |---|---|
-| Core (`vaultpact`) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| Core (`vaultpact`) | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | Escrow | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 ---
@@ -291,7 +291,7 @@ Use this when the reputation gate must be enforced atomically inside a Solana tr
 Fetch the IDL pinned to the currently deployed program:
 
 ```bash
-anchor idl fetch D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg \
+anchor idl fetch 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq \
   --url https://api.devnet.solana.com \
   -o idl/holdfast_vaultpact.json
 ```
@@ -369,7 +369,7 @@ pub struct CreateServiceRequest<'info> {
 
     /// The agent's ReputationAccount PDA.
     /// Seeds: [b"reputation", agent.key().as_ref()]
-    /// Program: D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg
+    /// Program: 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq
     #[account(
         seeds = [b"reputation", agent.key().as_ref()],
         bump,
@@ -414,7 +414,7 @@ import { AnchorError } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 
 const HOLDFAST_PROGRAM_ID = new PublicKey(
-  'D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg',
+  '2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq',
 );
 
 try {
@@ -453,7 +453,7 @@ All `ReputationAccount` PDAs share the same derivation — seeds `[b"reputation"
 import { PublicKey } from '@solana/web3.js';
 
 const HOLDFAST_PROGRAM_ID = new PublicKey(
-  'D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg',
+  '2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq',
 );
 
 function findReputationPda(agentPubkey: PublicKey): PublicKey {
@@ -610,7 +610,7 @@ When running `meetsRequirements`, the SDK applies the same decay function as the
 
 **Recovery steps:**
 
-1. **Verify the program ID is current.** Confirm you are using the canonical devnet program ID `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg`. If the program was upgraded after you deployed, re-fetch the IDL and update your dependency.
+1. **Verify the program ID is current.** Confirm you are using the canonical devnet program ID `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq`. If the program was upgraded after you deployed, re-fetch the IDL and update your dependency.
 
 2. **Check for a schema version bump.** Fetch the raw account data and inspect byte 8 (the `schema_version` field):
    ```typescript

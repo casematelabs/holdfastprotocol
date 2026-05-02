@@ -888,7 +888,7 @@ const runtime = new AgentRuntime({
 
 | Program | Address |
 |---|---|
-| `holdfast` | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| `holdfast` | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | `holdfast-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 Last verified deployed: 2026-04-20.

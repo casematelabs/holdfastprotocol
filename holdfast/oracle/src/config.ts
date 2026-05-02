@@ -39,7 +39,7 @@ export function loadConfig(): OracleConfig {
   const holdfastProgramId = new PublicKey(
     process.env["HOLDFAST_PROGRAM_ID"] ??
       // From Anchor.toml [programs.devnet] / declare_id! in programs/vaultpact/src/lib.rs.
-      "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+      "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
   );
 
   const escrowProgramId = new PublicKey(

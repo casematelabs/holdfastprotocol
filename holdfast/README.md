@@ -88,7 +88,7 @@ Holdfast Protocol is deployed as **two programs** on Solana devnet. Both `AgentW
 
 | Program | Address | Contains |
 |---|---|---|
-| `vaultpact` | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` | `AgentWallet` PDA, `ReputationAccount` PDA, `AttestationRegistry` |
+| `vaultpact` | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` | `AgentWallet` PDA, `ReputationAccount` PDA, `AttestationRegistry` |
 | `vaultpact-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` | `EscrowAccount` PDA, vault token accounts |
 
 **Upgrade authority (devnet):** `2TH4VxNqPdzDMX2guhEfDvmmLstnLN2BpcyvUb8bjrkd`  

@@ -6,7 +6,7 @@ import { createApiServer } from "./server.js";
 
 const PROGRAM_ID =
   process.env["PROGRAM_ID"] ??
-  "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg";
+  "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq";
 
 const ESCROW_PROGRAM_ID =
   process.env["ESCROW_PROGRAM_ID"] ??

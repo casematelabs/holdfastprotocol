@@ -45,7 +45,7 @@ Run the pre-flight script (`--dry-run`) to determine which scenario applies.
 
 | Role | Address |
 |---|---|
-| vaultpact Program ID (devnet) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| vaultpact Program ID (devnet) | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | vaultpact Program ID (mainnet) | **TBD — update when deployed** |
 | Registry PDA (devnet) | `G692JfAp6GrgqePqRJD2eL87TPTqqfeQTBzZQbGfZGKP` |
 | Registry PDA (mainnet) | Derived: `find_pda([b"attestation_registry"], mainnet_program_id)` |

@@ -15,7 +15,7 @@ const { fontFamily } = loadFont("normal", {
 });
 
 const PROGRAMS = [
-  { label: "holdfast", address: "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg" },
+  { label: "holdfast", address: "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq" },
   {
     label: "holdfast-escrow",
     address: "BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H",

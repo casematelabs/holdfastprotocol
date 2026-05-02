@@ -10,7 +10,7 @@
 **v1.5 Update:** `resolve_dispute` now applies reputation deltas via CPI: loser -100, winner +25, split both -25 (CAS-193). Added 3 dispute delta constants to appendix.  
 **v1.6 Update:** Marked Gaps 2, 9, 11, 13 as FIXED after deep audit verified source matches (CAS-229, SEC-F3). Updated ES-5 to include initiator re-check at lock. Updated ES-9 to include arbiter re-check at lock.  
 **Programs in scope:**
-- Holdfast Protocol (identity + reputation): `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` (on-chain module: `vaultpact`)
+- Holdfast Protocol (identity + reputation): `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` (on-chain module: `vaultpact`)
 - Holdfast Protocol Escrow: `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` (on-chain module: `vaultpact_escrow`)
 
 **Anchor version:** 0.31.1  

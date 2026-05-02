@@ -283,7 +283,7 @@ if (!qualified) {
 
 | Program | Address |
 |---|---|
-| Holdfast (identity + reputation) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| Holdfast (identity + reputation) | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | Holdfast Escrow | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 Verify these on [Solana Explorer (devnet)](https://explorer.solana.com/?cluster=devnet) before integrating.

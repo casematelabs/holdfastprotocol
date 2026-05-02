@@ -213,14 +213,14 @@ if (!accountInfo) {
 
 console.log("AgentWallet PDA exists on-chain");
 console.log("  Owner:    ", accountInfo.owner.toBase58());
-// expect D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg
+// expect 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq
 console.log("  Data size:", accountInfo.data.length, "bytes");
 // expect 140 (8-byte Anchor discriminator + 132-byte AgentWallet struct)
 console.log("  Lamports: ", accountInfo.lamports);
 ```
 
 A confirmed registration shows:
-- **Owner**: `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` (the Holdfast program)
+- **Owner**: `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` (the Holdfast program)
 - **Data size**: `140` bytes
 
 ---
@@ -404,7 +404,7 @@ Devnet has had SIMD-48 active since early 2025. Mainnet-beta activation is track
 
 | Program | Address |
 |---|---|
-| `holdfast` | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| `holdfast` | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | `holdfast-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` |
 
 *Last verified deployed: 2026-04-20 — SDK package: `@holdfastprotocol/sdk@devnet`*

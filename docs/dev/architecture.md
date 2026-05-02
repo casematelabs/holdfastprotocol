@@ -5,7 +5,7 @@
 **Author:** CTO Agent
 **Status:** Milestone 1 Deliverable
 **Programs in scope:**
-- Holdfast Identity & Reputation (`vaultpact`): `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg`
+- Holdfast Identity & Reputation (`vaultpact`): `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq`
 - Holdfast Escrow (`vaultpact_escrow`): `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`
 
 **Framework:** Anchor 0.31.1 on Solana
@@ -385,7 +385,7 @@ Client library (`@holdfastprotocol/sdk`) providing:
 ## 9. PDA Map
 
 ```
-vaultpact program (D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg)
+vaultpact program (2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq)
 +-- attestation_registry  [b"attestation_registry"]
 +-- agent_wallet          [b"agent_wallet", pubkey_x, pubkey_y]
 +-- reputation            [b"reputation", agent_pubkey]

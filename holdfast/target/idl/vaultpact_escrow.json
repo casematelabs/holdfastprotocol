@@ -327,7 +327,7 @@
         },
         {
           "name": "vaultpact_program",
-          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+          "address": "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq"
         }
       ],
       "args": []
@@ -741,7 +741,7 @@
         },
         {
           "name": "vaultpact_program",
-          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+          "address": "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq"
         },
         {
           "name": "token_program",
@@ -865,7 +865,7 @@
         },
         {
           "name": "vaultpact_program",
-          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+          "address": "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq"
         }
       ],
       "args": []
@@ -1189,7 +1189,7 @@
         },
         {
           "name": "vaultpact_program",
-          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+          "address": "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq"
         },
         {
           "name": "system_program",
@@ -1680,7 +1680,7 @@
         },
         {
           "name": "vaultpact_program",
-          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+          "address": "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq"
         }
       ],
       "args": [
@@ -1781,7 +1781,7 @@
         },
         {
           "name": "vaultpact_program",
-          "address": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"
+          "address": "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq"
         },
         {
           "name": "token_program",

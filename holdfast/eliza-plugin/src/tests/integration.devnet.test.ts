@@ -21,7 +21,7 @@ const env = {
   rpcUrl: process.env.HF_DEVNET_RPC_URL?.trim() ?? "https://api.devnet.solana.com",
   indexerUrl: process.env.HF_DEVNET_INDEXER_URL?.trim(),
   escrowProgramId: process.env.HF_DEVNET_ESCROW_PROGRAM_ID?.trim() ?? "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",
-  holdfastProgramId: process.env.HF_DEVNET_HOLDFAST_PROGRAM_ID?.trim() ?? "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+  holdfastProgramId: process.env.HF_DEVNET_HOLDFAST_PROGRAM_ID?.trim() ?? "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
 };
 
 const missing = [

@@ -45,8 +45,8 @@ import * as path from "node:path";
 
 // ─── Defaults ────────────────────────────────────────────────────────────────
 
-const DEFAULT_PROGRAM_ID = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg";
-const MAINNET_PROGRAM_ID = "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg"; // update when mainnet program differs
+const DEFAULT_PROGRAM_ID = "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq";
+const MAINNET_PROGRAM_ID = "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq"; // update when mainnet program differs
 
 const RPC: Record<string, string> = {
   devnet: "https://api.devnet.solana.com",

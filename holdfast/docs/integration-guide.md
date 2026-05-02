@@ -10,7 +10,7 @@ Holdfast Protocol is deployed as **two on-chain programs**. There is no separate
 
 | Program (Anchor module) | Program ID | Description |
 |---|---|---|
-| `vaultpact` (Holdfast Identity) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` | Core program: AgentWallet, ReputationAccount, AttestationRegistry |
+| `vaultpact` (Holdfast Identity) | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` | Core program: AgentWallet, ReputationAccount, AttestationRegistry |
 | `vaultpact-escrow` (Holdfast Escrow) | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` | Pact escrow lifecycle: create, deposit, release, dispute |
 
 ### Deployment Verification
@@ -18,8 +18,8 @@ Holdfast Protocol is deployed as **two on-chain programs**. There is no separate
 Both programs verified live on devnet as of 2026-04-20 (CAS-121):
 
 ```bash
-solana program show D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg --url devnet
-# Program Id: D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg
+solana program show 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq --url devnet
+# Program Id: 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq
 # Authority: 2TH4VxNqPdzDMX2guhEfDvmmLstnLN2BpcyvUb8bjrkd
 # Last Deployed In Slot: 456484926
 # Data Length: 293352 bytes
@@ -42,7 +42,7 @@ IDL (Interface Description Language) files are stored on-chain alongside the dep
 
 ```bash
 # Fetch the Holdfast identity program IDL
-anchor idl fetch D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg \
+anchor idl fetch 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq \
   --url https://api.devnet.solana.com \
   -o target/idl/vaultpact.json
 

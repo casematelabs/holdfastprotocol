@@ -222,7 +222,7 @@ Use for GitHub DM, email, or X/Twitter DM after the talk. Customize `[Name]`, `[
 2. **SDK install command** — memorize: `npm install @holdfastprotocol/sdk`. Drop it in conversations.
 3. **Quickstart URL** — `https://docs.holdfastprotocol.com/quickstart` — 15 minutes to first pact.
 4. **Devnet program addresses** — have these ready for technical audiences:
-   - `holdfast`: `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg`
+   - `holdfast`: `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq`
    - `holdfast-escrow`: `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`
 5. **The demo video** (CAS-295) — have it on phone for hallway demos. The escrow lifecycle visualization is the most effective hook.
 

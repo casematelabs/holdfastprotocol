@@ -26,7 +26,7 @@ export const SECP256R1_PROGRAM_ID = new anchor.web3.PublicKey(
 );
 
 const VAULTPACT_PROGRAM_ID = new anchor.web3.PublicKey(
-  "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+  "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
 );
 const ESCROW_PROGRAM_ID = new anchor.web3.PublicKey(
   "CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi",

@@ -344,7 +344,7 @@ None.
     {
       "name": "holdfast",
       "anchorModule": "vaultpact",
-      "programId": "D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg",
+      "programId": "2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq",
       "status": "active",
       "lastSeenSlot": 456490000
     },

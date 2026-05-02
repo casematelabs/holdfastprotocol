@@ -2945,7 +2945,7 @@ describe("holdfast-escrow", () => {
 (bankrunMod ? describe : describe.skip)("bankrun: time-warp tests (claim_released, refund, escalate_dispute)", function () {
   this.timeout(120_000);
 
-  const HOLDFAST_ID = new anchor.web3.PublicKey("D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg");
+  const HOLDFAST_ID = new anchor.web3.PublicKey("2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq");
   const ESCROW_ID = new anchor.web3.PublicKey("CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi");
 
   let context: any;

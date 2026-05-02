@@ -83,7 +83,7 @@ Devnet program IDs:
 
 | Program | Address |
 |---|---|
-| `vaultpact` (identity + reputation) | `D6mUa4wGtFyLyJorMfxoKvA9ybohjUSsfw88t66ATxg` |
+| `vaultpact` (identity + reputation) | `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` |
 | `vaultpact-escrow` | `BNxA76z6vjQYtUJXGpH8qjA3wHvtAAqGqL6rvVWH6b3H` |
 
 ---
