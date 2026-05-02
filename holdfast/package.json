@@ -41,6 +41,12 @@
     "ts-mocha": "^10.0.0",
     "typescript": "^5.8.0",
     "cross-env": "^7.0.3"
+  },
+  "resolutions": {
+    "serialize-javascript": "^7.0.3"
+  },
+  "overrides": {
+    "serialize-javascript": "^7.0.3"
   }
 }
 
