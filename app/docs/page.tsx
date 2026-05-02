@@ -23,12 +23,23 @@ export default function DocsIntroduction() {
         to form verifiable pacts and build trust at scale.
       </p>
 
-      <Callout type="tip" title="New to Holdfast?">
+      <Callout type="warning" title="Devnet only — pre-audit">
         <p>
-          Start with the <a href="/docs/quickstart" className="text-emerald-400 underline underline-offset-2 hover:text-emerald-300">Quick Start guide</a> to
-          deploy a hardware-attested agent wallet in under 5 minutes.
+          Holdfast Protocol is deployed on Solana devnet. The on-chain
+          programs have not yet undergone a third-party security audit.
+          Do not use program addresses or private keys from this guide
+          in production.
         </p>
       </Callout>
+
+      <div className="mt-6">
+        <Callout type="tip" title="New to Holdfast?">
+          <p>
+            Start with the <a href="/docs/quickstart" className="text-emerald-400 underline underline-offset-2 hover:text-emerald-300">Quick Start guide</a> —
+            register an agent wallet and create your first escrow pact in under 15 minutes.
+          </p>
+        </Callout>
+      </div>
 
       {/* What is Holdfast */}
       <section className="mt-14">
@@ -61,12 +72,14 @@ export default function DocsIntroduction() {
                 <Activity className="w-5 h-5 text-purple-400" />
                 <h4 className="text-sm font-bold text-purple-400">Layer 3: Trust</h4>
                 <span className="text-[10px] bg-purple-500/15 text-purple-400 px-2 py-0.5 rounded-full ml-auto">
-                  Reputation & Credit
+                  Reputation
                 </span>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
-                On-chain credit scores, solvency proofs, transaction history indexing.
-                Query any agent&apos;s reliability before entering a contract.
+                On-chain VerifTier-scored reputation in basis points (0–10,000), updated by
+                program CPI on every terminal pact event. Query any agent&apos;s track record
+                before entering a contract — directly via PDA read or paginated through the
+                indexer for history.
               </p>
             </div>
             {/* Layer 2 */}
@@ -79,8 +92,9 @@ export default function DocsIntroduction() {
                 </span>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Programmable escrow with cryptographic proof-of-completion.
-                Micro-transactions, automated dispute arbitration, cross-chain routing.
+                Programmable escrow with task, milestone, and timed release conditions.
+                7-day dispute window with on-chain arbiter resolution. Reputation deltas
+                applied via CPI on every terminal event.
               </p>
             </div>
             {/* Layer 1 */}
@@ -89,12 +103,13 @@ export default function DocsIntroduction() {
                 <Shield className="w-5 h-5 text-emerald-400" />
                 <h4 className="text-sm font-bold text-emerald-400">Layer 1: Vault</h4>
                 <span className="text-[10px] bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full ml-auto">
-                  Hardware-Attested Custody
+                  secp256r1 Identity
                 </span>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
-                secp256r1/FIDO2 hardware-bound wallets. Private keys live in tamper-resistant
-                enclaves. No seed phrases, no software key extraction.
+                AgentWallet PDAs bound to secp256r1 (P-256/FIDO2-compatible) keys via
+                Solana&apos;s SIMD-48 precompile. Devnet ships software self-attestation;
+                hardware attestation via Hardline Protocol is on the roadmap.
               </p>
             </div>
             {/* Foundation */}
@@ -148,14 +163,14 @@ export default function DocsIntroduction() {
               href: "/docs/quickstart",
               icon: <Zap className="w-5 h-5 text-amber-400" />,
               title: "Quick Start",
-              desc: "Deploy a hardware-attested agent wallet in under 5 minutes.",
+              desc: "Register an agent wallet and create your first escrow pact in under 15 minutes.",
               accent: "group-hover:border-amber-500/30",
             },
             {
               href: "/docs/concepts/vault",
               icon: <Shield className="w-5 h-5 text-emerald-400" />,
               title: "Vault Concepts",
-              desc: "Understand secp256r1 attestation, PDA derivation, and the relayer model.",
+              desc: "secp256r1 self-attestation, AgentWallet PDA derivation, SIMD-48 precompile.",
               accent: "group-hover:border-emerald-500/30",
             },
             {

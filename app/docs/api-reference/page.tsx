@@ -27,7 +27,7 @@ export default function ApiReferenceOverview() {
           Installation
         </h2>
         <CodeBlock
-          code={`npm install @holdfastprotocol/sdk @solana/web3.js`}
+          code={`npm install @holdfastprotocol/sdk@devnet @solana/web3.js`}
           language="bash"
           filename="terminal"
         />

@@ -35,15 +35,16 @@ export default function ConceptsOverview() {
                 <h2 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">
                   Layer 1: Vault
                 </h2>
-                <span className="text-xs text-slate-500">Hardware-Attested Custody</span>
+                <span className="text-xs text-slate-500">secp256r1 Identity</span>
               </div>
             </div>
             <ArrowRight className="w-5 h-5 text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
           </div>
           <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            The foundation of the protocol. Vault extends secp256r1/FIDO2 hardware attestation
-            to autonomous agent wallets on Solana. Private keys never leave the hardware enclave.
-            Every financial operation requires a physical cryptographic proof.
+            The foundation of the protocol. Vault binds AgentWallet PDAs to secp256r1
+            (P-256/FIDO2-compatible) keys via Solana&apos;s native SIMD-48 precompile.
+            Devnet ships software self-attestation; hardware attestation via Hardline
+            Protocol — keys living in tamper-resistant enclaves — is on the roadmap.
           </p>
           <div className="flex flex-wrap gap-2">
             {["secp256r1", "FIDO2/WebAuthn", "SIMD-48 Precompile", "PDA Derivation", "Velocity Limits", "Default-Deny Whitelist"].map((tag) => (

@@ -38,18 +38,19 @@ require_not_contains() {
 }
 
 require_contains "docs/dev/quickstart.md" "@holdfastprotocol/sdk@devnet" "devnet install tag"
-require_contains "holdfast/docs/quickstart.md" "@holdfastprotocol/sdk@devnet" "devnet install tag"
+require_contains "holdfast/sdk/docs/quickstart.md" "@holdfastprotocol/sdk@devnet" "devnet install tag"
 require_contains "holdfast/sdk/README.md" "@holdfastprotocol/sdk@devnet" "devnet install tag"
 require_contains "app/docs/quickstart/page.tsx" "@holdfastprotocol/sdk@devnet" "devnet install tag"
 require_contains "examples/holdfast-quickstart/README.md" "under 15 minutes" "quickstart duration claim"
 require_contains "holdfast/sdk/README.md" "examples/quickstart.ts" "sdk quickstart script link"
-require_contains "docs/dev/quickstart.md" "holdfast/docs/quickstart.md" "canonical quickstart link"
+require_contains "docs/dev/quickstart.md" "holdfast/sdk/docs/quickstart.md" "canonical quickstart link"
 require_contains "docs/dev/quickstart.md" "holdfast/sdk/examples/quickstart.ts" "canonical quickstart script link"
 
-require_not_contains "app/docs/quickstart/page.tsx" "under 5 minutes" "stale duration claim"
+require_not_contains "app/docs/quickstart/page.tsx" "under 5 minutes" "stale duration claim (quickstart)"
+require_not_contains "app/docs/page.tsx" "under 5 minutes" "stale duration claim (docs index)"
 require_not_contains "examples/holdfast-quickstart/README.md" "under 5 minutes" "stale duration claim"
 
-require_contains "holdfast/docs/quickstart.md" "required for auto-release" "timed keeper requirement"
+require_contains "holdfast/sdk/docs/quickstart.md" "auto-release" "timed auto-release pattern"
 require_contains "app/docs/quickstart/page.tsx" "Timed pacts require a keeper for auto-release" "timed keeper warning"
 require_contains "examples/holdfast-quickstart/README.md" "run the reference keeper" "timed keeper guidance"
 
