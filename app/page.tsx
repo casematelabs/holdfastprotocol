@@ -285,26 +285,6 @@ export default function Home() {
               A <span className="text-slate-400">Casemate Labs</span> project
             </div>
           </div>
-          <div className="flex gap-6 text-sm text-slate-500">
-            <a
-              href="#"
-              className="hover:text-emerald-400 transition-colors"
-            >
-              Twitter
-            </a>
-            <a
-              href="#"
-              className="hover:text-emerald-400 transition-colors"
-            >
-              GitHub
-            </a>
-            <a
-              href="#"
-              className="hover:text-emerald-400 transition-colors"
-            >
-              Discord
-            </a>
-          </div>
         </div>
       </footer>
     </div>
