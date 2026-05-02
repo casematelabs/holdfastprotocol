@@ -6,9 +6,9 @@
 **Security Review:** Head of Security — verified all invariants against source, added ES-9 through ES-16 and Gaps 7–13  
 **CTO Sign-off:** Confirmed both HIGH severity gaps (7, 8) fixed in source; ES-13 updated with idempotency constraint; error code appendix completed (29 entries). Document approved for submission to audit firm.  
 **v1.3 Update:** Added ES-17 (Mutual Cancellation), updated ES-1/ES-2/ES-7 for `MutuallyCancelled` status, resolved Gap 10, added 5 error codes to appendix.  
-**v1.4 Update:** Added comprehensive CEI compliance section with per-instruction ordering table, reentrancy mitigations, and read-only CPI classification (CAS-191).  
-**v1.5 Update:** `resolve_dispute` now applies reputation deltas via CPI: loser -100, winner +25, split both -25 (CAS-193). Added 3 dispute delta constants to appendix.  
-**v1.6 Update:** Marked Gaps 2, 9, 11, 13 as FIXED after deep audit verified source matches (CAS-229, SEC-F3). Updated ES-5 to include initiator re-check at lock. Updated ES-9 to include arbiter re-check at lock.  
+**v1.4 Update:** Added comprehensive CEI compliance section with per-instruction ordering table, reentrancy mitigations, and read-only CPI classification.  
+**v1.5 Update:** `resolve_dispute` now applies reputation deltas via CPI: loser -100, winner +25, split both -25. Added 3 dispute delta constants to appendix.  
+**v1.6 Update:** Marked Gaps 2, 9, 11, 13 as FIXED after deep audit verified source matches. Updated ES-5 to include initiator re-check at lock. Updated ES-9 to include arbiter re-check at lock.  
 **Programs in scope:**
 - Holdfast Protocol (identity + reputation): `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq` (on-chain module: `vaultpact`)
 - Holdfast Protocol Escrow: `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` (on-chain module: `vaultpact_escrow`)
@@ -680,7 +680,7 @@ constraint = initiator_token_account.mint == escrow_account.mint
     @ EscrowError::UnauthorizedTokenAccount,
 ```
 
-This pattern is consistently applied in `deposit_funds`, `auto_release`, `refund`, `resolve_dispute`, and `claim_released` for all participant token accounts. The previous exception for `claim_released` was resolved in [CAS-164](/CAS/issues/CAS-164) (Gap 7 fix).
+This pattern is consistently applied in `deposit_funds`, `auto_release`, `refund`, `resolve_dispute`, and `claim_released` for all participant token accounts. The previous exception for `claim_released` was resolved as part of the Gap 7 fix.
 
 **Error:** `EscrowError::UnauthorizedTokenAccount`
 
@@ -750,7 +750,7 @@ If the oracle keypair is compromised, an attacker could:
 
 ### Mainnet Mitigations (Planned)
 
-Per ADR-001 and CAS-33:
+Per ADR-001:
 - Oracle keypair stored in HSM or hardware wallet
 - Key rotation requires program redeployment (constant is compile-time)
 - `VAULTPACT_ESCROW_AUTHORITY` is a PDA (cannot be compromised independently of the program)

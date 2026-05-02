@@ -116,8 +116,6 @@ Accessed as `client.escrow`. All write methods require `signer` and most require
 
 `stakeBeneficiary`, `lockEscrow`, `buildLockEscrowTransaction`, and `claimReleased` shipped in SDK v0.2. Full documentation for each is below. IDL direct-call patterns remain in [escrow-idl-reference.md](./escrow-idl-reference.md) for reference.
 
-Completed: [CAS-200](/CAS/issues/CAS-200) · [CAS-201](/CAS/issues/CAS-201) · [CAS-202](/CAS/issues/CAS-202)
-
 ---
 
 ### `createPact(params)`
@@ -685,7 +683,7 @@ enum VerifTier {
 | `outcome` | `PactOutcome` | Result of the pact. |
 | `scoreDelta` | `number` | Score change in basis points (signed). |
 | `timestamp` | `number` | Unix timestamp of the event. |
-| `pactId` | `string` | 7-byte hex display ID (non-unique; display only per CAS-11 §8.4). |
+| `pactId` | `string` | 7-byte hex display ID — non-unique, display only. The full 32-byte escrow ID remains the canonical primary key. |
 
 ### `PactOutcome`
 

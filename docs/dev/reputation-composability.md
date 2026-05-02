@@ -671,5 +671,5 @@ For tier requirements:
 
 ---
 
-*Guide version: 2026-04-26 (HOL-127)*
+*Guide version: 2026-04-26*
 

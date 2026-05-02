@@ -92,7 +92,7 @@ Holdfast Protocol is deployed as **two programs** on Solana devnet. Both `AgentW
 | `vaultpact-escrow` | `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi` | `EscrowAccount` PDA, vault token accounts |
 
 **Upgrade authority (devnet):** `2TH4VxNqPdzDMX2guhEfDvmmLstnLN2BpcyvUb8bjrkd`  
-Last verified deployed: 2026-04-20 (CAS-121). See `docs/integration-guide.md` for full deployment details.
+Last verified deployed: 2026-04-20. See `docs/integration-guide.md` for full deployment details.
 
 SDK constants (importable from `@holdfastprotocol/sdk`):
 ```typescript
