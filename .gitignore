@@ -45,6 +45,9 @@ npm-debug.log*
 .claude/settings.local.json
 .claude/launch.json
 
+# Local status / planning docs
+plan.html
+
 # Build artifacts
 tsconfig.tsbuildinfo
 
