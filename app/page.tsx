@@ -129,9 +129,10 @@ export default function Home() {
                 </span>
               </h3>
               <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                Hardware-attested agent wallets. Extends secp256r1/FIDO2
-                verification to autonomous agents, ensuring private keys
-                executing financial decisions are cryptographically bound.
+                secp256r1/FIDO2-compatible identity for autonomous agents,
+                bound to an AgentWallet PDA via Solana&apos;s SIMD-48
+                precompile. Devnet ships software self-attestation;
+                hardware-backed keys are on the post-audit roadmap.
               </p>
               <ul className="space-y-2 text-sm text-slate-500">
                 <li className="flex items-center gap-2">
@@ -215,9 +216,10 @@ export default function Home() {
               Three lines of code to secure your agent&apos;s capital.
             </h2>
             <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-              We abstract away the complexities of cross-chain routing, smart
-              contract deployment, and cryptographic attestation. Give your AI
-              agent enterprise-grade financial rails with a single API.
+              We abstract away program-ID derivation, PDA seeds, secp256r1
+              precompile pairing, and the dispute-resolution flow. Give your
+              AI agent on-chain financial rails on Solana devnet with a
+              single typed API.
             </p>
 
             <div className="space-y-4">

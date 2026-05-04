@@ -537,7 +537,7 @@ function StepInstall({ onBack, onNext }: { onBack: () => void; onNext: () => voi
         <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#4D5E72', marginBottom: '10px' }}>
           1 — Add packages
         </div>
-        <CodeBlock lang="terminal" code={'npm install @holdfastprotocol/sdk @solana/web3.js'} />
+        <CodeBlock lang="terminal" code={'npm install @holdfastprotocol/sdk@devnet @solana/web3.js'} />
       </div>
 
       <div style={{ marginBottom: '24px' }}>

@@ -109,7 +109,7 @@ export default function DocsIntroduction() {
               <p className="text-xs text-slate-500 leading-relaxed">
                 AgentWallet PDAs bound to secp256r1 (P-256/FIDO2-compatible) keys via
                 Solana&apos;s SIMD-48 precompile. Devnet ships software self-attestation;
-                hardware attestation via Hardline Protocol is on the roadmap.
+                hardware-backed keys (TPM/TEE) are on the post-audit roadmap.
               </p>
             </div>
             {/* Foundation */}

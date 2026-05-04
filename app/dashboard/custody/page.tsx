@@ -153,8 +153,8 @@ function AttestationBadge({ type, provider }: { type: AttestationType; provider?
         )}
         <div style={{ fontSize: '11px', color: '#8A99AC', lineHeight: 1.55, maxWidth: '320px' }}>
           {isHw
-            ? 'Private key is bound to a hardware enclave (secp256r1 / FIDO2). Cannot be extracted by software.'
-            : 'Private key is managed in software. Consider upgrading to hardware attestation for production use.'}
+            ? 'Hardware-backed P-256 key (TPM/TEE/FIDO2). Hardware backing is recognised but not enforced on devnet — full TPM/TEE attestation lands post-audit.'
+            : 'Software-held P-256 key. This is the default attestation mode on devnet. Hardware-backed keys (TPM/TEE/FIDO2) are on the post-audit roadmap for production use.'}
         </div>
         {!isHw && (
           <div style={{
