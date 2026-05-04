@@ -1,6 +1,6 @@
 # Holdfast Protocol — Devnet Integration Guide
 
-> **Security notice:** Holdfast Protocol is currently in devnet. Do not use devnet program addresses in production. A full internal security review was completed in April 2026 — all High and Medium findings have been remediated. A third-party audit is planned before mainnet. See [`docs/security-audit-2026-04.md`](./security-audit-2026-04.md) for the full findings and remediation log.
+> **Security notice:** Holdfast Protocol is currently in devnet. Do not use devnet program addresses in production. An internal security review completed in April 2026 — all High and Medium findings have been remediated. A third-party audit is in progress; the report will be published before mainnet.
 
 ---
 
@@ -15,7 +15,7 @@ Holdfast Protocol is deployed as **two on-chain programs**. There is no separate
 
 ### Deployment Verification
 
-Both programs verified live on devnet as of 2026-04-20 (CAS-121):
+Both programs verified live on devnet as of 2026-04-20:
 
 ```bash
 solana program show 2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq --url devnet
@@ -32,7 +32,7 @@ solana program show CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi --url devnet
 ```
 
 **Upgrade authority (devnet):** `2TH4VxNqPdzDMX2guhEfDvmmLstnLN2BpcyvUb8bjrkd`  
-Note: This is a single-key authority used for devnet iteration. Mainnet deployment will use a multisig upgrade authority as specified in CAS-88.
+Note: This is a single-key authority used for devnet iteration. Mainnet deployment will use a multisig upgrade authority — Squads v4 vault PDA, 3-of-5 hardware signers (see Upgrade Authority section below).
 
 ---
 
@@ -100,24 +100,77 @@ Program: `vaultpact-escrow`
 
 ---
 
+## Reputation Queries — Canonical Read Path
+
+**For any reputation-gated decision, read the on-chain `ReputationAccount` PDA directly. Do not gate on indexer responses.**
+
+Holdfast deliberately splits reputation into two access paths with different trust properties. Most third-party consumers — agents composing Holdfast into character graphs, plugins gating actions on counterparty score, programs wanting an on-chain trust signal — should only ever touch the first one.
+
+### Path 1 — Canonical: read the PDA directly
+
+```typescript
+import { createHoldfastClient, VerifTier } from '@holdfastprotocol/sdk';
+
+// Default client connects to devnet — no signer needed for reads
+const client = createHoldfastClient();
+
+// Reads the on-chain ReputationAccount PDA directly — no indexer in the path
+const rep = await client.reputation.get('AgentPubkeyBase58...');
+
+console.log('Score:', rep.score);              // basis points [0, 10000]; 5000 = neutral
+console.log('Tier:', rep.tier);                 // VerifTier.Unverified | Attested | Hardline
+console.log('Pacts completed:', rep.totalPacts);
+console.log('Disputes:', rep.disputeCount);
+```
+
+The score this returns is **authoritative**. It comes from a single Solana RPC `getAccountInfo` against the canonical PDA seeds — there is no service in between, nothing to be stale, no operator who could lie to you. Worst case the RPC is unreachable and you get an error to handle; you cannot get back a wrong number.
+
+For the common pattern of "block this action if the counterparty doesn't meet threshold X", use the typed helper:
+
+```typescript
+const ok = await client.reputation.meetsRequirements('CounterpartyPubkey...', {
+  minScore: 5000,                  // neutral or above
+  minTier: VerifTier.Attested,     // identity-attested
+  minPacts: 1,                     // at least one prior completed pact
+});
+
+if (!ok) {
+  // Decline the contract — counterparty is below trust threshold
+}
+```
+
+`meetsRequirements` returns `false` (it does not throw) for agents with no `ReputationAccount` yet, mirroring the on-chain `validate_reputation_for_pact` constraint. Your pre-flight check is consistent with what the program enforces at lock time.
+
+### Path 2 — Non-canonical: paginated history via indexer
+
+```typescript
+// Dashboard / analytics use ONLY — not for trust decisions
+const history = await client.reputation.getHistory('AgentPubkey...', { limit: 20 });
+// history.entries: HistEntry[]   — ordered oldest → newest
+// history.hasMore: boolean
+// history.cursor?: string        — pass as `before` to paginate
+```
+
+`getHistory` reads from the off-chain Holdfast indexer, which mirrors the on-chain event stream into a queryable database. Treat it as a dashboard cache, not as authoritative state. The indexer cannot mutate any on-chain account — its only failure mode is staleness.
+
+### Why this split exists
+
+The on-chain `ReputationAccount.score` is mutated only by the escrow program via CPI at terminal pact events (claim, dispute resolution, refund). The indexer **observes** those events and persists them for paginated queries. This means:
+
+- For a **gating decision** ("should I sign this pact?"), you want the current authoritative score — read the PDA.
+- For a **history view** ("show me this agent's last 20 pacts"), you want event-stream pagination — query the indexer.
+
+Mixing them up — gating on `getHistory` results — gives the indexer trust authority it shouldn't have. Anyone composing Holdfast into a larger system without reading the internals first should default to `client.reputation.get()` for trust-path queries; this guide makes that the canonical entry point intentionally.
+
+---
+
 ## SDK Quick Start
 
 ```bash
 npm install @holdfastprotocol/sdk@devnet @solana/web3.js
 ```
 
-### Read reputation (no signer required)
-
-```typescript
-import { createHoldfastClient, VerifTier } from '@holdfastprotocol/sdk';
-
-// Default client connects to devnet
-const client = createHoldfastClient();
-
-const rep = await client.reputation.get('AgentPubkeyBase58...');
-console.log('Score:', rep.score);  // 5000 = neutral baseline
-console.log('Tier:', rep.tier);    // VerifTier.Unverified | Attested | Hardline
-```
+For reputation reads, see the [canonical read path above](#reputation-queries--canonical-read-path).
 
 ### Register an AgentWallet
 
@@ -196,7 +249,7 @@ vaultpact (core)
 
 ### Mainnet authority transfer procedure
 
-Before mainnet launch, both program upgrade authorities must be transferred from the deployer keypair to a **Squads v4 3-of-5 multisig vault PDA**. This is a hard gate in the launch checklist (CAS-119) per the architecture decision in CAS-88.
+Before mainnet launch, both program upgrade authorities must be transferred from the deployer keypair to a **Squads v4 3-of-5 multisig vault PDA**. This is a hard gate in the launch checklist.
 
 The transfer is a two-step operation per program — no program redeployment required:
 
@@ -212,7 +265,7 @@ solana program show <PROGRAM_ID> --url <mainnet-beta|devnet>
 # Output must show: Authority: <SQUADS_VAULT_PDA>
 ```
 
-Once the Squads v4 multisig is created and the vault PDA is confirmed, this table will be updated with the finalized address. Full step-by-step runbook: CAS-143.
+Once the Squads v4 multisig is created and the vault PDA is confirmed, this table will be updated with the finalized address.
 
 **Squads v4 vault PDA (mainnet):** `TBD — pending founding team multisig setup`  
 **Squads v4 multisig PDA (mainnet):** `TBD — pending founding team multisig setup`
