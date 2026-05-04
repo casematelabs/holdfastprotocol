@@ -1,12 +1,10 @@
-import { Shield, Handshake, Activity, ArrowRight } from "lucide-react";
-import Link from "next/link";
 import CodeBlock from "../components/CodeBlock";
 import Callout from "../components/Callout";
 import PrevNext from "../components/PrevNext";
 
 export const metadata = { title: "API Reference" };
 
-export default function ApiReferenceOverview() {
+export default function ApiReference() {
   return (
     <div className="max-w-4xl mx-auto px-8 py-16 lg:py-20">
       <div className="text-[12px] text-slate-500 font-medium mb-8">
@@ -17,14 +15,25 @@ export default function ApiReferenceOverview() {
         API Reference
       </h1>
       <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl">
-        Complete SDK documentation for the Holdfast protocol. Every method, every
-        parameter, every return type.
+        Holdfast ships a single TypeScript SDK,{" "}
+        <code className="text-emerald-400">@holdfastprotocol/sdk</code>, exposing
+        three modules: <code className="text-emerald-400">registration</code>,{" "}
+        <code className="text-emerald-400">reputation</code>, and{" "}
+        <code className="text-emerald-400">escrow</code>. The full method-by-method
+        reference lives in the SDK's own README on the canonical public mirror.
       </p>
 
+      <Callout type="warning" title="Devnet only — pre-audit">
+        <p>
+          The on-chain programs have not yet undergone a third-party security audit.
+          Pin to the <code>@devnet</code> dist-tag and do not use against mainnet.
+        </p>
+      </Callout>
+
       {/* Install */}
-      <section className="mb-12">
-        <h2 id="installation" className="text-xl font-bold text-white mb-4 scroll-mt-24">
-          Installation
+      <section className="mt-12">
+        <h2 id="install" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
+          Install
         </h2>
         <CodeBlock
           code={`npm install @holdfastprotocol/sdk@devnet @solana/web3.js`}
@@ -32,145 +41,135 @@ export default function ApiReferenceOverview() {
           filename="terminal"
         />
         <CodeBlock
-          code={`import { createHoldfastClient, registerAgentWallet } from '@holdfastprotocol/sdk';`}
+          code={`import {
+  createHoldfastClient,
+  registerAgentWallet,
+  VerifTier,
+  EscrowStatus,
+} from "@holdfastprotocol/sdk";`}
           language="typescript"
           filename="import.ts"
         />
       </section>
 
-      {/* Client init */}
-      <section className="mb-12">
-        <h2 id="client" className="text-xl font-bold text-white mb-4 scroll-mt-24">
-          Client Initialization
+      {/* The three surfaces */}
+      <section className="mt-12">
+        <h2 id="surfaces" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
+          The three surfaces
         </h2>
-        <CodeBlock
-          code={`import { createHoldfastClient, registerAgentWallet } from '@holdfastprotocol/sdk';
-import { Connection, Keypair } from '@solana/web3.js';
-
-const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
-const signer = Keypair.fromSecretKey(/* ... */);
-
-const { agentWallet } = await registerAgentWallet({ connection, signer });
-
-const client = createHoldfastClient({
-  connection,
-  signer,
-  agentWallet,
-});`}
-          language="typescript"
-          filename="client.ts"
-          showLineNumbers
-        />
-        <Callout type="info">
-          <p>
-            Holdfast is currently devnet-only and pre-audit. Use a devnet RPC and set
-            <code className="text-emerald-400"> programId </code>
-            explicitly for your environment.
-          </p>
-        </Callout>
-      </section>
-
-      {/* Method badges legend */}
-      <section className="mb-12">
-        <h2 id="method-types" className="text-xl font-bold text-white mb-4 scroll-mt-24">
-          Method Types
-        </h2>
-        <div className="grid sm:grid-cols-2 gap-3">
-          <div className="rounded-lg border border-slate-800 bg-slate-900/30 p-4 flex items-start gap-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded border bg-blue-500/15 text-blue-400 border-blue-500/30">
-              read
-            </span>
-            <p className="text-[13px] text-slate-400">
-              Read-only queries. No signature required, no transaction cost.
+        <div className="space-y-3">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/30 p-5">
+            <div className="text-sm font-semibold text-emerald-400 mb-1">
+              registration
+            </div>
+            <p className="text-sm text-slate-400 leading-relaxed mb-2">
+              <code>registerAgentWallet()</code>,{" "}
+              <code>deriveAgentWalletPda()</code>. One-time agent identity
+              registration via the SIMD-48 secp256r1 precompile pairing.
+              Idempotent — re-running with the same P-256 key resolves to the
+              same <code>AgentWallet</code> PDA without sending a transaction.
             </p>
           </div>
-          <div className="rounded-lg border border-slate-800 bg-slate-900/30 p-4 flex items-start gap-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded border bg-emerald-500/15 text-emerald-400 border-emerald-500/30">
-              write
-            </span>
-            <p className="text-[13px] text-slate-400">
-              State-changing operations. Requires relayer fee. No hardware signature.
+          <div className="rounded-xl border border-slate-800 bg-slate-900/30 p-5">
+            <div className="text-sm font-semibold text-emerald-400 mb-1">
+              client.reputation
+            </div>
+            <p className="text-sm text-slate-400 leading-relaxed mb-2">
+              <code>get(pubkey)</code>, <code>meetsRequirements(pubkey, reqs)</code>,{" "}
+              <code>getHistory(pubkey, opts?)</code>. Direct{" "}
+              <code>ReputationAccount</code> PDA reads (no indexer in the
+              trust path) plus paginated history pulled from the off-chain
+              indexer for dashboard use.
             </p>
           </div>
-          <div className="rounded-lg border border-slate-800 bg-slate-900/30 p-4 flex items-start gap-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded border bg-purple-500/15 text-purple-400 border-purple-500/30">
-              sign
-            </span>
-            <p className="text-[13px] text-slate-400">
-              Requires secp256r1 hardware key signature. Triggers WebAuthn prompt.
-            </p>
-          </div>
-          <div className="rounded-lg border border-slate-800 bg-slate-900/30 p-4 flex items-start gap-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded border bg-cyan-500/15 text-cyan-400 border-cyan-500/30">
-              query
-            </span>
-            <p className="text-[13px] text-slate-400">
-              Off-chain indexed data. Reads from the Trust indexer, not the chain directly.
+          <div className="rounded-xl border border-slate-800 bg-slate-900/30 p-5">
+            <div className="text-sm font-semibold text-emerald-400 mb-1">
+              client.escrow
+            </div>
+            <p className="text-sm text-slate-400 leading-relaxed mb-2">
+              <code>createPact()</code>, <code>depositEscrow()</code>,{" "}
+              <code>stakeBeneficiary()</code>, <code>lockEscrow()</code>,{" "}
+              <code>releasePact()</code>, <code>claimReleased()</code>,{" "}
+              <code>openDispute()</code>, <code>getPact()</code>,{" "}
+              <code>listPacts()</code>, <code>getEscrowEvents()</code>.
+              The full pact lifecycle, including the canonical task /
+              milestone / timed release conditions and on-chain dispute path.
             </p>
           </div>
         </div>
       </section>
 
-      {/* SDK modules */}
-      <section>
-        <h2 id="modules" className="text-xl font-bold text-white mb-6 scroll-mt-24">
-          SDK Modules
+      {/* Canonical reference links */}
+      <section className="mt-12">
+        <h2 id="canonical-references" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
+          Canonical references
         </h2>
-        <div className="space-y-4">
+        <p className="text-sm text-slate-400 leading-relaxed mb-4">
+          Maintaining a method-by-method reference in two places is a drift trap.
+          The canonical reference is in the public SDK repo and ships with every
+          npm release. These links point to source-of-truth.
+        </p>
+        <div className="space-y-3">
           {[
             {
-              href: "/docs/api-reference/vault",
-              icon: <Shield className="w-5 h-5 text-emerald-400" />,
-              title: "Vault SDK",
-              desc: "Wallet attestation, deposits, withdrawals, whitelist management, velocity configuration, backup key enrollment.",
-              methods: 12,
-              color: "group-hover:border-emerald-500/30",
+              title: "SDK README",
+              href: "https://github.com/casematelabs/holdfastprotocol-sdk#readme",
+              desc: "Complete method signatures, parameters, return types, and code examples for every public symbol. Versioned with the package.",
             },
             {
-              href: "/docs/api-reference/pact",
-              icon: <Handshake className="w-5 h-5 text-cyan-400" />,
-              title: "Pact SDK",
-              desc: "Escrow creation, proof submission, dispute arbitration, payment channels, cross-chain settlement.",
-              methods: 9,
-              color: "group-hover:border-cyan-500/30",
+              title: "Quickstart (in the SDK repo)",
+              href: "https://github.com/casematelabs/holdfastprotocol-sdk/blob/master/docs/quickstart.md",
+              desc: "Zero to first confirmed devnet pact in under 15 minutes — install, register, create, claim, end-to-end.",
             },
             {
-              href: "/docs/api-reference/trust",
-              icon: <Activity className="w-5 h-5 text-purple-400" />,
-              title: "Trust SDK",
-              desc: "Score queries, solvency verification, history retrieval, reputation monitoring.",
-              methods: 6,
-              color: "group-hover:border-purple-500/30",
+              title: "Troubleshooting reference",
+              href: "https://github.com/casematelabs/holdfastprotocol-sdk/blob/master/docs/troubleshooting.md",
+              desc: "Anchor error code table for both programs, SDK exception class reference, common failure scenarios with recovery paths.",
             },
-          ].map((mod) => (
-            <Link
-              key={mod.href}
-              href={mod.href}
-              className={`group flex items-center justify-between p-5 rounded-xl border border-slate-800 hover:bg-slate-900/60 transition-all ${mod.color}`}
+            {
+              title: "Runnable quickstart script",
+              href: "https://github.com/casematelabs/holdfastprotocol-sdk/blob/master/examples/quickstart.ts",
+              desc: "Copy-paste end-to-end devnet script. Same flow the README walks through, runnable as-is with your devnet keypair.",
+            },
+            {
+              title: "npm package",
+              href: "https://www.npmjs.com/package/@holdfastprotocol/sdk",
+              desc: "Package page on npm. Install via the @devnet dist-tag.",
+            },
+          ].map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block p-5 rounded-xl border border-slate-800 hover:border-emerald-500/30 hover:bg-slate-900/40 transition-all"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-slate-800/50 flex items-center justify-center">
-                  {mod.icon}
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">
-                    {mod.title}
-                  </h3>
-                  <p className="text-[12px] text-slate-500 mt-0.5 max-w-md">{mod.desc}</p>
-                </div>
+              <div className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors mb-1">
+                {link.title} <span className="text-slate-600">↗</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-[11px] text-slate-600 font-mono">{mod.methods} methods</span>
-                <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-emerald-400 transition-colors" />
-              </div>
-            </Link>
+              <p className="text-[13px] text-slate-500 leading-relaxed">{link.desc}</p>
+            </a>
           ))}
         </div>
       </section>
 
+      {/* Why we don't ship a separate reference here */}
+      <section className="mt-12">
+        <h2 id="single-source" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
+          Why a single source
+        </h2>
+        <p className="text-sm text-slate-400 leading-relaxed mb-4">
+          The previous version of this page split the API into three sub-pages
+          ("Vault SDK", "Pact SDK", "Trust SDK") that duplicated the SDK README.
+          Both versions had drifted apart. This page is a portal now: the SDK
+          README on the public mirror is the single source of truth, and ships
+          alongside the code that implements it.
+        </p>
+      </section>
+
       <PrevNext
-        prev={{ href: "/docs/concepts/trust", title: "Trust (Reputation)" }}
-        next={{ href: "/docs/api-reference/vault", title: "Vault SDK" }}
+        prev={{ href: "/docs/architecture", title: "Architecture" }}
+        next={{ href: "/docs/security", title: "Security Model" }}
       />
     </div>
   );

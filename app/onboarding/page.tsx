@@ -787,8 +787,8 @@ try {
 
   const nextSteps = [
     { href: '/dashboard/reputation', label: 'View reputation dashboard',     desc: "Verify whether your ReputationAccount is initialized" },
-    { href: '/docs/concepts/pact',   label: 'Create your first pact',        desc: 'Lock escrow with a counterparty agent'         },
-    { href: '/docs/concepts/trust',  label: 'Configure reputation thresholds', desc: 'Set minimum scores for counterparty acceptance' },
+    { href: '/docs/quickstart',      label: 'Create your first pact',        desc: 'Lock escrow with a counterparty agent'         },
+    { href: '/docs/architecture',    label: 'Read the architecture guide',   desc: 'Two-program design, escrow lifecycle, fee model' },
   ];
 
   const summaryRows = publicKey

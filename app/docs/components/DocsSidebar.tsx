@@ -7,12 +7,8 @@ import {
   BookOpen,
   Zap,
   Layers,
-  Shield,
-  Handshake,
-  Activity,
   Code2,
   Lock,
-  ChevronDown,
   Menu,
   X,
 } from "lucide-react";
@@ -37,27 +33,10 @@ const navigation: NavGroup[] = [
     ],
   },
   {
-    label: "Core Concepts",
-    items: [
-      { title: "Overview", href: "/docs/concepts", icon: <Layers className="w-4 h-4" /> },
-      { title: "Vault (Custody)", href: "/docs/concepts/vault", icon: <Shield className="w-4 h-4" /> },
-      { title: "Pact (Escrow)", href: "/docs/concepts/pact", icon: <Handshake className="w-4 h-4" /> },
-      { title: "Trust (Reputation)", href: "/docs/concepts/trust", icon: <Activity className="w-4 h-4" /> },
-    ],
-  },
-  {
-    label: "API Reference",
-    items: [
-      { title: "Overview", href: "/docs/api-reference", icon: <Code2 className="w-4 h-4" /> },
-      { title: "Vault SDK", href: "/docs/api-reference/vault" },
-      { title: "Pact SDK", href: "/docs/api-reference/pact" },
-      { title: "Trust SDK", href: "/docs/api-reference/trust" },
-    ],
-  },
-  {
-    label: "Infrastructure",
+    label: "Reference",
     items: [
       { title: "Architecture", href: "/docs/architecture", icon: <Layers className="w-4 h-4" /> },
+      { title: "API Reference", href: "/docs/api-reference", icon: <Code2 className="w-4 h-4" /> },
       { title: "Security Model", href: "/docs/security", icon: <Lock className="w-4 h-4" /> },
     ],
   },

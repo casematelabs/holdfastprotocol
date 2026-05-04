@@ -358,8 +358,8 @@ pub(crate) const BPS_DENOMINATOR: u64 = 10_000;
         </section>
 
         <PrevNext
-          prev={{ href: "/docs/api-reference/trust", title: "Trust SDK" }}
-          next={{ href: "/docs/security", title: "Security Model" }}
+          prev={{ href: "/docs/quickstart", title: "Quick Start" }}
+          next={{ href: "/docs/api-reference", title: "API Reference" }}
         />
       </div>
       <OnThisPage headings={headings} />

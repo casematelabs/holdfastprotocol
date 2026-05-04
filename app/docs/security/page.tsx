@@ -6,15 +6,14 @@ import OnThisPage from "../components/OnThisPage";
 export const metadata = { title: "Security Model" };
 
 const headings = [
-  { id: "threat-model", text: "Threat Model", level: 2 },
-  { id: "anti-phishing", text: "Anti-Phishing (C-SOL-1)", level: 2 },
-  { id: "replay-protection", text: "Replay Protection", level: 2 },
-  { id: "cpi-rejection", text: "CPI Rejection (M-SOL-6)", level: 2 },
-  { id: "instruction-validation", text: "Instruction Index Validation (H-2)", level: 2 },
-  { id: "signature-canonicity", text: "Signature Canonicity", level: 2 },
-  { id: "velocity-defense", text: "Velocity Defense (M-SOL-5)", level: 2 },
-  { id: "key-compromise", text: "Key Compromise Scenarios", level: 2 },
   { id: "audit-status", text: "Audit Status", level: 2 },
+  { id: "threat-model", text: "Threat Model", level: 2 },
+  { id: "cpi-rejection", text: "CPI Rejection", level: 2 },
+  { id: "instruction-validation", text: "Instruction Index Validation", level: 2 },
+  { id: "signature-canonicity", text: "Signature Canonicity", level: 2 },
+  { id: "domain-separation", text: "Replay & Domain Separation", level: 2 },
+  { id: "reputation-integrity", text: "Reputation Integrity", level: 2 },
+  { id: "key-loss", text: "Key Loss & Recovery", level: 2 },
 ];
 
 export default function SecurityPage() {
@@ -29,115 +28,87 @@ export default function SecurityPage() {
           Security Model
         </h1>
         <p className="text-lg text-slate-400 leading-relaxed mb-12 max-w-2xl">
-          Holdfast&apos;s security model is built on the assumption that the user&apos;s machine
-          is fully compromised. The only trust anchor is the hardware security key.
+          What the on-chain programs guard against, what they don&apos;t, and the
+          assumptions you should hold while integrating against pre-audit devnet.
         </p>
 
+        <Callout type="warning" title="Devnet only — pre-audit">
+          <p>
+            Holdfast Protocol is deployed on Solana devnet. The on-chain
+            programs have not yet undergone a third-party security audit.
+            Funds in devnet escrow accounts are at risk. An external audit
+            is in progress; this notice will be updated when complete.
+          </p>
+        </Callout>
+
+        {/* Audit Status */}
+        <section className="mt-14">
+          <h2 id="audit-status" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
+            Audit Status
+          </h2>
+          <p className="text-sm text-slate-400 leading-relaxed mb-4">
+            An external third-party audit is in progress. The protocol is
+            frozen in scope while the audit runs — no new instructions, no
+            account-shape changes — and the audit report will be published
+            on the launch site once remediation lands.
+          </p>
+          <p className="text-sm text-slate-400 leading-relaxed mb-4">
+            An internal security review covers checked arithmetic across
+            every value-moving instruction, CEI ordering, PDA seed
+            canonicalization, and Anchor <code className="text-emerald-400">has_one</code>{" "}
+            constraints on cross-account references. The internal review is
+            not a substitute for external audit.
+          </p>
+          <p className="text-sm text-slate-400 leading-relaxed">
+            The codebase preserves issue labels (M-SOL-6, H-2, L-SOL-4, etc.)
+            in code comments for audit traceability. These reference the
+            findings that hardened the underlying secp256r1-precompile
+            pattern that Holdfast inherits via{" "}
+            <code className="text-emerald-400">vaultpact</code>.
+          </p>
+        </section>
+
         {/* Threat Model */}
-        <section>
+        <section className="mt-14">
           <h2 id="threat-model" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
             Threat Model
           </h2>
           <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            We assume the attacker has:
+            Holdfast protects three resources: <strong className="text-white">agent identity</strong>{" "}
+            (the AgentWallet PDA bound to a P-256 key), <strong className="text-white">reputation</strong>{" "}
+            (the on-chain ReputationAccount PDA), and <strong className="text-white">escrowed funds</strong>{" "}
+            (the EscrowAccount PDA and its vault token account). The relevant attacker
+            capabilities, in order of decreasing power:
           </p>
-          <div className="space-y-2 mb-6">
+          <div className="space-y-3 mb-6">
             {[
-              "Full control of the user's browser and operating system",
-              "Ability to read all memory, intercept all network traffic",
-              "Access to the relayer private key",
-              "Knowledge of the vault address and all public parameters",
-              "Ability to submit arbitrary Solana transactions",
-            ].map((item) => (
-              <div key={item} className="flex items-start gap-2.5 text-sm text-slate-400">
-                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 flex-shrink-0" />
-                {item}
+              {
+                title: "Compromised counterparty agent",
+                desc: "Counterparty is malicious, may try to drain funds, forge dispute outcomes, or manipulate reputation. Defended by the on-chain CEI ordering, has_one cross-references, and the explicit dispute-window before claim.",
+              },
+              {
+                title: "Compromised user machine",
+                desc: "Attacker controls the host running the SDK. Can send arbitrary transactions on behalf of the local Ed25519 fee payer. Cannot forge a secp256r1 signature for the agent's P-256 key without it.",
+              },
+              {
+                title: "Lost / leaked P-256 private key",
+                desc: "Anyone holding the P-256 key can issue secp256r1 attestations against the agent's AgentWallet PDA — including key-rotation and deregistration. Treat the P-256 key with the same care as the Ed25519 keypair. There is no on-chain recovery path; lost = re-register a new identity (see Key Loss & Recovery).",
+              },
+              {
+                title: "Malicious wrapping program",
+                desc: "An external program tries to invoke vaultpact via CPI to bypass the secp256r1 precompile pairing. Rejected by the CPI rejection check (M-SOL-6) below.",
+              },
+              {
+                title: "Indexer compromise / staleness",
+                desc: "The off-chain indexer cannot mutate on-chain state, only serve cached history. A compromised indexer cannot fabricate a higher reputation — clients should read the on-chain ReputationAccount PDA directly for any trust decision.",
+              },
+            ].map((row) => (
+              <div key={row.title} className="rounded-lg border border-slate-800 bg-slate-900/30 p-4">
+                <h4 className="text-sm font-semibold text-white mb-1">{row.title}</h4>
+                <p className="text-[13px] text-slate-500 leading-relaxed">{row.desc}</p>
               </div>
             ))}
           </div>
-          <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            The attacker CANNOT:
-          </p>
-          <div className="space-y-2 mb-6">
-            {[
-              "Extract the private key from the FIDO2 hardware enclave",
-              "Forge a secp256r1 signature without the physical key",
-              "Bypass the hardware key's user verification (PIN/biometric)",
-              "Modify the Solana runtime or SIMD-48 precompile behavior",
-            ].map((item) => (
-              <div key={item} className="flex items-start gap-2.5 text-sm text-slate-400">
-                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-                {item}
-              </div>
-            ))}
-          </div>
-          <Callout type="info" title="Security guarantee">
-            <p>
-              Under this threat model, the attacker cannot authorize any vault operation.
-              They cannot move funds, change the whitelist, modify velocity limits, or
-              enroll a backup key. The hardware key is the sole authorization factor.
-            </p>
-          </Callout>
-        </section>
-
-        {/* Anti-Phishing */}
-        <section className="mt-14">
-          <h2 id="anti-phishing" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
-            Anti-Phishing (C-SOL-1)
-          </h2>
-          <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            WebAuthn embeds the page origin into <code className="text-emerald-400">clientDataJSON</code>,
-            which the hardware key cryptographically signs. The program verifies this origin
-            against a hardcoded allowlist.
-          </p>
-          <CodeBlock
-            code={`// On-chain origin validation:
-const ALLOWED_ORIGINS: &[&[u8]] = &[
-    b"https://holdfastprotocol.com",
-    b"https://www.holdfastprotocol.com",
-];
-
-// The origin list is HARDCODED, not in mutable config.
-// This is deliberate: if origins were in ProtocolConfig,
-// a compromised authority could redirect users to a
-// phishing site by changing the allowed origin list.
-
-// A signature from "https://evil-clone.com" will contain
-// that origin in clientDataJSON. The hardware key signed
-// it. But our program will reject it because "evil-clone.com"
-// is not in ALLOWED_ORIGINS. The attacker gets a valid
-// signature over the wrong origin — useless.`}
-            language="rust"
-            filename="anti_phishing.rs"
-            showLineNumbers
-          />
-        </section>
-
-        {/* Replay Protection */}
-        <section className="mt-14">
-          <h2 id="replay-protection" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
-            Replay Protection
-          </h2>
-          <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            Every signed operation includes a per-vault monotonic nonce in the intent hash.
-            The nonce advances on every successful operation, invalidating all prior assertions.
-          </p>
-          <CodeBlock
-            code={`// Intent hash construction (withdraw example):
-intent = hash(
-  "withdraw"           // operation type
-  || vault_address     // 32 bytes
-  || destination       // 32 bytes
-  || amount            // 8 bytes (u64 LE)
-  || nonce             // 8 bytes (u64 LE) ← advances each operation
-)
-
-// The challenge in clientDataJSON must equal base64url(intent).
-// After the operation succeeds, nonce increments to nonce+1.
-// Any assertion with the old nonce is permanently invalid.`}
-            language="text"
-            filename="replay_protection.txt"
-          />
         </section>
 
         {/* CPI Rejection */}
@@ -146,18 +117,15 @@ intent = hash(
             CPI Rejection (M-SOL-6)
           </h2>
           <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            The vault program verifies that it is being invoked as a top-level instruction,
-            not via Cross-Program Invocation. This prevents a critical attack class:
+            The vaultpact program verifies it is being invoked as a top-level
+            instruction, not via Cross-Program Invocation. Without this check,
+            a malicious program could craft a transaction where instruction 0
+            is a legitimate precompile verification and instruction 1 is the
+            attacker calling vaultpact via CPI — vaultpact would then read
+            instruction 0 (the precompile output) and believe it had verified
+            the malicious operation, even though the precompile signed
+            something different.
           </p>
-          <Callout type="danger" title="The CPI attack">
-            <p>
-              Without this check, a malicious program could craft a transaction where:
-              instruction 0 is a legitimate precompile verification, instruction 1 is
-              the malicious program, and instruction 1 calls our vault via CPI. Our program
-              would read instruction 0 (the precompile) and believe the signature is valid --
-              but the precompile verified a completely different operation than what&apos;s being executed.
-            </p>
-          </Callout>
           <CodeBlock
             code={`// M-SOL-6: Direct invocation enforcement
 let current_ix = load_instruction_at_checked(
@@ -178,19 +146,21 @@ require!(
             Instruction Index Validation (H-2)
           </h2>
           <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            The program validates that all three data offsets in the precompile instruction
-            (signature, public key, message) reference the same instruction (<code className="text-emerald-400">0xFFFF</code>).
-            Without this, the precompile could verify a signature against data in one
-            instruction while we read different data from a different instruction.
+            The program validates that all three data offsets in the
+            secp256r1 precompile instruction (signature, public key, message)
+            reference the <em>same</em> instruction (
+            <code className="text-emerald-400">0xFFFF</code>). Without this,
+            the precompile could verify a signature against data drawn from
+            instruction A while the caller reads different data from instruction B.
           </p>
           <CodeBlock
-            code={`// H-2 fix: validate ALL three instruction indices
-let sig_ix_index    = u16::from_le_bytes([data[4], data[5]]);
-let pubkey_ix_index = u16::from_le_bytes([data[8], data[9]]);
+            code={`// H-2 fix: validate ALL three instruction-source indices
+let sig_ix_index     = u16::from_le_bytes([data[4],  data[5]]);
+let pubkey_ix_index  = u16::from_le_bytes([data[8],  data[9]]);
 let message_ix_index = u16::from_le_bytes([data[14], data[15]]);
 
-require!(sig_ix_index    == u16::MAX, VaultPactError::InvalidSignatureData);
-require!(pubkey_ix_index == u16::MAX, VaultPactError::InvalidSignatureData);
+require!(sig_ix_index     == u16::MAX, VaultPactError::InvalidSignatureData);
+require!(pubkey_ix_index  == u16::MAX, VaultPactError::InvalidSignatureData);
 require!(message_ix_index == u16::MAX, VaultPactError::InvalidSignatureData);`}
             language="rust"
             filename="ix_validation.rs"
@@ -204,116 +174,109 @@ require!(message_ix_index == u16::MAX, VaultPactError::InvalidSignatureData);`}
             Signature Canonicity
           </h2>
           <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            All secp256r1 signatures are normalized to low-S form on both the client (TypeScript)
-            and contract (Solidity) sides. For any ECDSA signature <code className="text-emerald-400">(r, s)</code>, if{" "}
-            <code className="text-emerald-400">s &gt; n/2</code>, we replace{" "}
-            <code className="text-emerald-400">s</code> with <code className="text-emerald-400">n - s</code>.
-            This prevents signature malleability attacks where an attacker creates an alternative
-            valid signature from an existing one.
-          </p>
-          <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            DER encoding is validated for canonicity (H-5): leading zero bytes are only
-            accepted when the high bit of the next byte is set (negative number representation
-            in ASN.1). Non-canonical leading zeros are rejected.
+            All secp256r1 signatures are normalized to low-S form on the SDK
+            side before being submitted to the precompile. For any ECDSA
+            signature{" "}
+            <code className="text-emerald-400">(r, s)</code>, if{" "}
+            <code className="text-emerald-400">s &gt; n/2</code>, the SDK
+            replaces <code className="text-emerald-400">s</code> with{" "}
+            <code className="text-emerald-400">n - s</code>. This prevents
+            signature malleability — an attacker cannot derive a second
+            valid signature from an existing one and use it to register a
+            duplicate identity or replay a flow.
           </p>
         </section>
 
-        {/* Velocity Defense */}
+        {/* Domain Separation / Replay */}
         <section className="mt-14">
-          <h2 id="velocity-defense" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
-            Velocity Defense (M-SOL-5)
+          <h2 id="domain-separation" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
+            Replay &amp; Domain Separation
           </h2>
           <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            The burst cooldown mechanism prevents the window-boundary attack. Even if an
-            attacker obtains a valid signature (e.g., through physical coercion), the velocity
-            system limits the damage:
+            Each instruction that consumes a secp256r1 attestation requires a
+            domain-separated preimage with a unique prefix. A signature
+            captured for one operation cannot be replayed against a different
+            instruction.
           </p>
-          <div className="grid sm:grid-cols-2 gap-3 my-6">
-            <div className="rounded-lg border border-slate-800 bg-slate-900/30 p-4">
-              <div className="text-sm font-semibold text-white mb-1">Without burst cooldown</div>
-              <p className="text-[12px] text-slate-500">
-                Attacker drains 5 SOL at 23:59, window resets at 00:00,
-                drains another 5 SOL at 00:01 = 10 SOL in 2 minutes.
-              </p>
-            </div>
-            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4">
-              <div className="text-sm font-semibold text-emerald-400 mb-1">With burst cooldown</div>
-              <p className="text-[12px] text-slate-500">
-                First 2.5 SOL triggers 12h cooldown. Even after window reset,
-                no withdrawals until cooldown expires. Max damage: 2.5 SOL.
-              </p>
-            </div>
-          </div>
+          <CodeBlock
+            code={`// Per-instruction prefixes
+register_agent_wallet : "vaultpact:register_agent_wallet:v1:" || authority || pubkey_x || pubkey_y
+close_agent_wallet    : "vaultpact:close_agent_wallet:v1:"    || authority
+rotate_agent_key      : "vaultpact:rotate_agent_key:v1:"      || authority || old_x || old_y || new_x || new_y
+
+// All preimages are SHA-256 hashed; the precompile message is the digest.
+// Authority binding prevents cross-authority replay even within the same
+// instruction type. Nonce monotonicity on update_reputation prevents
+// re-application of an old oracle attestation.`}
+            language="text"
+            filename="domain_separation.txt"
+          />
         </section>
 
-        {/* Key Compromise */}
+        {/* Reputation Integrity */}
         <section className="mt-14">
-          <h2 id="key-compromise" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
-            Key Compromise Scenarios
+          <h2 id="reputation-integrity" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
+            Reputation Integrity
           </h2>
-          <div className="space-y-4">
-            <div className="rounded-lg border border-slate-800 bg-slate-900/30 p-5">
-              <h4 className="text-sm font-bold text-white mb-2">Relayer key compromised</h4>
-              <p className="text-[13px] text-slate-400 leading-relaxed">
-                <strong className="text-amber-400">Impact: Negligible.</strong> The attacker can waste SOL on
-                transaction fees. They cannot authorize any vault operation. Rotate the relayer
-                key and refund the SOL.
-              </p>
-            </div>
-            <div className="rounded-lg border border-slate-800 bg-slate-900/30 p-5">
-              <h4 className="text-sm font-bold text-white mb-2">Machine fully compromised</h4>
-              <p className="text-[13px] text-slate-400 leading-relaxed">
-                <strong className="text-amber-400">Impact: None.</strong> The attacker can see the credential
-                ID and public key, but cannot extract the private key from the hardware enclave.
-                They cannot forge signatures. WebAuthn user verification (PIN) is handled by the
-                hardware key, not the OS.
-              </p>
-            </div>
-            <div className="rounded-lg border border-slate-800 bg-slate-900/30 p-5">
-              <h4 className="text-sm font-bold text-white mb-2">Hardware key stolen (with PIN)</h4>
-              <p className="text-[13px] text-slate-400 leading-relaxed">
-                <strong className="text-rose-400">Impact: Significant, but bounded.</strong> The attacker
-                can authorize operations, but only to whitelisted addresses and within velocity
-                limits. Default-deny whitelist means they cannot drain to their own address
-                without first whitelisting it (which the owner would see). Velocity limits
-                cap the damage rate.
-              </p>
-            </div>
-            <div className="rounded-lg border border-slate-800 bg-slate-900/30 p-5">
-              <h4 className="text-sm font-bold text-white mb-2">Hardware key lost</h4>
-              <p className="text-[13px] text-slate-400 leading-relaxed">
-                <strong className="text-amber-400">Impact: Recoverable.</strong> If a backup key is enrolled,
-                use it to operate the vault normally. If no backup exists, the inheritance
-                mechanism (dead man&apos;s switch) will eventually release funds to designated
-                beneficiaries after the inactivity window (minimum 90 days).
-              </p>
-            </div>
-          </div>
+          <p className="text-sm text-slate-400 leading-relaxed mb-4">
+            <code className="text-emerald-400">ReputationAccount.score</code>{" "}
+            is mutated only via{" "}
+            <code className="text-emerald-400">update_reputation</code>, which
+            requires the caller to be the{" "}
+            <code className="text-emerald-400">vp_escrow_authority</code> PDA
+            (signed by the escrow program in CPI). No off-chain caller can
+            write reputation. Score deltas are bounded — fulfilled +50 bp,
+            dispute loser -100 bp, dispute winner +25 bp, split outcome -25
+            bp each side — and clamped into the inclusive range [0, 10000].
+          </p>
+          <p className="text-sm text-slate-400 leading-relaxed">
+            A monotonic nonce on every{" "}
+            <code className="text-emerald-400">update_reputation</code> call
+            prevents replay. The off-chain indexer is a read-only mirror of
+            the on-chain event stream and cannot influence the score; for any
+            reputation-gated decision, read the PDA directly.
+          </p>
         </section>
 
-        {/* Audit Status */}
+        {/* Key Loss */}
         <section className="mt-14">
-          <h2 id="audit-status" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
-            Audit Status
+          <h2 id="key-loss" className="text-2xl font-bold text-white mb-4 scroll-mt-24">
+            Key Loss &amp; Recovery
           </h2>
-          <Callout type="warning" title="Pre-audit disclosure">
-            <p>
-              The Holdfast protocol is currently pre-formal-audit. The security measures
-              documented here are the result of internal security review and threat modeling.
-              A formal third-party audit is planned before mainnet launch. Use on devnet
-              and testnet only until the audit is complete.
-            </p>
-          </Callout>
-          <p className="text-sm text-slate-400 leading-relaxed mt-4">
-            The codebase includes internal security labels (C-SOL-1, H-2, H-4, H-5, L-SOL-4,
-            M-3, M-SOL-1, M-SOL-5, M-SOL-6) tracking specific hardening fixes. These labels
-            reference the internal security review checklist and are preserved in code comments
-            for audit traceability.
+          <p className="text-sm text-slate-400 leading-relaxed mb-4">
+            The agent&apos;s P-256 private key is the only path to issue
+            secp256r1 attestations against its AgentWallet PDA. There is no
+            on-chain recovery mechanism for a lost P-256 key.
           </p>
+          <ul className="space-y-2 text-sm text-slate-400 mb-4 ml-4">
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 flex-shrink-0" />
+              Lost P-256 key = lost on-chain identity. Reputation does not
+              transfer to a new AgentWallet PDA. Persist the key in a secrets
+              manager (AWS Secrets Manager, GCP Secret Manager, HashiCorp
+              Vault) — treat it as you would the agent&apos;s Ed25519 keypair.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+              Compromised P-256 key = ability to issue attestations until
+              revoked. Use{" "}
+              <code className="text-emerald-400">rotate_agent_key</code> to
+              swap to a fresh P-256 key while preserving the AgentWallet PDA
+              identity. Anchor account constraints prevent rotating to a
+              degenerate (zero) key.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+              The Ed25519 fee-payer key is a separate concern. Compromising
+              it lets an attacker submit transactions on behalf of the host
+              but cannot forge the secp256r1 signature the program requires
+              for identity-changing operations.
+            </li>
+          </ul>
         </section>
 
         <PrevNext
-          prev={{ href: "/docs/architecture", title: "Architecture" }}
+          prev={{ href: "/docs/api-reference", title: "API Reference" }}
         />
       </div>
       <OnThisPage headings={headings} />

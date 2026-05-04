@@ -319,10 +319,9 @@ const pact = await client.escrow.createPact({
         </h2>
         <div className="grid sm:grid-cols-2 gap-3">
           {[
-            { href: "/docs/concepts/vault", title: "AgentWallet & Vault", desc: "Deep dive into secp256r1 attestation, PDA derivation, and the AgentWallet account layout." },
-            { href: "/docs/concepts/pact", title: "Pact Lifecycle", desc: "How escrow pacts progress from created → funded → released or disputed." },
-            { href: "/docs/concepts/trust", title: "Reputation & Trust", desc: "Scoring algorithm, VerifTier levels, and how attestations affect score." },
-            { href: "/docs/security", title: "Security Model", desc: "Threat model, devnet vs mainnet authority, and pre-audit status." },
+            { href: "/docs/architecture", title: "Architecture", desc: "Two-program design, SIMD-48 precompile pairing, account model (PDAs), and the escrow lifecycle in detail." },
+            { href: "/docs/api-reference", title: "API Reference", desc: "SDK methods, types, and links to the canonical reference at @holdfastprotocol/sdk." },
+            { href: "/docs/security", title: "Security Model", desc: "Threat model, on-chain protections (CPI rejection, instruction-index validation), and pre-audit status." },
           ].map((item) => (
             <a
               key={item.href}
@@ -340,7 +339,7 @@ const pact = await client.escrow.createPact({
 
       <PrevNext
         prev={{ href: "/docs", title: "Introduction" }}
-        next={{ href: "/docs/concepts", title: "Core Concepts" }}
+        next={{ href: "/docs/architecture", title: "Architecture" }}
       />
     </div>
   );

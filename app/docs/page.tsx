@@ -167,10 +167,10 @@ export default function DocsIntroduction() {
               accent: "group-hover:border-amber-500/30",
             },
             {
-              href: "/docs/concepts/vault",
+              href: "/docs/architecture",
               icon: <Shield className="w-5 h-5 text-emerald-400" />,
-              title: "Vault Concepts",
-              desc: "secp256r1 self-attestation, AgentWallet PDA derivation, SIMD-48 precompile.",
+              title: "Architecture",
+              desc: "Two-program design, SIMD-48 precompile pairing, escrow lifecycle, fee model.",
               accent: "group-hover:border-emerald-500/30",
             },
             {
