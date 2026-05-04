@@ -47,9 +47,11 @@ Versioning follows [Semantic Versioning](https://semver.org/).
   `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq`; `vaultpact-escrow` is at
   `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`. These are the redeployed
   devnet keypairs; pin the SDK to `@devnet` to follow them.
-- `latest` dist-tag is intentionally unset for the `@holdfastprotocol/*`
-  packages until the third-party audit completes. Install via
-  `npm install @holdfastprotocol/sdk@devnet`.
+- `latest` dist-tag currently mirrors `devnet` for the
+  `@holdfastprotocol/*` packages — pin to `@devnet` explicitly so a
+  future stable release (post-audit) doesn't silently shift your
+  install. The original plan to keep `latest` unset isn't possible:
+  npm registry policy doesn't permit removing the `latest` tag.
 
 ---
 

@@ -30,7 +30,7 @@ It allows agents, users, and applications to:
 npm install @holdfastprotocol/sdk@devnet @solana/web3.js
 ```
 
-The `devnet` dist-tag points to the current devnet release. `latest` is intentionally unset until the external audit completes.
+The `devnet` dist-tag points to the current devnet release. `latest` currently mirrors `devnet` — pin to `@devnet` explicitly so future stable releases (post-audit) don't silently shift your install.
 
 **Peer dependencies:** `@solana/web3.js` ^1.95.0
 
