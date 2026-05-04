@@ -28,7 +28,7 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test:integration:devnet": "node --import tsx/esm --test src/tests/integration.devnet.test.ts",
     "test:integration:devnet:ps1": "powershell -ExecutionPolicy Bypass -File scripts/run-devnet-integration.ps1",
