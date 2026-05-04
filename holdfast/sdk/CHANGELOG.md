@@ -7,12 +7,59 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [Unreleased]
+## [0.2.0-devnet.3] — 2026-05-04
+
+### Added
+
+- `docs/quickstart.md` — full canonical onboarding narrative now bundled with
+  the package and rendered on the npm page.
+- `docs/troubleshooting.md` — Anchor error code reference for both programs,
+  SDK exception class table, common-failure recovery paths, async
+  coordination pattern for `lockEscrow`.
+- Public types for indexer pagination consumers: `EscrowEventEntry`,
+  `EscrowEventPage`, `GetEscrowEventsOptions` re-exported from the package
+  root.
+- `scripts/cas2-full-lifecycle-explicit-arbiter.ts` — live devnet
+  release-path smoke that persists Holdfast identities to
+  `~/.config/solana/*.holdfast.json` so repeated runs reuse stable
+  AgentWallet identity instead of re-registering every run.
+- `tests/quickstart-parity.ci.test.ts` — deterministic CI parity test
+  exercising the canonical SDK quickstart flow against a `RecordingConnection`
+  mock. Wired to a new `npm run verify:lifecycle` script.
 
 ### Changed
 
-- **BREAKING**: Package renamed from `@vaultpact/sdk` to `@holdfastprotocol/sdk` (CAS-277).
-  VaultPact Protocol is now Holdfast Protocol. All public API symbols renamed:
+- README polished: added npm/license/network badges, restored the
+  Documentation section pointing at the new bundled docs, fixed the license
+  declaration to match the LICENSE file (MIT — was incorrectly Apache-2.0
+  in prose).
+- Updated `repository.url` and `homepage` in `package.json` to point at the
+  standalone `casematelabs/holdfastprotocol-sdk` repo (was the monorepo
+  `holdfast/sdk` subdir).
+- Added `bugs.url` to `package.json` so npm surfaces the issues link.
+- Stale `D6mUa4...` vaultpact program ID corrected to `2chF47Db...` in the
+  comment in `src/client.ts` (the runtime constant was already correct
+  since `0.2.0-devnet.2`; the comment had drifted).
+
+### Notes
+
+- Programs in scope (devnet): `vaultpact` is at
+  `2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq`; `vaultpact-escrow` is at
+  `CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi`. These are the redeployed
+  devnet keypairs; pin the SDK to `@devnet` to follow them.
+- `latest` dist-tag is intentionally unset for the `@holdfastprotocol/*`
+  packages until the third-party audit completes. Install via
+  `npm install @holdfastprotocol/sdk@devnet`.
+
+---
+
+## [0.2.0-devnet.2] — 2026-04-26
+
+### Changed
+
+- **BREAKING**: Package renamed from `@vaultpact/sdk` to
+  `@holdfastprotocol/sdk`. VaultPact Protocol is now Holdfast Protocol.
+  All public API symbols renamed:
   - `VaultPactClient` → `HoldfastClient`
   - `createVaultPactClient` → `createHoldfastClient`
   - `VaultPactClientOptions` → `HoldfastClientOptions`
@@ -20,9 +67,16 @@ Versioning follows [Semantic Versioning](https://semver.org/).
   - `VAULTPACT_ESCROW_PROGRAM_ID` → `HOLDFAST_ESCROW_PROGRAM_ID`
   - `VaultPactSdkError` → `HoldfastSdkError`
   - `vaultpactProgramId` option → `holdfastProgramId`
-- Version bumped to `0.2.0-devnet.1` for the rename.
 
-_Updated by CTO (Matthew Wicks) — CAS-277._
+### Fixed
+
+- `registerAgentWallet()` now sends the 32-byte sha256(preimage) digest as
+  the secp256r1 message payload — the format the SIMD-48 precompile
+  compares against.
+- `ASSOCIATED_TOKEN_PROGRAM_ID` constant typo corrected (was
+  `...TNsLJe1bL`, now canonical `...TNsLJA8knL`).
+- Devnet program-ID defaults aligned to the redeployed keypairs across
+  the runtime path (client, escrow, reputation, registration modules).
 
 ---
 
