@@ -2,9 +2,12 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useConnection } from '@solana/wallet-adapter-react';
+import { PublicKey, SystemProgram, Transaction, TransactionInstruction } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 import { useRouter } from 'next/navigation';
 import { useNotifications } from '../../components/NotificationContext';
-import { fetchReputation } from '../../../lib/indexer';
+import { fetchKeyRotations, fetchReputation } from '../../../lib/indexer';
 import type { ReputationResponse } from '../../../lib/indexer';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -41,6 +44,13 @@ interface PactResult {
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const WSOL_MINT = 'So11111111111111111111111111111111';
+const LAMPORTS_PER_SOL = 1_000_000_000;
+const HOLDFAST_PROGRAM_ID = new PublicKey('2chF47DbqehX3L38874e2RznaSs46vpcMPEPRYz4Dywq');
+const HOLDFAST_ESCROW_PROGRAM_ID = new PublicKey('CAZMkHiExVjbsSwAVBYVhz1yaHmnBSvzUYGaQrrRp6yi');
+const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
+const DEFAULT_PUBKEY = new PublicKey(new Uint8Array(32));
+const DISC_INITIALIZE_ESCROW = new Uint8Array([48, 185, 77, 100, 204, 221, 224, 136]);
 
 const MODE_CARDS: { mode: PactMode; label: string; desc: string; tradeoff: string }[] = [
   {
@@ -112,6 +122,80 @@ function unixToReadable(unix: number): string {
 
 function hoursUntil(dateStr: string): number {
   return (new Date(dateStr).getTime() - Date.now()) / 3600000;
+}
+
+function writeU64LE(dst: Uint8Array, offset: number, value: bigint): number {
+  const view = new DataView(dst.buffer, dst.byteOffset, dst.byteLength);
+  view.setBigUint64(offset, value, true);
+  return offset + 8;
+}
+
+function writeI64LE(dst: Uint8Array, offset: number, value: bigint): number {
+  const view = new DataView(dst.buffer, dst.byteOffset, dst.byteLength);
+  view.setBigInt64(offset, value, true);
+  return offset + 8;
+}
+
+function writeFixedBytes(dst: Uint8Array, offset: number, src: Uint8Array, len: number): number {
+  const clipped = src.subarray(0, len);
+  dst.set(clipped, offset);
+  return offset + len;
+}
+
+function deriveEscrowPda(escrowId: Uint8Array): PublicKey {
+  return PublicKey.findProgramAddressSync([Buffer.from('escrow'), Buffer.from(escrowId)], HOLDFAST_ESCROW_PROGRAM_ID)[0];
+}
+
+function derivePactPda(escrowId: Uint8Array): PublicKey {
+  return PublicKey.findProgramAddressSync([Buffer.from('pact'), Buffer.from(escrowId)], HOLDFAST_ESCROW_PROGRAM_ID)[0];
+}
+
+function deriveReputationPda(agentPubkey: PublicKey): PublicKey {
+  return PublicKey.findProgramAddressSync([Buffer.from('reputation'), agentPubkey.toBuffer()], HOLDFAST_PROGRAM_ID)[0];
+}
+
+function deriveAta(owner: PublicKey, mint: PublicKey): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [owner.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+  )[0];
+}
+
+function buildInitializeEscrowData(args: {
+  escrowId: Uint8Array;
+  beneficiary: PublicKey;
+  arbiter: PublicKey;
+  amountLamports: bigint;
+  initiatorStakeLamports: bigint;
+  beneficiaryStakeLamports: bigint;
+  timeLockExpiresAt: bigint;
+  deliverablesHash: Uint8Array;
+  deliverablesUri: string;
+  autoReleaseOnExpiry: boolean;
+  slashLoserStake: boolean;
+}): Uint8Array {
+  const buf = new Uint8Array(273);
+  let o = 0;
+  o = writeFixedBytes(buf, o, DISC_INITIALIZE_ESCROW, 8);
+  o = writeFixedBytes(buf, o, args.escrowId, 32);
+  o = writeFixedBytes(buf, o, args.beneficiary.toBytes(), 32);
+  o = writeFixedBytes(buf, o, args.arbiter.toBytes(), 32);
+  o = writeU64LE(buf, o, args.amountLamports);
+  o = writeU64LE(buf, o, args.initiatorStakeLamports);
+  o = writeU64LE(buf, o, args.beneficiaryStakeLamports);
+  o = writeI64LE(buf, o, args.timeLockExpiresAt);
+  o = writeFixedBytes(buf, o, args.deliverablesHash, 32);
+  o = writeFixedBytes(buf, o, new TextEncoder().encode(args.deliverablesUri), 128);
+  buf[o++] = args.autoReleaseOnExpiry ? 1 : 0;
+  buf[o++] = args.slashLoserStake ? 1 : 0;
+  o = writeI64LE(buf, o, 7n * 24n * 3600n);
+  o = writeU64LE(buf, o, 0n);
+  o = writeU64LE(buf, o, 0n);
+  buf[o++] = 0;
+  o = writeU64LE(buf, o, 0n);
+  buf[o++] = 0;
+  o = writeU64LE(buf, o, 0n);
+  return buf;
 }
 
 // ── Step indicator ───────────────────────────────────────────────────────────
@@ -335,7 +419,8 @@ const LABEL_STYLE: React.CSSProperties = {
 
 export default function CreatePactPage() {
   const router = useRouter();
-  const { publicKey } = useWallet();
+  const { publicKey, sendTransaction } = useWallet();
+  const { connection } = useConnection();
   const { push: pushNotif } = useNotifications();
   const [step, setStep] = useState<WizardStep>(1);
   const [submitting, setSubmitting] = useState(false);
@@ -420,51 +505,105 @@ export default function CreatePactPage() {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (!publicKey || !s1Valid || !s2Valid) return;
+    if (!publicKey || !s1Valid || !s2Valid || !sendTransaction) return;
     setSubmitting(true);
 
     try {
-      // Build the createPact parameters
-      const params = {
-        counterparty: s1.counterparty,
-        mint: s1.mint,
-        amount: Number(s1.amount),
-        releaseCondition: {
-          kind: s2.mode,
-          timeLockExpiresAt: dateToUnixSecs(s2.deadline),
-        },
-        autoReleaseOnExpiry: s2.mode === 'timed',
-        ...(s2.arbiter ? { arbiter: s2.arbiter } : {}),
-        ...(s1.initiatorStake && Number(s1.initiatorStake) > 0 ? { stakes: {
-          initiator: Number(s1.initiatorStake),
-          ...(s1.beneficiaryStake && Number(s1.beneficiaryStake) > 0 ? { beneficiary: Number(s1.beneficiaryStake) } : {}),
-        }} : {}),
-        ...(s1.slashLoserStake ? { slashLoserStake: true } : {}),
-        ...(s2.deliverablesUri ? { deliverablesUri: s2.deliverablesUri } : {}),
-        ...(s2.deliverablesHash ? { deliverablesHash: s2.deliverablesHash } : {}),
-      };
+      const initiatorWalletRes = await fetchKeyRotations(publicKey.toBase58());
+      const counterpartyWalletRes = await fetchKeyRotations(s1.counterparty);
+      const arbiterWalletRes = s2.arbiter ? await fetchKeyRotations(s2.arbiter) : null;
 
-      // SDK call: client.escrow.createPact(params)
-      // Current dashboard mode is simulation-only until live devnet wiring is complete.
-      console.log('[CreatePact] SDK call params:', params);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const ts = Date.now();
-      const mockTxSig = 'sim' + ts.toString(36) + Math.random().toString(36).slice(2, 10);
-      const mockEscrow = '5NjK' + ts.toString(36).toUpperCase().slice(-6) + 'wP' + Math.random().toString(36).slice(2, 12).toUpperCase();
-      const mockPactId = '3Pact' + ts.toString(36) + Math.random().toString(36).slice(2, 8);
+      if (initiatorWalletRes.wallet.registrationState !== 'registered') {
+        throw new Error('Your wallet is not registered with Holdfast. Register in Custody before creating pacts.');
+      }
+      if (counterpartyWalletRes.wallet.registrationState !== 'registered') {
+        throw new Error('Counterparty wallet is not registered with Holdfast. They must complete registration first.');
+      }
+      if (s2.arbiter && arbiterWalletRes?.wallet.registrationState !== 'registered') {
+        throw new Error('Arbiter wallet is not registered with Holdfast. Choose a registered arbiter or clear the arbiter field.');
+      }
+
+      const mint = new PublicKey(s1.mint);
+      const counterparty = new PublicKey(s1.counterparty);
+      const initiatorWallet = new PublicKey(initiatorWalletRes.wallet.address);
+      const counterpartyWallet = new PublicKey(counterpartyWalletRes.wallet.address);
+      const arbiter = s2.arbiter ? new PublicKey(s2.arbiter) : DEFAULT_PUBKEY;
+      const arbiterWallet = s2.arbiter
+        ? new PublicKey(arbiterWalletRes?.wallet.address ?? '')
+        : initiatorWallet;
+
+      const escrowId = crypto.getRandomValues(new Uint8Array(32));
+      const escrowPda = deriveEscrowPda(escrowId);
+      const pactPda = derivePactPda(escrowId);
+      const vault = deriveAta(escrowPda, mint);
+      const initiatorReputationPda = deriveReputationPda(publicKey);
+
+      const amountLamports = BigInt(Math.round(Number(s1.amount) * LAMPORTS_PER_SOL));
+      const initiatorStakeLamports = BigInt(Math.round((Number(s1.initiatorStake) || 0) * LAMPORTS_PER_SOL));
+      const beneficiaryStakeLamports = BigInt(Math.round((Number(s1.beneficiaryStake) || 0) * LAMPORTS_PER_SOL));
+      const deliverablesHash = s2.deliverablesHash
+        ? (() => {
+            const normalized = s2.deliverablesHash.trim().toLowerCase();
+            if (!/^[0-9a-f]{64}$/.test(normalized)) {
+              throw new Error('Deliverables hash must be exactly 64 hex characters (SHA-256).');
+            }
+            return Uint8Array.from(Buffer.from(normalized, 'hex'));
+          })()
+        : new Uint8Array(32);
+
+      const ix = new TransactionInstruction({
+        programId: HOLDFAST_ESCROW_PROGRAM_ID,
+        data: Buffer.from(buildInitializeEscrowData({
+          escrowId,
+          beneficiary: counterparty,
+          arbiter,
+          amountLamports,
+          initiatorStakeLamports,
+          beneficiaryStakeLamports,
+          timeLockExpiresAt: BigInt(dateToUnixSecs(s2.deadline)),
+          deliverablesHash,
+          deliverablesUri: s2.deliverablesUri,
+          autoReleaseOnExpiry: s2.mode === 'timed',
+          slashLoserStake: s1.slashLoserStake,
+        })),
+        keys: [
+          { pubkey: publicKey, isSigner: true, isWritable: true },
+          { pubkey: escrowPda, isSigner: false, isWritable: true },
+          { pubkey: pactPda, isSigner: false, isWritable: true },
+          { pubkey: mint, isSigner: false, isWritable: false },
+          { pubkey: vault, isSigner: false, isWritable: true },
+          { pubkey: initiatorReputationPda, isSigner: false, isWritable: false },
+          { pubkey: initiatorWallet, isSigner: false, isWritable: false },
+          { pubkey: counterpartyWallet, isSigner: false, isWritable: false },
+          { pubkey: arbiterWallet, isSigner: false, isWritable: false },
+          { pubkey: HOLDFAST_PROGRAM_ID, isSigner: false, isWritable: false },
+          { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+          { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+          { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        ],
+      });
+
+      const tx = new Transaction().add(ix);
+      tx.feePayer = publicKey;
+      const { blockhash } = await connection.getLatestBlockhash('confirmed');
+      tx.recentBlockhash = blockhash;
+
+      const txSig = await sendTransaction(tx, connection);
+      await connection.confirmTransaction(txSig, 'confirmed');
+      const pactId = new PublicKey(escrowId).toBase58();
 
       pushNotif({
         category: 'pact',
         severity: 'success',
-        title: 'Simulated pact draft created',
-        body: `${s2.mode.charAt(0).toUpperCase() + s2.mode.slice(1)} flow preview with ${truncAddr(s1.counterparty)} for ${s1.amount} SOL (not sent on-chain)`,
-        pactId: mockPactId,
+        title: 'Pact created on devnet',
+        body: `${s2.mode.charAt(0).toUpperCase() + s2.mode.slice(1)} pact initialized with ${truncAddr(s1.counterparty)} for ${s1.amount} SOL`,
+        pactId,
       });
 
       const result: PactResult = {
-        pactId: mockPactId,
-        escrowAddress: mockEscrow,
-        txSig: mockTxSig,
+        pactId,
+        escrowAddress: escrowPda.toBase58(),
+        txSig,
         amount: s1.amount,
         mode: s2.mode,
         counterparty: s1.counterparty,
@@ -482,7 +621,7 @@ export default function CreatePactPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [publicKey, s1, s2, s1Valid, s2Valid, pushNotif, router]);
+  }, [publicKey, s1, s2, s1Valid, s2Valid, pushNotif, sendTransaction, connection]);
 
   // ── Render ───────────────────────────────────────────────────────────────
 
@@ -510,7 +649,7 @@ export default function CreatePactPage() {
           Create Pact
         </h1>
         <p style={{ fontSize: '12px', color: '#8A99AC', lineHeight: 1.6, marginBottom: '24px' }}>
-          Simulation mode: previews a pact setup flow only. No devnet transaction is submitted from this page yet.
+          Creates a live devnet initialize transaction for the selected pact configuration.
         </p>
       </div>
 
@@ -1017,14 +1156,14 @@ export default function CreatePactPage() {
               fontSize: '20px', fontWeight: 800, color: '#E8EDF2',
               letterSpacing: '-0.02em', marginBottom: '8px',
             }}>
-              Simulated pact preview ready
+              Pact initialized on devnet
             </h2>
             <p style={{
               fontSize: '12px', color: '#8A99AC', lineHeight: 1.65,
               maxWidth: '380px', margin: '0 auto',
             }}>
-              This preview shows the payload that would create a {pactResult.amount} SOL escrow on devnet.
-              No funds were moved. A live flow will release when both parties fulfil the{' '}
+              Escrow initialized for {pactResult.amount} SOL on devnet. Deposit and lock steps are still required
+              before release logic begins. The pact will settle when both parties fulfil the{' '}
               <span style={{ textTransform: 'capitalize' }}>{pactResult.mode}</span> conditions.
             </p>
           </div>
@@ -1036,10 +1175,10 @@ export default function CreatePactPage() {
                 <span style={LABEL_STYLE}>Pact ID</span>
                 <span style={{
                   fontSize: '9px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: '#F59E0B', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)',
+                  color: '#22C55E', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
                   padding: '2px 8px',
                 }}>
-                  Simulation
+                  Devnet
                 </span>
               </div>
               <CopyRow value={pactResult.pactId} display={truncAddr(pactResult.pactId)} />
@@ -1067,8 +1206,8 @@ export default function CreatePactPage() {
                 fontFamily: "'JetBrains Mono', 'Courier New', monospace",
                 letterSpacing: '0.02em',
               }}
-            >
-              Simulated signature: {pactResult.txSig}
+              >
+              Tx signature: {pactResult.txSig}
             </span>
           </div>
 
