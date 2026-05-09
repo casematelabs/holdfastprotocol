@@ -60,5 +60,8 @@
     "reputation",
     "escrow",
     "agent"
-  ]
+  ],
+  "overrides": {
+    "uuid": "^13.0.1"
+  }
 }
