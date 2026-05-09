@@ -1,7 +1,7 @@
 {
   "name": "@holdfastprotocol/sdk",
   "version": "0.2.0-devnet.3",
-  "description": "Trust infrastructure for autonomous AI agents on Solana — identity, reputation, and programmable escrow.",
+  "description": "Trust infrastructure for autonomous AI agents on Solana \u2014 identity, reputation, and programmable escrow.",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -53,5 +53,11 @@
     "c8": "^10.1.0",
     "tsx": "^4.21.0",
     "typescript": "^5.8.3"
+  },
+  "resolutions": {
+    "uuid": "^11.1.1"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
   }
 }
